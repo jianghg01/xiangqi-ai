@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>象棋 AI · M2 棋盘骨架</title>
+<style>
+  body { font-family: "Microsoft YaHei", sans-serif; background: #2b241c; color: #e8dcc8; margin: 0; display: flex; justify-content: center; }
+  .wrap { display: flex; gap: 24px; padding: 24px; align-items: flex-start; }
+  .panel { background: #3a3227; border-radius: 12px; padding: 16px; width: 300px; }
+  .panel h3 { margin: 0 0 10px; font-size: 15px; color: #f0e2c0; }
+  .palette { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .pcell { width: 42px; height: 42px; border-radius: 50%; background: #fdf6e3; border: 2px solid #999; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .pcell.red { color: #b02a1e; border-color: #b02a1e; }
+  .pcell.black { color: #1e3e6e; border-color: #1e3e6e; }
+  .pcell.active { outline: 3px solid #f0a30a; }
+  .pcell.del { background: #6b5d4a; color: #fff; border-color: #444; }
+  textarea { width: 100%; box-sizing: border-box; height: 52px; background: #241f18; color: #d8c9a8; border: 1px solid #555; border-radius: 6px; font-size: 12px; padding: 6px; }
+  button { background: #7a5c33; color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; margin: 4px 4px 0 0; font-size: 13px; }
+  button:hover { background: #8d6d3f; }
+  .status { margin-top: 10px; font-size: 13px; color: #c9b88f; min-height: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <canvas id="board"></canvas>
+  <div class="panel">
+    <h3>棋子编辑（点击棋盘放置/清除）</h3>
+    <div class="palette" id="palette"></div>
+    <h3>FEN</h3>
+    <textarea id="fen"></textarea>
+    <button id="btnApply">载入 FEN</button>
+    <button id="btnInitial">初始局面</button>
+    <button id="btnClear">清空棋盘</button>
+    <div class="status" id="status"></div>
+  </div>
+</div>
+<script type="module" src="/src/ui/main.ts"></script>
+</body>
+</html>
