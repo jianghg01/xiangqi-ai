@@ -1,0 +1,16 @@
+# 引擎二进制与权重不入库（nnue 超 GitHub 100MB 单文件限制）
+engine/
+out/
+node_modules/
+dist/
+
+# 引擎源码以 submodule 方式管理
+engine-src/
+
+# 本地工具（gh 便携版等）
+tools/
+
+# 系统与编辑器
+Thumbs.db
+.DS_Store
+*.log
