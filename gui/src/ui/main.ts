@@ -15,12 +15,14 @@ const paletteEl = $('palette') as HTMLDivElement;
 const analysisEl = $('analysis') as HTMLDivElement;
 const curveEl = $('curve') as HTMLCanvasElement;
 const engineState = $('engineState') as HTMLSpanElement;
-const depthInput = $('depth') as HTMLInputElement;
 const sideSelect = $('humanSide') as HTMLSelectElement;
+const strengthSel = $('strength') as HTMLSelectElement;
+const gameModeSel = $('gameMode') as HTMLSelectElement;
 
 // ---------- 状态 ----------
 let mode: 'edit' | 'play' = 'edit';
 let humanSide: Side = 'red';
+let gameMode: 'pve' | 'eve' = 'pve';   // pve=人机 eve=机机对弈（强软对强软）
 let gameOver = false;
 let movesHistory: string[] = [];       // 当前对局 ICCS 着法
 let selected: Square | null = null;
@@ -30,6 +32,9 @@ let engineReady = false;
 let analysisOn = false;
 let cpHistory: number[] = [];          // 红方视角胜率曲线数据
 let lastInfoMap = new Map<number, EngineInfo>();
+
+// 强度分级 → 搜索深度（皮卡鱼新版无 Skill Level，用深度限强）
+const ANALYSIS_DEPTH = 14;
 
 const view = new BoardView(canvas, initialBoard());
 view.setOnChange(() => { fenBox.value = view.getFen(); });
@@ -54,7 +59,9 @@ client.onBestmove = bm => onBestmove(bm);
 client.onInfo = info => onInfo(info);
 
 function engineTurnNow(): boolean {
-  return mode === 'play' && !gameOver && engineReady && view.getBoard().sideToMove !== humanSide;
+  if (mode !== 'play' || gameOver || !engineReady) return false;
+  if (gameMode === 'eve') return true; // 机机对弈：两侧都是引擎
+  return view.getBoard().sideToMove !== humanSide;
 }
 
 // ---------- 对弈流程 ----------
@@ -92,8 +99,16 @@ function doMove(mv: Move) {
 function afterMove() {
   const board = view.getBoard();
   const st = checkStatus(board);
-  if (st.status === 'checkmate') { gameOver = true; setStatus('绝杀！' + (board.sideToMove === humanSide ? '你输了' : '你赢了')); return; }
-  if (st.status === 'stalemate') { gameOver = true; setStatus('困毙！' + (board.sideToMove === humanSide ? '你输了' : '你赢了')); return; }
+  if (st.status === 'checkmate') {
+    gameOver = true;
+    setStatus(gameMode === 'eve' ? '绝杀！红胜' : '绝杀！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
+    return;
+  }
+  if (st.status === 'stalemate') {
+    gameOver = true;
+    setStatus(gameMode === 'eve' ? '困毙！无子可动判负' : '困毙！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
+    return;
+  }
   if (st.status === 'check') setStatus('将军！');
   else setStatus('');
   if (engineTurnNow()) engineMove();
@@ -114,7 +129,7 @@ function analyze() {
   waitingFor = 'analysis';
   lastInfoMap.clear();
   client.position(view.getFen());
-  client.go({ depth: getDepth() });
+  client.go({ depth: ANALYSIS_DEPTH });
 }
 
 function onBestmove(bm: string) {
@@ -189,6 +204,7 @@ function drawCurve() {
 // ---------- 棋盘点击（对弈模式） ----------
 view.onSquare = (s: Square) => {
   if (mode !== 'play' || gameOver || waitingFor) return;
+  if (gameMode === 'eve') return; // 机机对弈：人不落子
   const board = view.getBoard();
   if (board.sideToMove !== humanSide) return; // 引擎回合
   const p = board.pieces[s.rank][s.file];
@@ -214,8 +230,12 @@ function setStatus(t: string) {
 }
 function statusTextFor(): string {
   if (mode === 'edit') return '编辑模式';
-  if (gameOver) return '对局结束';
+  if (gameOver) {
+    if (gameMode === 'eve') return '机机对局结束';
+    return '对局结束';
+  }
   const turn = view.getBoard().sideToMove === 'red' ? '红方' : '黑方';
+  if (gameMode === 'eve') return `机机对弈 · ${turn}行棋`;
   const who = turn === (humanSide === 'red' ? '红方' : '黑方') ? '你' : '引擎';
   return `对弈中 · ${turn}行棋（${who}）`;
 }
@@ -225,7 +245,7 @@ $('btnMode').addEventListener('click', () => {
     mode = 'play';
     ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
     ($('editPanel') as HTMLDivElement).style.opacity = '.4';
-    view.onSquare = view.onSquare; // 保持回调
+    gameMode = gameModeSel.value as 'pve' | 'eve';
     humanSide = sideSelect.value as Side;
     setStatus('');
   } else {
@@ -241,8 +261,8 @@ $('btnMode').addEventListener('click', () => {
 $('btnNew').addEventListener('click', () => { if (mode === 'play') newGame(); });
 
 $('btnUndo').addEventListener('click', () => {
-  // 悔棋：撤销人机各一步（简化：回退到人类行棋局面）
-  if (mode !== 'play' || movesHistory.length === 0 || waitingFor) return;
+  // 悔棋：撤销人机各一步（简化：回退到人类行棋局面）；机机对弈不支持悔棋
+  if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor) return;
   const undoCount = view.getBoard().sideToMove === humanSide ? 2 : 1;
   const b = view.getBoard();
   let nb = b;
@@ -285,16 +305,27 @@ $('btnStartEngine').addEventListener('click', async () => {
 $('btnAnalysis').addEventListener('click', () => {
   analysisOn = !analysisOn;
   ($('btnAnalysis') as HTMLButtonElement).textContent = analysisOn ? '关闭分析' : '开启分析';
-  if (analysisOn && !waitingFor && mode === 'play' && !gameOver) analyze();
+  if (analysisOn && !waitingFor && mode === 'play' && gameMode === 'pve' && !gameOver) analyze();
 });
 
 function getDepth(): number {
-  return Math.max(1, Math.min(40, parseInt(depthInput.value, 10) || 12));
+  // 强度分级 = 搜索深度上限；机机对弈用所选强度
+  return Math.max(1, Math.min(40, parseInt(strengthSel.value, 10) || 24));
 }
 
 sideSelect.addEventListener('change', () => {
   humanSide = sideSelect.value as Side;
+  if (mode === 'play' && gameMode === 'pve' && !gameOver) newGame();
+});
+
+gameModeSel.addEventListener('change', () => {
+  gameMode = gameModeSel.value as 'pve' | 'eve';
   if (mode === 'play' && !gameOver) newGame();
+});
+
+strengthSel.addEventListener('change', () => {
+  // 强度即时生效（下一次思考用新深度）；机机对弈换强度后重开新局更有意义
+  if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame();
 });
 
 // ---------- 编辑面板（编辑模式专用） ----------

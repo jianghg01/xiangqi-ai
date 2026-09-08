@@ -38,12 +38,31 @@
     <h3>对弈</h3>
     <div class="row">
       <button id="btnMode" class="primary">进入对弈</button>
-      <select id="humanSide">
+      <button id="btnNew">新对局</button>
+      <button id="btnUndo">悔棋</button>
+    </div>
+    <div class="row">
+      <select id="gameMode" title="对局模式">
+        <option value="pve">人机对弈</option>
+        <option value="eve">机机对弈（强软对强软）</option>
+      </select>
+      <select id="humanSide" title="人机模式下你的执方">
         <option value="red">人执红（先行）</option>
         <option value="black">人执黑（后行）</option>
       </select>
-      <button id="btnNew">新对局</button>
-      <button id="btnUndo">悔棋</button>
+    </div>
+    <div class="row">
+      <span style="font-size:13px;align-self:center">引擎强度</span>
+      <select id="strength" title="搜索深度分级">
+        <option value="1">入门（1层）</option>
+        <option value="2">初级（2层）</option>
+        <option value="3">业余（3层）</option>
+        <option value="5">中级（5层）</option>
+        <option value="8">高级（8层）</option>
+        <option value="12">大师（12层）</option>
+        <option value="18">特大师（18层）</option>
+        <option value="24" selected>满级（24层）</option>
+      </select>
     </div>
     <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
 
@@ -53,7 +72,6 @@
     </div>
     <div class="row">
       <button id="btnStartEngine">启动引擎</button>
-      <label style="font-size:13px">深度 <input type="number" id="depth" value="12" min="1" max="40" style="width:52px" /></label>
       <span id="engineState" style="font-size:12px;color:#a89a7d;align-self:center">未启动</span>
     </div>
 
