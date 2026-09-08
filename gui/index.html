@@ -46,12 +46,12 @@
         <option value="pve">人机对弈</option>
         <option value="eve">机机对弈（强软对强软）</option>
       </select>
+    </div>
+    <div class="row" id="pveRow">
       <select id="humanSide" title="人机模式下你的执方">
         <option value="red">人执红（先行）</option>
         <option value="black">人执黑（后行）</option>
       </select>
-    </div>
-    <div class="row">
       <span style="font-size:13px;align-self:center">引擎强度</span>
       <select id="strength" title="搜索深度分级">
         <option value="1">入门（1层）</option>
@@ -63,6 +63,48 @@
         <option value="18">特大师（18层）</option>
         <option value="24" selected>满级（24层）</option>
       </select>
+    </div>
+    <div id="eveRows" style="display:none">
+      <div class="row">
+        <span style="font-size:13px;align-self:center;width:34px">红方</span>
+        <input type="text" id="redName" value="皮卡鱼·红" title="红方引擎名字，可自定义" style="width:110px" />
+        <select id="redStrength" title="红方强度">
+          <option value="1">入门（1层）</option>
+          <option value="2">初级（2层）</option>
+          <option value="3">业余（3层）</option>
+          <option value="5">中级（5层）</option>
+          <option value="8">高级（8层）</option>
+          <option value="12">大师（12层）</option>
+          <option value="18">特大师（18层）</option>
+          <option value="24" selected>满级（24层）</option>
+        </select>
+      </div>
+      <div class="row">
+        <span style="font-size:13px;align-self:center;width:34px">黑方</span>
+        <input type="text" id="blackName" value="皮卡鱼·黑" title="黑方引擎名字，可自定义" style="width:110px" />
+        <select id="blackStrength" title="黑方强度">
+          <option value="1">入门（1层）</option>
+          <option value="2">初级（2层）</option>
+          <option value="3">业余（3层）</option>
+          <option value="5">中级（5层）</option>
+          <option value="8">高级（8层）</option>
+          <option value="12">大师（12层）</option>
+          <option value="18">特大师（18层）</option>
+          <option value="24" selected>满级（24层）</option>
+        </select>
+      </div>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">每步时限</span>
+        <select id="timeLimit" title="每步思考时间；不限则按各自强度深度">
+          <option value="0" selected>不限（按深度）</option>
+          <option value="500">0.5秒</option>
+          <option value="1000">1秒</option>
+          <option value="3000">3秒</option>
+          <option value="5000">5秒</option>
+          <option value="10000">10秒</option>
+        </select>
+      </div>
+      <div class="note">时限模式下两边同级，比拼稳定性；不限时限时按各自强度分深度对打</div>
     </div>
     <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
 

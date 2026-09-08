@@ -18,6 +18,13 @@ const engineState = $('engineState') as HTMLSpanElement;
 const sideSelect = $('humanSide') as HTMLSelectElement;
 const strengthSel = $('strength') as HTMLSelectElement;
 const gameModeSel = $('gameMode') as HTMLSelectElement;
+const pveRow = $('pveRow') as HTMLDivElement;
+const eveRows = $('eveRows') as HTMLDivElement;
+const redNameInput = $('redName') as HTMLInputElement;
+const blackNameInput = $('blackName') as HTMLInputElement;
+const redStrengthSel = $('redStrength') as HTMLSelectElement;
+const blackStrengthSel = $('blackStrength') as HTMLSelectElement;
+const timeLimitSel = $('timeLimit') as HTMLSelectElement;
 
 // ---------- 状态 ----------
 let mode: 'edit' | 'play' = 'edit';
@@ -101,12 +108,22 @@ function afterMove() {
   const st = checkStatus(board);
   if (st.status === 'checkmate') {
     gameOver = true;
-    setStatus(gameMode === 'eve' ? '绝杀！红胜' : '绝杀！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
+    if (gameMode === 'eve') {
+      const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
+      setStatus(`绝杀！${winner}胜`);
+    } else {
+      setStatus('绝杀！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
+    }
     return;
   }
   if (st.status === 'stalemate') {
     gameOver = true;
-    setStatus(gameMode === 'eve' ? '困毙！无子可动判负' : '困毙！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
+    if (gameMode === 'eve') {
+      const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
+      setStatus(`困毙！${winner}胜`);
+    } else {
+      setStatus('困毙！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
+    }
     return;
   }
   if (st.status === 'check') setStatus('将军！');
@@ -120,8 +137,14 @@ function engineMove() {
   waitingFor = 'engine';
   // 注意：只发当前 FEN，不再叠加 moves（FEN 已是最新位置，叠加会触发引擎严格校验崩溃）
   client.position(view.getFen());
-  client.go({ depth: getDepth() });
-  setStatus('引擎思考中…');
+  const limit = parseInt(timeLimitSel.value, 10) || 0;
+  if (limit > 0) {
+    client.go({ movetime: limit });                 // 时限模式：每步固定思考时间
+  } else {
+    client.go({ depth: getDepth() });               // 深度模式：按当前行棋方强度
+  }
+  const mover = gameMode === 'eve' ? (view.getBoard().sideToMove === 'red' ? redNameInput.value : blackNameInput.value) : '引擎';
+  setStatus(`${mover}思考中…`);
 }
 
 function analyze() {
@@ -230,12 +253,17 @@ function setStatus(t: string) {
 }
 function statusTextFor(): string {
   if (mode === 'edit') return '编辑模式';
-  if (gameOver) {
-    if (gameMode === 'eve') return '机机对局结束';
-    return '对局结束';
-  }
   const turn = view.getBoard().sideToMove === 'red' ? '红方' : '黑方';
-  if (gameMode === 'eve') return `机机对弈 · ${turn}行棋`;
+  if (gameMode === 'eve') {
+    const red = redNameInput.value || '红方引擎';
+    const black = blackNameInput.value || '黑方引擎';
+    if (gameOver) {
+      const winner = view.getBoard().sideToMove === 'red' ? black : red;
+      return `${red} vs ${black} · ${winner}胜`;
+    }
+    return `${red} vs ${black} · ${turn}行棋`;
+  }
+  if (gameOver) return '对局结束';
   const who = turn === (humanSide === 'red' ? '红方' : '黑方') ? '你' : '引擎';
   return `对弈中 · ${turn}行棋（${who}）`;
 }
@@ -309,8 +337,10 @@ $('btnAnalysis').addEventListener('click', () => {
 });
 
 function getDepth(): number {
-  // 强度分级 = 搜索深度上限；机机对弈用所选强度
-  return Math.max(1, Math.min(40, parseInt(strengthSel.value, 10) || 24));
+  // 机机对弈：按行棋方各自的强度档；人机：用全局强度档
+  const side = view.getBoard().sideToMove;
+  const sel = gameMode === 'eve' ? (side === 'red' ? redStrengthSel : blackStrengthSel) : strengthSel;
+  return Math.max(1, Math.min(40, parseInt(sel.value, 10) || 24));
 }
 
 sideSelect.addEventListener('change', () => {
@@ -320,13 +350,16 @@ sideSelect.addEventListener('change', () => {
 
 gameModeSel.addEventListener('change', () => {
   gameMode = gameModeSel.value as 'pve' | 'eve';
+  // 切换模式时显示对应配置行
+  pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
+  eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
   if (mode === 'play' && !gameOver) newGame();
+  else setStatus('');
 });
 
-strengthSel.addEventListener('change', () => {
-  // 强度即时生效（下一次思考用新深度）；机机对弈换强度后重开新局更有意义
-  if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame();
-});
+redStrengthSel.addEventListener('change', () => { if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame(); });
+blackStrengthSel.addEventListener('change', () => { if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame(); });
+timeLimitSel.addEventListener('change', () => { if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame(); });
 
 // ---------- 编辑面板（编辑模式专用） ----------
 const red: PieceType[] = ['K', 'A', 'B', 'N', 'R', 'C', 'P'];
