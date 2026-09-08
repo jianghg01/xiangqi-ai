@@ -40,8 +40,11 @@ const client = new UciClient(cmd => engineApi?.write(cmd));
 if (engineApi) {
   engineApi.onLine((line: string) => {
     if (line.startsWith('ENGINE_')) {
+      //引擎退出/出错：解除等待状态，避免界面卡死
+      waitingFor = null;
       engineReady = false;
-      engineState.textContent = '引擎已退出';
+      engineState.textContent = line.startsWith('ENGINE_EXIT') ? `引擎已退出（${line.slice(12)}）` : '引擎错误';
+      setStatus('引擎已停止，请重新启动引擎');
       return;
     }
     client.handleLine(line);
@@ -100,7 +103,8 @@ function afterMove() {
 function engineMove() {
   if (!engineReady) return;
   waitingFor = 'engine';
-  client.position(view.getFen(), movesHistory);
+  // 注意：只发当前 FEN，不再叠加 moves（FEN 已是最新位置，叠加会触发引擎严格校验崩溃）
+  client.position(view.getFen());
   client.go({ depth: getDepth() });
   setStatus('引擎思考中…');
 }
@@ -109,7 +113,7 @@ function analyze() {
   if (!engineReady || gameOver) return;
   waitingFor = 'analysis';
   lastInfoMap.clear();
-  client.position(view.getFen(), movesHistory);
+  client.position(view.getFen());
   client.go({ depth: getDepth() });
 }
 
