@@ -30,6 +30,10 @@ export class BoardView {
   private paletteSide: Side = 'red';
   private onChange: (() => void) | null = null;
   private animating = false;
+  private highlights: Square[] = [];           // 对弈模式：合法落点
+  private lastMove: { from: Square; to: Square } | null = null;
+  // 对弈模式：设置后接管棋盘点击；为 null 时走编辑摆子逻辑
+  onSquare: ((s: Square) => void) | null = null;
 
   constructor(canvas: HTMLCanvasElement, board: BoardData) {
     this.canvas = canvas;
@@ -59,8 +63,22 @@ export class BoardView {
   replaceBoard(board: BoardData) {
     this.board = board;
     this.selected = null;
+    this.highlights = [];
     this.draw();
     this.onChange?.();
+  }
+
+  // 对弈模式：显示合法落点与上一步
+  setHighlights(squares: Square[]) { this.highlights = squares; this.draw(); }
+  setLastMove(from: Square | null, to: Square | null) {
+    this.lastMove = from && to ? { from, to } : null;
+    this.draw();
+  }
+
+  clearOverlay() {
+    this.highlights = [];
+    this.selected = null;
+    this.draw();
   }
 
   // 屏幕像素 -> 棋盘坐标
@@ -83,6 +101,10 @@ export class BoardView {
   private onClick(e: MouseEvent) {
     const s = this.toSquare(e);
     if (!s || this.animating) return;
+    if (this.onSquare) {
+      this.onSquare(s);
+      return;
+    }
 
     const existing = getPiece(this.board, s.file, s.rank);
     if (this.paletteType) {
@@ -228,6 +250,34 @@ export class BoardView {
       c.beginPath();
       c.arc(x, y, PIECE_R + 4, 0, Math.PI * 2);
       c.stroke();
+      c.lineWidth = 1;
+    }
+
+    // 合法落点提示（绿点）
+    c.fillStyle = 'rgba(46,160,67,.85)';
+    for (const s of this.highlights) {
+      const [x, y] = this.toXy(s);
+      const occupied = getPiece(this.board, s.file, s.rank);
+      if (occupied) {
+        // 可吃子：画四角框
+        c.strokeStyle = 'rgba(46,160,67,.9)';
+        c.lineWidth = 2.5;
+        const r0 = PIECE_R + 3;
+        c.strokeRect(x - r0, y - r0, r0 * 2, r0 * 2);
+        c.lineWidth = 1;
+      } else {
+        c.beginPath();
+        c.arc(x, y, 9, 0, Math.PI * 2);
+        c.fill();
+      }
+    }
+
+    // 上一步标记（来源格小方框）
+    if (this.lastMove) {
+      c.strokeStyle = 'rgba(240,163,10,.9)';
+      c.lineWidth = 2;
+      const [x0, y0] = this.toXy(this.lastMove.from);
+      c.strokeRect(x0 - 12, y0 - 12, 24, 24);
       c.lineWidth = 1;
     }
   }

@@ -1,0 +1,87 @@
+// UCI 客户端（纯逻辑，传输层注入，便于测试）
+
+export interface EngineInfo {
+  depth: number;
+  multipv: number;
+  scoreCp: number | null;   // 分数（行棋方视角，厘兵）
+  scoreMate: number | null; // #N 步杀
+  pv: string[];             // ICCS 着法序列
+}
+
+export interface GoOptions {
+  depth?: number;
+  movetime?: number;
+  infinite?: boolean;
+}
+
+export function parseInfo(line: string): EngineInfo | null {
+  const t = line.split(/\s+/);
+  let depth = 0, multipv = 1, scoreCp: number | null = null, scoreMate: number | null = null;
+  const pv: string[] = [];
+  for (let i = 1; i < t.length; i++) {
+    if (t[i] === 'depth') depth = parseInt(t[++i], 10) || 0;
+    else if (t[i] === 'multipv') multipv = parseInt(t[++i], 10) || 1;
+    else if (t[i] === 'score') {
+      if (t[i + 1] === 'cp') { scoreCp = parseInt(t[i + 2], 10); i += 2; }
+      else if (t[i + 1] === 'mate') { scoreMate = parseInt(t[i + 2], 10); i += 2; }
+    } else if (t[i] === 'pv') {
+      pv.push(...t.slice(i + 1));
+      break;
+    }
+  }
+  if (!depth && !pv.length) return null;
+  return { depth, multipv, scoreCp, scoreMate, pv };
+}
+
+export class UciClient {
+  onInfo: (info: EngineInfo) => void = () => {};
+  onBestmove: (bestmove: string) => void = () => {};
+  onReady: () => void = () => {};
+
+  constructor(private send: (cmd: string) => void) {}
+
+  handleLine(line: string): void {
+    if (line.startsWith('info ')) {
+      const info = parseInfo(line);
+      if (info) this.onInfo(info);
+    } else if (line.startsWith('bestmove')) {
+      const parts = line.split(/\s+/);
+      this.onBestmove(parts[1] ?? '(none)');
+    } else if (line === 'readyok') {
+      this.onReady();
+    }
+  }
+
+  uci() { this.send('uci'); }
+  isready() { this.send('isready'); }
+  setOption(name: string, value: string | number) { this.send(`setoption name ${name} value ${value}`); }
+  newGame() { this.send('ucinewgame'); }
+  position(fen: string, moves: string[] = []) {
+    this.send(`position fen ${fen}` + (moves.length ? ` moves ${moves.join(' ')}` : ''));
+  }
+  go(opts: GoOptions) {
+    let s = 'go';
+    if (opts.depth) s += ` depth ${opts.depth}`;
+    if (opts.movetime) s += ` movetime ${opts.movetime}`;
+    if (opts.infinite) s += ' infinite';
+    this.send(s);
+  }
+  stop() { this.send('stop'); }
+  quit() { this.send('quit'); }
+}
+
+// 引擎分数（行棋方视角）→ 红方视角
+export function toRedPersp(cp: number, sideToMove: 'red' | 'black'): number {
+  return sideToMove === 'red' ? cp : -cp;
+}
+
+// 厘兵 → 胜率%（logistic，k 与 lichess 一致）
+export function cpToWinrate(cp: number): number {
+  return (100 / (1 + Math.exp(-0.00368208 * cp)));
+}
+
+export function formatScore(cp: number | null, mate: number | null): string {
+  if (mate !== null) return `#${mate}`;
+  if (cp === null) return '?';
+  return (cp >= 0 ? '+' : '') + (cp / 100).toFixed(2);
+}

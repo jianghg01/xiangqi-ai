@@ -2,36 +2,80 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<title>象棋 AI · M2 棋盘骨架</title>
+<title>象棋 AI · M3/M4 对弈与分析</title>
 <style>
   body { font-family: "Microsoft YaHei", sans-serif; background: #2b241c; color: #e8dcc8; margin: 0; display: flex; justify-content: center; }
-  .wrap { display: flex; gap: 24px; padding: 24px; align-items: flex-start; }
-  .panel { background: #3a3227; border-radius: 12px; padding: 16px; width: 300px; }
-  .panel h3 { margin: 0 0 10px; font-size: 15px; color: #f0e2c0; }
-  .palette { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .pcell { width: 42px; height: 42px; border-radius: 50%; background: #fdf6e3; border: 2px solid #999; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .wrap { display: flex; gap: 20px; padding: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .panel { background: #3a3227; border-radius: 12px; padding: 14px; width: 320px; }
+  .panel h3 { margin: 0 0 8px; font-size: 14px; color: #f0e2c0; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  select, input[type=text], input[type=number] { background: #241f18; color: #d8c9a8; border: 1px solid #555; border-radius: 6px; padding: 5px 8px; font-size: 13px; }
+  input[type=text] { width: 100%; box-sizing: border-box; }
+  button { background: #7a5c33; color: #fff; border: 0; border-radius: 6px; padding: 7px 12px; cursor: pointer; font-size: 13px; }
+  button:hover { background: #8d6d3f; }
+  button.primary { background: #2e7d43; }
+  button.primary:hover { background: #37954f; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .palette { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .pcell { width: 40px; height: 40px; border-radius: 50%; background: #fdf6e3; border: 2px solid #999; font-size: 19px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .pcell.red { color: #b02a1e; border-color: #b02a1e; }
   .pcell.black { color: #1e3e6e; border-color: #1e3e6e; }
   .pcell.active { outline: 3px solid #f0a30a; }
   .pcell.del { background: #6b5d4a; color: #fff; border-color: #444; }
-  textarea { width: 100%; box-sizing: border-box; height: 52px; background: #241f18; color: #d8c9a8; border: 1px solid #555; border-radius: 6px; font-size: 12px; padding: 6px; }
-  button { background: #7a5c33; color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; margin: 4px 4px 0 0; font-size: 13px; }
-  button:hover { background: #8d6d3f; }
-  .status { margin-top: 10px; font-size: 13px; color: #c9b88f; min-height: 18px; }
+  textarea { width: 100%; box-sizing: border-box; height: 46px; background: #241f18; color: #d8c9a8; border: 1px solid #555; border-radius: 6px; font-size: 12px; padding: 6px; }
+  .status { font-size: 14px; color: #ffd479; min-height: 20px; margin: 6px 0; font-weight: bold; }
+  .analysis { font-size: 12.5px; line-height: 1.9; min-height: 72px; background: #241f18; border-radius: 6px; padding: 8px; white-space: pre-wrap; }
+  .analysis .top { color: #9fe1cb; }
+  .note { font-size: 12px; color: #a89a7d; margin-top: 6px; }
+  canvas.curve { background: #241f18; border-radius: 6px; margin-top: 8px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <canvas id="board"></canvas>
+
   <div class="panel">
-    <h3>棋子编辑（点击棋盘放置/清除）</h3>
+    <h3>对弈</h3>
+    <div class="row">
+      <button id="btnMode" class="primary">进入对弈</button>
+      <select id="humanSide">
+        <option value="red">人执红（先行）</option>
+        <option value="black">人执黑（后行）</option>
+      </select>
+      <button id="btnNew">新对局</button>
+      <button id="btnUndo">悔棋</button>
+    </div>
+    <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
+
+    <h3>引擎（皮卡鱼 · UCI）</h3>
+    <div class="row">
+      <input type="text" id="enginePath" value="../engine/Pikafish-Windows-x86-64-universal.exe" title="相对 gui 目录或绝对路径" />
+    </div>
+    <div class="row">
+      <button id="btnStartEngine">启动引擎</button>
+      <label style="font-size:13px">深度 <input type="number" id="depth" value="12" min="1" max="40" style="width:52px" /></label>
+      <span id="engineState" style="font-size:12px;color:#a89a7d;align-self:center">未启动</span>
+    </div>
+
+    <h3>实时分析（MultiPV 3）</h3>
+    <div class="row">
+      <button id="btnAnalysis">开启分析</button>
+    </div>
+    <div class="analysis" id="analysis">—</div>
+    <canvas id="curve" class="curve" width="292" height="80"></canvas>
+    <div class="note">胜率曲线：红方视角，随每步分析更新</div>
+  </div>
+
+  <div class="panel" id="editPanel">
+    <h3>棋子编辑（仅编辑模式）</h3>
     <div class="palette" id="palette"></div>
     <h3>FEN</h3>
     <textarea id="fen"></textarea>
-    <button id="btnApply">载入 FEN</button>
-    <button id="btnInitial">初始局面</button>
-    <button id="btnClear">清空棋盘</button>
-    <div class="status" id="status"></div>
+    <div class="row" style="margin-top:8px">
+      <button id="btnApply">载入 FEN</button>
+      <button id="btnInitial">初始局面</button>
+      <button id="btnClear">清空</button>
+    </div>
   </div>
 </div>
 <script type="module" src="/src/ui/main.ts"></script>
