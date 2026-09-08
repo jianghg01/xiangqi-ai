@@ -85,3 +85,22 @@ export function formatScore(cp: number | null, mate: number | null): string {
   if (cp === null) return '?';
   return (cp >= 0 ? '+' : '') + (cp / 100).toFixed(2);
 }
+
+// ---------- 坐标系转换 ----------
+// 引擎 ICCS：rank 0 = 红方底线（FEN 最后一行）；本项目内部：rank 0 = 黑方底线（FEN 首行）
+// 因此引擎的 rank r 对应内部 rank 9-r；file 两侧一致（a..i = 0..8）
+export function engineMoveToLocal(mv: { from: { file: number; rank: number }; to: { file: number; rank: number } }): { from: { file: number; rank: number }; to: { file: number; rank: number } } {
+  return {
+    from: { file: mv.from.file, rank: 9 - mv.from.rank },
+    to: { file: mv.to.file, rank: 9 - mv.to.rank },
+  };
+}
+
+// 引擎 pv 着法串（ICCS）转内部坐标串，仅用于显示
+export function enginePvToLocal(pv: string[]): string[] {
+  return pv.map(s => {
+    const m = /^([a-i])(\d)([a-i])(\d)$/.exec(s);
+    if (!m) return s;
+    return m[1] + (9 - parseInt(m[2], 10)) + m[3] + (9 - parseInt(m[4], 10));
+  });
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { UciClient, parseInfo, toRedPersp, cpToWinrate, formatScore } from '../src/uci/engine-client';
+import { UciClient, parseInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../src/uci/engine-client';
 
 describe('info 行解析', () => {
   it('标准 multipv 输出', () => {
@@ -52,5 +52,22 @@ describe('分数工具', () => {
     expect(formatScore(234, null)).toBe('+2.34');
     expect(formatScore(-56, null)).toBe('-0.56');
     expect(formatScore(null, 3)).toBe('#3');
+  });
+});
+
+describe('引擎坐标转换', () => {
+  it('rank 0=红底线 → 内部 rank 9=红底线（镜像）', () => {
+    // 引擎返回 h9g7（黑马 8 进 7：黑马在黑底线，内部 rank 0）
+    const mv = engineMoveToLocal({ from: { file: 7, rank: 9 }, to: { file: 6, rank: 7 } });
+    expect(mv.from).toEqual({ file: 7, rank: 0 });
+    expect(mv.to).toEqual({ file: 6, rank: 2 });
+  });
+  it('红方着法同样镜像（h2 → 内部 rank 7）', () => {
+    const mv = engineMoveToLocal({ from: { file: 7, rank: 2 }, to: { file: 4, rank: 2 } });
+    expect(mv.from).toEqual({ file: 7, rank: 7 });
+    expect(mv.to).toEqual({ file: 4, rank: 7 });
+  });
+  it('pv 显示串转换', () => {
+    expect(enginePvToLocal(['h9g7', 'h2e2'])).toEqual(['h0g2', 'h7e7']);
   });
 });

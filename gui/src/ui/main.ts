@@ -3,7 +3,7 @@
 import { emptyBoard, initialBoard, parseFen } from '../board/fen';
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
 import { applyMove, checkStatus, legalMovesFrom } from '../rules/rules';
-import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore } from '../uci/engine-client';
+import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { BoardView } from './board-view';
 
 // ---------- DOM ----------
@@ -120,8 +120,10 @@ function analyze() {
 function onBestmove(bm: string) {
   if (waitingFor === 'engine') {
     waitingFor = null;
-    const mv = parseIccs(bm);
-    if (!mv) { setStatus('引擎着法解析失败: ' + bm); return; }
+    const raw = parseIccs(bm);
+    if (!raw) { setStatus('引擎着法解析失败: ' + bm); return; }
+    // 引擎 ICCS 坐标（rank 0=红底线）转内部坐标（rank 0=黑底线）
+    const mv = engineMoveToLocal(raw);
     // 记录引擎思考分数进胜率曲线
     const best = lastInfoMap.get(1);
     if (best && best.scoreCp !== null) pushCp(best.scoreCp);
@@ -150,7 +152,7 @@ function renderAnalysis() {
     const red = toRedPersp(i.scoreCp ?? 0, board.sideToMove);
     const mate = i.scoreMate !== null ? `杀#${i.scoreMate}` : formatScore(red, null);
     const wr = cpToWinrate(red).toFixed(0);
-    rows.push(`#${k} ${mate} 胜率${wr}% ${i.pv.slice(0, 4).join(' ')}`);
+    rows.push(`#${k} ${mate} 胜率${wr}% ${enginePvToLocal(i.pv).slice(0, 4).join(' ')}`);
   }
   analysisEl.innerHTML = rows
     .map((r, idx) => idx === 0 ? `<span class="top">${r}</span>` : r)
