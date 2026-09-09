@@ -30,7 +30,41 @@ const blackNameInput = $('blackName') as HTMLInputElement;
 const redStrengthSel = $('redStrength') as HTMLSelectElement;
 const blackStrengthSel = $('blackStrength') as HTMLSelectElement;
 const timeLimitSel = $('timeLimit') as HTMLSelectElement;
+const avoidDrawSel = $('avoidDraw') as HTMLSelectElement;
+const useBookSel = $('useBook') as HTMLSelectElement;
+const threadsSel = $('threadsSel') as HTMLSelectElement;
+const hashSel = $('hashSel') as HTMLSelectElement;
 const endBanner = $('endBanner') as HTMLDivElement;
+
+// ---------- 对弈配置（避和/开局库/线程/哈希，localStorage 持久化） ----------
+const CFG_KEY = 'xz_play_cfg';
+const avoidDrawOn = () => avoidDrawSel.value === '1';
+const useBookOn = () => useBookSel.value === '1';
+function threadsValue(): number {
+  return threadsSel.value === 'auto'
+    ? Math.max(1, (navigator.hardwareConcurrency || 4) - 2)
+    : Math.max(1, parseInt(threadsSel.value, 10) || 2);
+}
+function saveCfg() {
+  try {
+    localStorage.setItem(CFG_KEY, JSON.stringify({
+      avoidDraw: avoidDrawSel.value, useBook: useBookSel.value,
+      threads: threadsSel.value, hash: hashSel.value,
+    }));
+  } catch { /* 忽略存储失败 */ }
+}
+(function loadCfg() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+    if (c.avoidDraw === '0' || c.avoidDraw === '1') avoidDrawSel.value = c.avoidDraw;
+    if (c.useBook === '0' || c.useBook === '1') useBookSel.value = c.useBook;
+    if (['auto', '2', '4', '6', '8'].includes(c.threads)) threadsSel.value = c.threads;
+    if (['128', '256', '512', '1024'].includes(c.hash)) hashSel.value = c.hash;
+  } catch { /* 忽略读取失败 */ }
+})();
+[avoidDrawSel, useBookSel, threadsSel, hashSel].forEach(s => s.addEventListener('change', saveCfg));
+threadsSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Threads', threadsValue()); });
+hashSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Hash', parseInt(hashSel.value, 10)); });
 
 // ---------- 终局横幅 ----------
 function showEndBanner(text: string, draw = false) {
@@ -103,48 +137,76 @@ function stopAnalysisThen(action: () => void) {
   action();
 }
 
-// ---------- 音效（Web Audio 合成，无外部资源） ----------
-let soundOn = true;
+// ---------- 音效（Web Audio 合成·天天象棋风格，无外部资源） ----------
+// 默认关闭，手动打开；设置持久化到 localStorage
+let soundOn = localStorage.getItem('xz_sound') === '1';
 let audioCtx: AudioContext | null = null;
+
+// 木子敲击"嗒"：低频正弦快速下滑（模拟棋子撞击木质棋盘的闷响）
+function knockAt(t: number, f0: number, vol: number, dur: number) {
+  const osc = audioCtx!.createOscillator();
+  const gain = audioCtx!.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(f0, t);
+  osc.frequency.exponentialRampToValueAtTime(f0 * 0.55, t + dur);
+  gain.gain.setValueAtTime(vol, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  osc.connect(gain).connect(audioCtx!.destination);
+  osc.start(t);
+  osc.stop(t + dur + 0.02);
+}
+
+// 落子瞬间的"沙"声：极短噪声过带通（模拟棋子与盘面的摩擦质感）
+function clickNoiseAt(t: number, vol: number, dur = 0.03) {
+  const ctx = audioCtx!;
+  const len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 2200;
+  bp.Q.value = 1.2;
+  const gain = ctx.createGain();
+  gain.gain.value = vol;
+  src.connect(bp).connect(gain).connect(ctx.destination);
+  src.start(t);
+}
 
 function playSound(kind: 'move' | 'capture' | 'check') {
   if (!soundOn) return;
   try {
     audioCtx = audioCtx || new AudioContext();
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'triangle';
-    // 落子：短促中频"嗒"；吃子：低频重击；将军：高频急促双音
-    const f0 = kind === 'move' ? 640 : kind === 'capture' ? 300 : 920;
-    const f1 = kind === 'move' ? 190 : kind === 'capture' ? 110 : 640;
-    osc.frequency.setValueAtTime(f0, t);
-    osc.frequency.exponentialRampToValueAtTime(f1, t + 0.09);
-    const vol = kind === 'capture' ? 0.5 : kind === 'check' ? 0.4 : 0.35;
-    gain.gain.setValueAtTime(vol, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + (kind === 'capture' ? 0.2 : 0.13));
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start(t);
-    osc.stop(t + 0.22);
-    if (kind === 'check') {
-      // 将军：紧跟第二个更高的短音
-      const osc2 = audioCtx.createOscillator();
-      const gain2 = audioCtx.createGain();
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(1150, t + 0.13);
-      osc2.frequency.exponentialRampToValueAtTime(760, t + 0.22);
-      gain2.gain.setValueAtTime(0.4, t + 0.13);
-      gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
-      osc2.connect(gain2).connect(audioCtx.destination);
-      osc2.start(t + 0.13);
-      osc2.stop(t + 0.3);
+    const t = audioCtx.currentTime + 0.01;
+    if (kind === 'move') {
+      // 落子：清脆一声"嗒"（噪声质感 + 木质闷响）
+      clickNoiseAt(t, 0.8);
+      knockAt(t, 210, 0.5, 0.09);
+    } else if (kind === 'capture') {
+      // 吃子：更重的"啪"（响亮噪声 + 低频重击 + 余震）
+      clickNoiseAt(t, 1.0);
+      knockAt(t, 170, 0.8, 0.12);
+      knockAt(t + 0.06, 120, 0.5, 0.14);
+    } else {
+      // 将军：急促"哒哒—哒"三连警示
+      knockAt(t, 320, 0.5, 0.10);
+      knockAt(t + 0.12, 320, 0.5, 0.10);
+      knockAt(t + 0.24, 430, 0.6, 0.14);
     }
   } catch { /* 音频不可用时静默 */ }
 }
 
+function refreshSoundBtn() {
+  ($('btnSound') as HTMLButtonElement).textContent = soundOn ? '🔊音效:开' : '🔇音效:关';
+}
+refreshSoundBtn();
+
 $('btnSound').addEventListener('click', () => {
   soundOn = !soundOn;
-  ($('btnSound') as HTMLButtonElement).textContent = soundOn ? '🔊音效:开' : '🔇音效:关';
+  try { localStorage.setItem('xz_sound', soundOn ? '1' : '0'); } catch { /* 忽略 */ }
+  refreshSoundBtn();
 });
 
 // ---------- 局面重复检测（三次重复判和，与 selfplay 同规则） ----------
@@ -337,13 +399,15 @@ function engineMove() {
     stopAnalysisThen(() => engineMove());
     return;
   }
-  // 机机对弈：开局库直接落子（从初始局面开始且未偏离开局序列时）
-  if (gameMode === 'eve' && startFen.split(' ')[0] === INITIAL_FEN_PART) {
+  // 开局库直接落子（从初始局面开始且未偏离开局序列时；人机/机机均可用，受配置开关控制）
+  if (useBookOn() && startFen.split(' ')[0] === INITIAL_FEN_PART) {
     const m = matchOpening(movesHistory);
     if (m && m.next) {
       const bookMv = parseIccs(m.next);
       if (bookMv) {
-        const mover = view.getBoard().sideToMove === 'red' ? redNameInput.value : blackNameInput.value;
+        const mover = gameMode === 'eve'
+          ? (view.getBoard().sideToMove === 'red' ? redNameInput.value : blackNameInput.value)
+          : '引擎';
         setStatus(`${mover}（开局库·${m.name}）`);
         doMove(bookMv);
         return;
@@ -351,6 +415,8 @@ function engineMove() {
     }
   }
   waitingFor = 'engine';
+  // 避和求胜：开启时用 MultiPV 2 搜索，留出替代着法供避和切换；关闭时单线全速
+  client.setOption('MultiPV', avoidDrawOn() ? 2 : 1);
   // 注意：只发当前 FEN，不再叠加 moves（FEN 已是最新位置，叠加会触发引擎严格校验崩溃）
   client.position(view.getFen());
   const limit = parseInt(timeLimitSel.value, 10) || 0;
@@ -366,9 +432,21 @@ function engineMove() {
 function analyze() {
   if (!engineReady || gameOver) return;
   waitingFor = 'analysis';
+  // 分析固定 MultiPV 3（多线参考；引擎空闲时设置才生效，此处必然空闲）
+  client.setOption('MultiPV', 3);
   lastInfoMap.clear();
   client.position(view.getFen());
   client.go({ depth: ANALYSIS_DEPTH });
+}
+
+// 该着法走完后是否立即形成和棋（三次重复 / 双方无进攻子力）
+function wouldEndInDraw(mv: Move): boolean {
+  try {
+    const nb = applyMove(view.getBoard(), mv);
+    if (isMaterialDraw(nb)) return true;
+    const k = posKey(nb);
+    return (posSeen.get(k) || 0) + 1 >= 3;
+  } catch { return false; }
 }
 
 function onBestmove(bm: string) {
@@ -377,7 +455,18 @@ function onBestmove(bm: string) {
     const raw = parseIccs(bm);
     if (!raw) { setStatus('引擎着法解析失败: ' + bm); return; }
     // 引擎 ICCS 坐标（rank 0=红底线）转内部坐标（rank 0=黑底线）
-    const mv = engineMoveToLocal(raw);
+    let mv = engineMoveToLocal(raw);
+    // 避和求胜：最佳着法将立即成和、且引擎不处败势时，改走评分可接受的替代着法
+    if (avoidDrawOn() && wouldEndInDraw(mv)) {
+      const best = lastInfoMap.get(1);
+      const alt = lastInfoMap.get(2);
+      const altMv = alt && alt.pv.length ? parseIccs(alt.pv[0]) : null;
+      // 引擎当前不落后超过 1 兵，且替代着法不落后超过 3 兵，才值得换着求胜
+      if (altMv && (best?.scoreCp ?? 0) > -100 && (alt?.scoreCp ?? -999) > -300) {
+        mv = engineMoveToLocal(altMv);
+        setStatus('避和求胜：改走替代着法');
+      }
+    }
     // 记录引擎思考分数进胜率曲线
     const best = lastInfoMap.get(1);
     if (best && best.scoreCp !== null) pushCp(best.scoreCp);
@@ -557,14 +646,13 @@ $('btnStartEngine').addEventListener('click', async () => {
   try {
     await engineApi.start(($('enginePath') as HTMLInputElement).value.trim());
     client.uci();
-    // 提速三件套：多线程（留 2 核给系统）、大哈希、对弈默认单线搜索
-    const threads = Math.max(1, (navigator.hardwareConcurrency || 4) - 2);
+    // 引擎参数按配置面板应用：线程（自动 = 核心数-2）、哈希（MB）
+    const threads = threadsValue();
     client.setOption('Threads', threads);
-    client.setOption('Hash', 512);
-    client.setOption('MultiPV', 1);
+    client.setOption('Hash', parseInt(hashSel.value, 10) || 512);
     client.isready();
     engineReady = true;
-    engineState.textContent = `已启动（${threads} 线程）`;
+    engineState.textContent = `已启动（${threads} 线程 · 哈希 ${hashSel.value}MB）`;
     setStatus('');
     if (engineTurnNow()) engineMove();
     else if (analysisOn) analyze();
@@ -576,8 +664,8 @@ $('btnStartEngine').addEventListener('click', async () => {
 $('btnAnalysis').addEventListener('click', () => {
   analysisOn = !analysisOn;
   ($('btnAnalysis') as HTMLButtonElement).textContent = analysisOn ? '关闭分析' : '开启分析';
-  // 分析用 MultiPV 3（多线参考），对弈用 MultiPV 1（单线全速）
-  if (engineReady) client.setOption('MultiPV', analysisOn ? 3 : 1);
+  // 分析用 MultiPV 3（多线参考）；对弈避和开启时用 2，关闭时 1（单线全速）
+  if (engineReady) client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1));
   if (analysisOn && !waitingFor && mode === 'play' && gameMode === 'pve' && !gameOver) analyze();
 });
 

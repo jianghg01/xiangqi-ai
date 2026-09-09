@@ -6,7 +6,10 @@
 <style>
   body { font-family: "Microsoft YaHei", sans-serif; background: #2b241c; color: #e8dcc8; margin: 0; display: flex; justify-content: center; overflow: hidden; }
   .wrap { display: flex; gap: 20px; padding: 20px; align-items: flex-start; flex-wrap: wrap; }
-  .panel { background: #3a3227; border-radius: 12px; padding: 14px; width: 320px; }
+  .panel { background: #3a3227; border-radius: 12px; padding: 14px; width: 320px; max-height: calc(100vh - 40px); overflow-y: auto; flex-shrink: 0; }
+  .panel::-webkit-scrollbar { width: 8px; }
+  .panel::-webkit-scrollbar-thumb { background: #5a4c38; border-radius: 4px; }
+  .panel::-webkit-scrollbar-track { background: transparent; }
   .panel h3 { margin: 0 0 8px; font-size: 14px; color: #f0e2c0; }
   .row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
   select, input[type=text], input[type=number] { background: #241f18; color: #d8c9a8; border: 1px solid #555; border-radius: 6px; padding: 5px 8px; font-size: 13px; }
@@ -32,7 +35,9 @@
   .endBanner.draw { background: rgba(58,110,66,.94); }
   .endBanner.show { display: block; animation: bannerPop .45s cubic-bezier(.2,1.4,.4,1); }
   @keyframes bannerPop { 0% { transform: translate(-50%,-50%) scale(.3); opacity: 0; } 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
-  .moveList { position: relative; display: none; max-height: 180px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; font-size: 13px; line-height: 1.9; margin-top: 8px; }
+  .moveList { position: relative; display: none; max-height: 220px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; font-size: 13px; line-height: 1.9; margin-top: 8px; }
+  .moveList::-webkit-scrollbar { width: 8px; }
+  .moveList::-webkit-scrollbar-thumb { background: #5a4c38; border-radius: 4px; }
   .moveList span { margin-right: 12px; white-space: nowrap; cursor: pointer; color: #d8c9a8; }
   .moveList span:hover { color: #fff; }
   .moveList span.cur { color: #f0a30a; font-weight: bold; }
@@ -109,6 +114,36 @@
       <div class="note">不限时限时按各自强度分深度对打</div>
     </div>
     <div class="row">
+      <span style="font-size:13px;align-self:center">避和求胜</span>
+      <select id="avoidDraw" title="引擎发现即将三次重复/子力和棋且自己不处败势时，自动改走评分可接受的替代着法，继续求胜">
+        <option value="1" selected>开（推荐强软）</option>
+        <option value="0">关（可接受和棋）</option>
+      </select>
+      <span style="font-size:13px;align-self:center">开局库</span>
+      <select id="useBook" title="引擎对局前几步按开局库（名手开局序列）行棋">
+        <option value="1" selected>开</option>
+        <option value="0">关</option>
+      </select>
+    </div>
+    <div class="row">
+      <span style="font-size:13px;align-self:center">引擎线程</span>
+      <select id="threadsSel" title="引擎计算线程数；自动 = CPU 核心数 - 2">
+        <option value="auto" selected>自动</option>
+        <option value="2">2</option>
+        <option value="4">4</option>
+        <option value="6">6</option>
+        <option value="8">8</option>
+      </select>
+      <span style="font-size:13px;align-self:center">哈希</span>
+      <select id="hashSel" title="置换表内存大小（MB），越大思考越稳定">
+        <option value="128">128MB</option>
+        <option value="256">256MB</option>
+        <option value="512" selected>512MB</option>
+        <option value="1024">1024MB</option>
+      </select>
+    </div>
+    <div class="note">避和求胜：引擎将主动避开三次重复/无进攻子力的和棋（已处败势时除外）</div>
+    <div class="row">
       <span style="font-size:13px;align-self:center">每步时限</span>
       <select id="timeLimit" title="每步思考时间限制（人机/机机通用）；不限则按强度深度">
         <option value="0">不限（按深度）</option>
@@ -120,7 +155,7 @@
         <option value="10000">10秒</option>
       </select>
       <span style="font-size:12px;color:#a89a7d;align-self:center">时限越短走得越快</span>
-      <button id="btnSound" title="落子/吃子/将军音效开关">🔊音效:开</button>
+      <button id="btnSound" title="落子/吃子/将军音效开关">🔇音效:关</button>
     </div>
     <div class="note" id="openingName"></div>
     <div class="note" id="clock"></div>
