@@ -124,6 +124,21 @@
     <div class="analysis" id="analysis">—</div>
     <canvas id="curve" class="curve" width="292" height="80"></canvas>
     <div class="note">胜率曲线：红方视角，随每步分析更新</div>
+
+    <h3>棋谱保存 / 复盘</h3>
+    <div class="row">
+      <button id="btnSaveGame">保存棋谱</button>
+      <button id="btnLoadGame">打开棋谱复盘</button>
+    </div>
+    <div class="row" id="replayRow" style="display:none">
+      <button id="btnRepFirst">|◀</button>
+      <button id="btnRepPrev">◀</button>
+      <button id="btnRepNext">▶</button>
+      <button id="btnRepLast">▶|</button>
+      <button id="btnRepPlay">自动</button>
+      <button id="btnRepExit">退出复盘</button>
+    </div>
+    <div class="note" id="replayLabel"></div>
   </div>
 
   <div class="panel" id="editPanel">

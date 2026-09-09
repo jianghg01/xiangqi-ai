@@ -1,6 +1,7 @@
 // Electron 主进程：加载 Vite 页面 + 托管皮卡鱼引擎子进程（UCI stdin/stdout 桥）
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { spawn } = require('child_process');
+const fs = require('fs');
 const path = require('path');
 
 let win = null;
@@ -53,6 +54,28 @@ ipcMain.handle('engine:start', (_e, exePath) => {
 
 ipcMain.on('engine:write', (_e, cmd) => {
   if (eng && eng.stdin && eng.stdin.writable) eng.stdin.write(cmd + '\n');
+});
+
+// 棋谱保存/打开（系统文件对话框）
+ipcMain.handle('file:save', async (_e, { defaultName, content }) => {
+  const r = await dialog.showSaveDialog(win, {
+    title: '保存棋谱',
+    defaultPath: defaultName,
+    filters: [{ name: '棋谱 JSON', extensions: ['json'] }],
+  });
+  if (r.canceled || !r.filePath) return null;
+  fs.writeFileSync(r.filePath, content, 'utf8');
+  return r.filePath;
+});
+
+ipcMain.handle('file:open', async () => {
+  const r = await dialog.showOpenDialog(win, {
+    title: '打开棋谱',
+    filters: [{ name: '棋谱 JSON', extensions: ['json'] }],
+    properties: ['openFile'],
+  });
+  if (r.canceled || !r.filePaths.length) return null;
+  return { path: r.filePaths[0], content: fs.readFileSync(r.filePaths[0], 'utf8') };
 });
 
 ipcMain.handle('engine:alive', () => !!eng);

@@ -6,4 +6,6 @@ contextBridge.exposeInMainWorld('engine', {
   write: cmd => ipcRenderer.send('engine:write', cmd),
   alive: () => ipcRenderer.invoke('engine:alive'),
   onLine: cb => ipcRenderer.on('engine:line', (_e, line) => cb(line)),
+  saveText: (defaultName, content) => ipcRenderer.invoke('file:save', { defaultName, content }),
+  openText: () => ipcRenderer.invoke('file:open'),
 });

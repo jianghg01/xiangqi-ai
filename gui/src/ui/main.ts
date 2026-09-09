@@ -27,11 +27,13 @@ const blackStrengthSel = $('blackStrength') as HTMLSelectElement;
 const timeLimitSel = $('timeLimit') as HTMLSelectElement;
 
 // ---------- 状态 ----------
-let mode: 'edit' | 'play' = 'edit';
+let mode: 'edit' | 'play' | 'replay' = 'edit';
 let humanSide: Side = 'red';
 let gameMode: 'pve' | 'eve' = 'pve';   // pve=人机 eve=机机对弈（强软对强软）
 let gameOver = false;
-let movesHistory: string[] = [];       // 当前对局 ICCS 着法
+let gameResult = '';                    // 对局结果描述（存入棋谱）
+let startFen = '';                      // 本局起始 FEN（保存棋谱用）
+let movesHistory: string[] = [];       // 当前对局 ICCS 着法（内部坐标）
 let selected: Square | null = null;
 let targets: Move[] = [];
 let waitingFor: null | 'engine' | 'analysis' = null;
@@ -110,8 +112,10 @@ function afterMove() {
     gameOver = true;
     if (gameMode === 'eve') {
       const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
+      gameResult = `绝杀，${winner}胜`;
       setStatus(`绝杀！${winner}胜`);
     } else {
+      gameResult = board.sideToMove === humanSide ? '绝杀，引擎胜' : '绝杀，玩家胜';
       setStatus('绝杀！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
     }
     return;
@@ -120,8 +124,10 @@ function afterMove() {
     gameOver = true;
     if (gameMode === 'eve') {
       const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
+      gameResult = `困毙，${winner}胜`;
       setStatus(`困毙！${winner}胜`);
     } else {
+      gameResult = board.sideToMove === humanSide ? '困毙，引擎胜' : '困毙，玩家胜';
       setStatus('困毙！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
     }
     return;
@@ -252,6 +258,7 @@ function setStatus(t: string) {
   statusEl.textContent = t ? `${base} · ${t}` : base;
 }
 function statusTextFor(): string {
+  if (mode === 'replay') return '复盘模式';
   if (mode === 'edit') return '编辑模式';
   const turn = view.getBoard().sideToMove === 'red' ? '红方' : '黑方';
   if (gameMode === 'eve') {
@@ -305,6 +312,7 @@ $('btnUndo').addEventListener('click', () => {
     if (mv) nb = applyMove(nb, mv);
   }
   gameOver = false;
+  gameResult = '';
   view.replaceBoard(nb);
   selected = null; targets = [];
   setStatus('');
@@ -397,3 +405,173 @@ $('btnInitial').addEventListener('click', () => view.replaceBoard(initialBoard()
 $('btnClear').addEventListener('click', () => view.replaceBoard(emptyBoard()));
 
 fenBox.value = view.getFen();
+
+// ---------- 棋谱保存 / 复盘（F3） ----------
+interface GameRecord {
+  app: string;
+  version: number;
+  date: string;
+  startFen: string;
+  mode: string;
+  redName: string;
+  blackName: string;
+  moves: string[];      // ICCS 着法（内部坐标，rank 0=黑底线）
+  result: string;
+}
+
+const replayRow = $('replayRow') as HTMLDivElement;
+const replayLabel = $('replayLabel') as HTMLDivElement;
+let replayRecord: GameRecord | null = null;
+let replayIdx = 0;                       // 当前回放到第几步（0=起始局面）
+let replayTimer: number | null = null;
+
+function sideName(side: Side): string {
+  if (gameMode === 'eve') return side === 'red' ? (redNameInput.value || '红方引擎') : (blackNameInput.value || '黑方引擎');
+  return side === humanSide ? '玩家' : '引擎';
+}
+
+function replayStartBoard(rec: GameRecord) {
+  try {
+    return parseFen(rec.startFen).board;
+  } catch {
+    return initialBoard();
+  }
+}
+
+function updateReplayLabel() {
+  if (!replayRecord) { replayLabel.textContent = ''; return; }
+  const n = replayRecord.moves.length;
+  const parts = [
+    `第 ${replayIdx}/${n} 步`,
+    `${replayRecord.redName} vs ${replayRecord.blackName}`,
+  ];
+  if (replayRecord.result) parts.push(replayRecord.result);
+  replayLabel.textContent = parts.join(' · ');
+}
+
+// 保存当前对局
+$('btnSaveGame').addEventListener('click', async () => {
+  if (mode !== 'play' || !movesHistory.length) { setStatus('当前没有可保存的对局着法'); return; }
+  if (!engineApi) { setStatus('浏览器模式不支持保存（需 Electron）'); return; }
+  const rec: GameRecord = {
+    app: 'xiangqi-ai',
+    version: 1,
+    date: new Date().toISOString(),
+    startFen: startFen || view.getFen(),
+    mode: gameMode,
+    redName: sideName('red'),
+    blackName: sideName('black'),
+    moves: [...movesHistory],
+    result: gameResult || (gameOver ? '对局结束' : '对局未结束'),
+  };
+  const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+  try {
+    const savedPath = await engineApi.saveText(`棋谱_${ts}.json`, JSON.stringify(rec, null, 2));
+    setStatus(savedPath ? '棋谱已保存' : '已取消保存');
+  } catch (err) {
+    setStatus('保存失败: ' + (err as Error).message);
+  }
+});
+
+// 打开棋谱 → 进入复盘
+$('btnLoadGame').addEventListener('click', async () => {
+  if (!engineApi) { setStatus('浏览器模式不支持打开棋谱（需 Electron）'); return; }
+  const r = await engineApi.openText();
+  if (!r) return;
+  try {
+    const rec = JSON.parse(r.content) as GameRecord;
+    if (!rec || !Array.isArray(rec.moves) || rec.moves.some(m => typeof m !== 'string')) {
+      setStatus('棋谱文件格式无效');
+      return;
+    }
+    enterReplay(rec);
+  } catch {
+    setStatus('棋谱文件解析失败');
+  }
+});
+
+function enterReplay(rec: GameRecord) {
+  // 停止自动播放 / 引擎思考，离开对局界面
+  stopReplayTimer();
+  if (waitingFor) {
+    try { client.stop(); } catch { /* 引擎可能已退出 */ }
+    waitingFor = null;
+  }
+  replayRecord = rec;
+  replayIdx = 0;
+  mode = 'replay';
+  view.onSquare = null;
+  view.replaceBoard(replayStartBoard(rec));
+  view.setLastMove(null, null);
+  ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
+  ($('editPanel') as HTMLDivElement).style.opacity = '1';
+  replayRow.style.display = 'flex';
+  ($('btnRepPlay') as HTMLButtonElement).textContent = '自动';
+  updateReplayLabel();
+  setStatus('');
+}
+
+function stopReplayTimer() {
+  if (replayTimer !== null) {
+    clearInterval(replayTimer);
+    replayTimer = null;
+  }
+}
+
+// 回放到指定步数
+function repGoTo(idx: number) {
+  if (!replayRecord) return;
+  const n = replayRecord.moves.length;
+  idx = Math.max(0, Math.min(n, idx));
+  let b = replayStartBoard(replayRecord);
+  for (let i = 0; i < idx; i++) {
+    const mv = parseIccs(replayRecord.moves[i]);
+    if (!mv) break;
+    b = applyMove(b, mv);
+  }
+  replayIdx = idx;
+  view.replaceBoard(b);
+  if (idx > 0) {
+    const last = parseIccs(replayRecord.moves[idx - 1]);
+    if (last) view.setLastMove(last.from, last.to);
+  } else {
+    view.setLastMove(null, null);
+  }
+  updateReplayLabel();
+  setStatus('');
+}
+
+function exitReplay() {
+  stopReplayTimer();
+  replayRecord = null;
+  replayIdx = 0;
+  mode = 'edit';
+  replayRow.style.display = 'none';
+  replayLabel.textContent = '';
+  view.replaceBoard(initialBoard());
+  view.setLastMove(null, null);
+  view.clearOverlay();
+  setStatus('已退出复盘');
+}
+
+$('btnRepFirst').addEventListener('click', () => repGoTo(0));
+$('btnRepPrev').addEventListener('click', () => repGoTo(replayIdx - 1));
+$('btnRepNext').addEventListener('click', () => repGoTo(replayIdx + 1));
+$('btnRepLast').addEventListener('click', () => { if (replayRecord) repGoTo(replayRecord.moves.length); });
+
+$('btnRepPlay').addEventListener('click', () => {
+  if (!replayRecord) return;
+  if (replayTimer !== null) { stopReplayTimer(); ($('btnRepPlay') as HTMLButtonElement).textContent = '自动'; return; }
+  if (replayIdx >= replayRecord.moves.length) repGoTo(0);
+  ($('btnRepPlay') as HTMLButtonElement).textContent = '暂停';
+  replayTimer = window.setInterval(() => {
+    if (!replayRecord || replayIdx >= replayRecord.moves.length) {
+      stopReplayTimer();
+      ($('btnRepPlay') as HTMLButtonElement).textContent = '自动';
+      return;
+    }
+    repGoTo(replayIdx + 1);
+  }, 900);
+});
+
+$('btnRepExit').addEventListener('click', () => exitReplay());

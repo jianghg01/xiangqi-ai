@@ -270,6 +270,9 @@ async function playGame(gameIdx, engA, engB) {
   let board = fenToBoard(fen);
   let plies = 0;
   const moves = [];
+  const seen = new Map();   // 局面重复检测（同局面同方行棋出现 3 次 = 和）
+  const posKey = b => b.pieces.map(row => row.map(p => p ? (p.side === 'red' ? p.type : p.type.toLowerCase()) : '.').join('')).join('/') + ' ' + b.sideToMove;
+  seen.set(posKey(board), 1);
 
   while (plies < MAX_PLIES) {
     const stm = board.sideToMove;
@@ -295,6 +298,11 @@ async function playGame(gameIdx, engA, engB) {
     fen = boardToFen(board);
     moves.push(bm);
     plies++;
+    // 重复局面判和（3 次）
+    const key = posKey(board);
+    const n = (seen.get(key) || 0) + 1;
+    if (n >= 3) return { result: 'draw', winner: null, plies, reason: '三次重复局面' };
+    seen.set(key, n);
   }
   return { result: 'draw', winner: null, plies, reason: `超过 ${MAX_PLIES} 步` };
 }
