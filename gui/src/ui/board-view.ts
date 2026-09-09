@@ -32,6 +32,8 @@ export class BoardView {
   private animating = false;
   private highlights: Square[] = [];           // 对弈模式：合法落点
   private lastMove: { from: Square; to: Square } | null = null;
+  private checkSquare: Square | null = null;   // 被将军一方的将/帅位置（红圈标记）
+  private flipped = false;                     // 人执黑时上下翻转棋盘
   // 对弈模式：设置后接管棋盘点击；为 null 时走编辑摆子逻辑
   onSquare: ((s: Square) => void) | null = null;
 
@@ -64,6 +66,7 @@ export class BoardView {
     this.board = board;
     this.selected = null;
     this.highlights = [];
+    this.checkSquare = null;
     this.draw();
     this.onChange?.();
   }
@@ -74,6 +77,8 @@ export class BoardView {
     this.lastMove = from && to ? { from, to } : null;
     this.draw();
   }
+  setCheck(s: Square | null) { this.checkSquare = s; this.draw(); }
+  setFlipped(v: boolean) { if (this.flipped !== v) { this.flipped = v; this.draw(); } }
 
   clearOverlay() {
     this.highlights = [];
@@ -81,7 +86,7 @@ export class BoardView {
     this.draw();
   }
 
-  // 屏幕像素 -> 棋盘坐标
+  // 屏幕像素 -> 棋盘坐标（flipped 时上下左右镜像）
   private toSquare(e: MouseEvent): Square | null {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left - MARGIN;
@@ -91,11 +96,13 @@ export class BoardView {
     if (file < 0 || file > 8 || rank < 0 || rank > 9) return null;
     if (Math.abs(x - file * CELL) > CELL * 0.45) return null;
     if (Math.abs(y - rank * CELL) > CELL * 0.45) return null;
-    return sq(file, rank);
+    return this.flipped ? sq(8 - file, 9 - rank) : sq(file, rank);
   }
 
   private toXy(s: Square): [number, number] {
-    return [MARGIN + s.file * CELL, MARGIN + s.rank * CELL];
+    const f = this.flipped ? 8 - s.file : s.file;
+    const r = this.flipped ? 9 - s.rank : s.rank;
+    return [MARGIN + f * CELL, MARGIN + r * CELL];
   }
 
   private onClick(e: MouseEvent) {
@@ -278,6 +285,22 @@ export class BoardView {
       c.lineWidth = 2;
       const [x0, y0] = this.toXy(this.lastMove.from);
       c.strokeRect(x0 - 12, y0 - 12, 24, 24);
+      c.lineWidth = 1;
+    }
+
+    // 被将军的将/帅：红色双圈警示
+    if (this.checkSquare) {
+      const [x, y] = this.toXy(this.checkSquare);
+      c.strokeStyle = 'rgba(200,40,26,.95)';
+      c.lineWidth = 3;
+      c.beginPath();
+      c.arc(x, y, PIECE_R + 5, 0, Math.PI * 2);
+      c.stroke();
+      c.strokeStyle = 'rgba(200,40,26,.5)';
+      c.lineWidth = 2;
+      c.beginPath();
+      c.arc(x, y, PIECE_R + 10, 0, Math.PI * 2);
+      c.stroke();
       c.lineWidth = 1;
     }
   }

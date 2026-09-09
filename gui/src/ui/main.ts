@@ -8,6 +8,7 @@ import { matchOpening } from '../board/openings';
 import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { BoardView } from './board-view';
+import { findKing } from '../rules/rules';
 
 // ---------- DOM ----------
 const $ = (id: string) => document.getElementById(id) as HTMLElement;
@@ -169,6 +170,33 @@ function rebuildPosSeen(start: BoardData, seq: string[]) {
   }
 }
 
+// ---------- 对局用时统计 ----------
+const clockEl = $('clock') as HTMLDivElement;
+let turnStart: number | null = null;   // 当前手开始思考的时刻
+let redMs = 0;
+let blackMs = 0;
+
+function fmtClock(ms: number): string {
+  const s = Math.floor(ms / 1000);
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+setInterval(() => {
+  if (mode !== 'play' || turnStart === null) return;
+  const cur = Date.now() - turnStart;
+  const stm = view.getBoard().sideToMove;
+  const red = redMs + (stm === 'red' ? cur : 0);
+  const black = blackMs + (stm === 'black' ? cur : 0);
+  clockEl.textContent = `用时  红 ${fmtClock(red)} · 黑 ${fmtClock(black)}`;
+}, 500);
+
+function resetClock() {
+  redMs = 0;
+  blackMs = 0;
+  turnStart = Date.now();
+  clockEl.textContent = '用时  红 00:00 · 黑 00:00';
+}
+
 // ---------- 对弈流程 ----------
 function newGame() {
   const startAction = () => {
@@ -198,6 +226,7 @@ function newGame() {
   fenBox.value = view.getFen();
   startFen = view.getFen();
   rebuildPosSeen(view.getBoard(), []);
+  resetClock();
   renderMoveList(movesHistory, movesZhLive, 0, false);
   updateOpeningName();
 }
@@ -205,6 +234,12 @@ function newGame() {
 function doMove(mv: Move) {
   const board = view.getBoard();
   const captured = !!board.pieces[mv.to.rank][mv.to.file];
+  // 累计走子方本手思考用时
+  if (turnStart !== null) {
+    const elapsed = Date.now() - turnStart;
+    if (board.sideToMove === 'red') redMs += elapsed; else blackMs += elapsed;
+    turnStart = Date.now();
+  }
   const nb = applyMove(board, mv);
   movesHistory.push(toIccs(mv));
   playSound(captured ? 'capture' : 'move');
@@ -229,6 +264,8 @@ function doMove(mv: Move) {
 function afterMove() {
   const board = view.getBoard();
   const st = checkStatus(board);
+  // 将军标记：高亮被将方的将/帅
+  view.setCheck(st.status === 'check' || st.status === 'checkmate' ? findKing(board, board.sideToMove) : null);
   if (st.status === 'checkmate') {
     gameOver = true;
     if (gameMode === 'eve') {
@@ -464,6 +501,8 @@ $('btnMode').addEventListener('click', () => {
     movesHistory = [];
     movesZhLive = [];
     startFen = view.getFen();          // 记住起始局面（保存棋谱用）
+    view.setFlipped(gameMode === 'pve' && humanSide === 'black'); // 人执黑：翻转棋盘
+    resetClock();
     moveListEl.style.display = 'block';
     renderMoveList(movesHistory, movesZhLive, 0, false);
     updateOpeningName();
@@ -475,6 +514,7 @@ $('btnMode').addEventListener('click', () => {
     view.onSquare = null;
     if (waitingFor === 'analysis') stopAnalysisThen(() => {}); // 停掉残留搜索
     waitingFor = null;
+    turnStart = null; // 停止计时
     hideEndBanner();
     moveListEl.style.display = 'none';
     moveListEl.innerHTML = '';
@@ -549,6 +589,8 @@ function getDepth(): number {
 
 sideSelect.addEventListener('change', () => {
   humanSide = sideSelect.value as Side;
+  // 人执黑时翻转棋盘（随时预览）
+  view.setFlipped(gameMode === 'pve' && humanSide === 'black');
   if (mode === 'play' && gameMode === 'pve' && !gameOver) newGame();
 });
 
@@ -557,6 +599,7 @@ gameModeSel.addEventListener('change', () => {
   // 切换模式时显示对应配置行
   pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
   eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
+  if (gameMode === 'eve') view.setFlipped(false); // 机机对弈固定红下视角
   if (mode === 'play' && !gameOver) newGame();
   else setStatus('');
 });
