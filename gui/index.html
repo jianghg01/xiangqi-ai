@@ -27,6 +27,11 @@
   .analysis { font-size: 12.5px; line-height: 1.9; min-height: 72px; background: #241f18; border-radius: 6px; padding: 8px; white-space: pre-wrap; }
   .analysis .top { color: #9fe1cb; }
   .note { font-size: 12px; color: #a89a7d; margin-top: 6px; }
+  .boardWrap { position: relative; }
+  .endBanner { display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); background: rgba(178,34,22,.94); color: #fff; font-size: 30px; font-weight: bold; padding: 20px 44px; border-radius: 16px; box-shadow: 0 8px 28px rgba(0,0,0,.55); z-index: 10; letter-spacing: 3px; white-space: nowrap; }
+  .endBanner.draw { background: rgba(58,110,66,.94); }
+  .endBanner.show { display: block; animation: bannerPop .45s cubic-bezier(.2,1.4,.4,1); }
+  @keyframes bannerPop { 0% { transform: translate(-50%,-50%) scale(.3); opacity: 0; } 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
   .moveList { display: none; max-height: 180px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; font-size: 13px; line-height: 1.9; margin-top: 8px; }
   .moveList span { margin-right: 12px; white-space: nowrap; cursor: pointer; color: #d8c9a8; }
   .moveList span:hover { color: #fff; }
@@ -37,7 +42,10 @@
 </head>
 <body>
 <div class="wrap">
-  <canvas id="board"></canvas>
+  <div class="boardWrap">
+    <canvas id="board"></canvas>
+    <div id="endBanner" class="endBanner"></div>
+  </div>
 
   <div class="panel">
     <h3>对弈</h3>
@@ -98,18 +106,20 @@
           <option value="24" selected>满级（24层）</option>
         </select>
       </div>
-      <div class="row">
-        <span style="font-size:13px;align-self:center">每步时限</span>
-        <select id="timeLimit" title="每步思考时间；不限则按各自强度深度">
-          <option value="0" selected>不限（按深度）</option>
-          <option value="500">0.5秒</option>
-          <option value="1000">1秒</option>
-          <option value="3000">3秒</option>
-          <option value="5000">5秒</option>
-          <option value="10000">10秒</option>
-        </select>
-      </div>
-      <div class="note">时限模式下两边同级，比拼稳定性；不限时限时按各自强度分深度对打</div>
+      <div class="note">不限时限时按各自强度分深度对打</div>
+    </div>
+    <div class="row">
+      <span style="font-size:13px;align-self:center">每步时限</span>
+      <select id="timeLimit" title="每步思考时间限制（人机/机机通用）；不限则按强度深度">
+        <option value="0">不限（按深度）</option>
+        <option value="500">0.5秒</option>
+        <option value="1000">1秒</option>
+        <option value="2000" selected>2秒（推荐）</option>
+        <option value="3000">3秒</option>
+        <option value="5000">5秒</option>
+        <option value="10000">10秒</option>
+      </select>
+      <span style="font-size:12px;color:#a89a7d;align-self:center">时限越短走得越快</span>
     </div>
     <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
 

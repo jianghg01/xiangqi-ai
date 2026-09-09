@@ -27,6 +27,17 @@ const blackNameInput = $('blackName') as HTMLInputElement;
 const redStrengthSel = $('redStrength') as HTMLSelectElement;
 const blackStrengthSel = $('blackStrength') as HTMLSelectElement;
 const timeLimitSel = $('timeLimit') as HTMLSelectElement;
+const endBanner = $('endBanner') as HTMLDivElement;
+
+// ---------- 终局横幅 ----------
+function showEndBanner(text: string, draw = false) {
+  endBanner.textContent = text;
+  endBanner.classList.toggle('draw', draw);
+  endBanner.classList.add('show');
+}
+function hideEndBanner() {
+  endBanner.classList.remove('show');
+}
 
 // ---------- 状态 ----------
 let mode: 'edit' | 'play' | 'replay' = 'edit';
@@ -83,6 +94,7 @@ function newGame() {
   movesZhLive = [];
   gameOver = false;
   gameResult = '';
+  hideEndBanner();
   selected = null;
   targets = [];
   cpHistory = [];
@@ -125,9 +137,11 @@ function afterMove() {
       const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
       gameResult = `绝杀，${winner}胜`;
       setStatus(`绝杀！${winner}胜`);
+      showEndBanner(`绝杀 · ${winner}胜`);
     } else {
       gameResult = board.sideToMove === humanSide ? '绝杀，引擎胜' : '绝杀，玩家胜';
       setStatus('绝杀！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
+      showEndBanner(board.sideToMove === humanSide ? '绝杀 · 引擎胜' : '绝杀 · 你赢了');
     }
     return;
   }
@@ -137,9 +151,11 @@ function afterMove() {
       const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
       gameResult = `困毙，${winner}胜`;
       setStatus(`困毙！${winner}胜`);
+      showEndBanner(`困毙 · ${winner}胜`);
     } else {
       gameResult = board.sideToMove === humanSide ? '困毙，引擎胜' : '困毙，玩家胜';
       setStatus('困毙！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
+      showEndBanner(board.sideToMove === humanSide ? '困毙 · 引擎胜' : '困毙 · 你赢了');
     }
     return;
   }
@@ -147,6 +163,7 @@ function afterMove() {
     gameOver = true;
     gameResult = '双方无进攻子力，判和';
     setStatus('双方均无进攻子力（只剩士象将帅），和棋');
+    showEndBanner('双方无进攻子力 · 和棋', true);
     return;
   }
   if (st.status === 'check') setStatus('将军！');
@@ -314,6 +331,7 @@ $('btnMode').addEventListener('click', () => {
     ($('editPanel') as HTMLDivElement).style.opacity = '1';
     view.onSquare = null;
     waitingFor = null;
+    hideEndBanner();
     moveListEl.style.display = 'none';
     moveListEl.innerHTML = '';
     setStatus('');
@@ -339,6 +357,7 @@ $('btnUndo').addEventListener('click', () => {
   }
   gameOver = false;
   gameResult = '';
+  hideEndBanner();
   view.replaceBoard(nb);
   selected = null; targets = [];
   renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
@@ -352,11 +371,14 @@ $('btnStartEngine').addEventListener('click', async () => {
   try {
     await engineApi.start(($('enginePath') as HTMLInputElement).value.trim());
     client.uci();
-    client.setOption('MultiPV', 3);
-    client.setOption('Hash', 256);
+    // 提速三件套：多线程（留 2 核给系统）、大哈希、对弈默认单线搜索
+    const threads = Math.max(1, (navigator.hardwareConcurrency || 4) - 2);
+    client.setOption('Threads', threads);
+    client.setOption('Hash', 512);
+    client.setOption('MultiPV', 1);
     client.isready();
     engineReady = true;
-    engineState.textContent = '已启动';
+    engineState.textContent = `已启动（${threads} 线程）`;
     setStatus('');
     if (engineTurnNow()) engineMove();
     else if (analysisOn) analyze();
@@ -368,6 +390,8 @@ $('btnStartEngine').addEventListener('click', async () => {
 $('btnAnalysis').addEventListener('click', () => {
   analysisOn = !analysisOn;
   ($('btnAnalysis') as HTMLButtonElement).textContent = analysisOn ? '关闭分析' : '开启分析';
+  // 分析用 MultiPV 3（多线参考），对弈用 MultiPV 1（单线全速）
+  if (engineReady) client.setOption('MultiPV', analysisOn ? 3 : 1);
   if (analysisOn && !waitingFor && mode === 'play' && gameMode === 'pve' && !gameOver) analyze();
 });
 
@@ -649,6 +673,7 @@ function exitReplay() {
   replayIdx = 0;
   replayMovesZh = [];
   mode = 'edit';
+  hideEndBanner();
   replayRow.style.display = 'none';
   moveListEl.style.display = 'none';
   moveListEl.innerHTML = '';
