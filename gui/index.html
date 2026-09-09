@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <title>象棋 AI · M3/M4 对弈与分析</title>
 <style>
-  body { font-family: "Microsoft YaHei", sans-serif; background: #2b241c; color: #e8dcc8; margin: 0; display: flex; justify-content: center; }
+  body { font-family: "Microsoft YaHei", sans-serif; background: #2b241c; color: #e8dcc8; margin: 0; display: flex; justify-content: center; overflow: hidden; }
   .wrap { display: flex; gap: 20px; padding: 20px; align-items: flex-start; flex-wrap: wrap; }
   .panel { background: #3a3227; border-radius: 12px; padding: 14px; width: 320px; }
   .panel h3 { margin: 0 0 8px; font-size: 14px; color: #f0e2c0; }
@@ -24,7 +24,7 @@
   .pcell.del { background: #6b5d4a; color: #fff; border-color: #444; }
   textarea { width: 100%; box-sizing: border-box; height: 46px; background: #241f18; color: #d8c9a8; border: 1px solid #555; border-radius: 6px; font-size: 12px; padding: 6px; }
   .status { font-size: 14px; color: #ffd479; min-height: 20px; margin: 6px 0; font-weight: bold; }
-  .analysis { font-size: 12.5px; line-height: 1.9; min-height: 72px; background: #241f18; border-radius: 6px; padding: 8px; white-space: pre-wrap; }
+  .analysis { font-size: 12.5px; line-height: 1.9; height: 96px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; white-space: pre-wrap; }
   .analysis .top { color: #9fe1cb; }
   .note { font-size: 12px; color: #a89a7d; margin-top: 6px; }
   .boardWrap { position: relative; }
@@ -32,7 +32,7 @@
   .endBanner.draw { background: rgba(58,110,66,.94); }
   .endBanner.show { display: block; animation: bannerPop .45s cubic-bezier(.2,1.4,.4,1); }
   @keyframes bannerPop { 0% { transform: translate(-50%,-50%) scale(.3); opacity: 0; } 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
-  .moveList { display: none; max-height: 180px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; font-size: 13px; line-height: 1.9; margin-top: 8px; }
+  .moveList { position: relative; display: none; max-height: 180px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; font-size: 13px; line-height: 1.9; margin-top: 8px; }
   .moveList span { margin-right: 12px; white-space: nowrap; cursor: pointer; color: #d8c9a8; }
   .moveList span:hover { color: #fff; }
   .moveList span.cur { color: #f0a30a; font-weight: bold; }

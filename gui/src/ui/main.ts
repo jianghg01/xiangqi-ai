@@ -521,8 +521,12 @@ function renderMoveList(moves: string[], zh: string[], curIdx: number, clickable
       el.addEventListener('click', () => repGoTo(parseInt(el.dataset.mv ?? '0', 10)));
     });
   }
-  const cur = moveListEl.querySelector('span.cur');
-  if (cur) cur.scrollIntoView({ block: 'nearest' });
+  // 只滚动列表自身（scrollIntoView 会连带滚动页面窗口，导致整体窗口被拉动）
+  const cur = moveListEl.querySelector('span.cur') as HTMLElement | null;
+  if (cur) {
+    const target = cur.offsetTop - moveListEl.clientHeight / 2 + cur.offsetHeight / 2;
+    moveListEl.scrollTop = Math.max(0, target);
+  }
 }
 
 // 保存当前对局
