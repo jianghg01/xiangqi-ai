@@ -225,3 +225,20 @@ export function checkStatus(board: BoardData): { status: GameStatus; moves: Move
   }
   return { status: inCheck(board, side) ? 'check' : 'ok', moves };
 }
+
+// 一方是否还有进攻子力（车/马/炮/兵 任一；士象将帅不算进攻子力）
+export function hasAttackingPieces(board: BoardData, side: Side): boolean {
+  for (let r = 0; r < 10; r++)
+    for (let f = 0; f < 9; f++) {
+      const p = getPiece(board, f, r);
+      if (p && p.side === side && (p.type === 'R' || p.type === 'C' || p.type === 'N' || p.type === 'P')) {
+        return true;
+      }
+    }
+  return false;
+}
+
+// 双方均无进攻子力（只剩将帅士象）→ 不可能将死，按中国象棋规则判和
+export function isMaterialDraw(board: BoardData): boolean {
+  return !hasAttackingPieces(board, 'red') && !hasAttackingPieces(board, 'black');
+}

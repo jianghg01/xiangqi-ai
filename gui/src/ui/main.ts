@@ -4,7 +4,7 @@ import { emptyBoard, initialBoard, parseFen } from '../board/fen';
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
 import { moveToChinese, movesToChinese } from '../board/notation';
 import { exportPgn, parsePgn } from '../board/pgn';
-import { applyMove, checkStatus, legalMovesFrom } from '../rules/rules';
+import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { BoardView } from './board-view';
 
@@ -141,6 +141,12 @@ function afterMove() {
       gameResult = board.sideToMove === humanSide ? '困毙，引擎胜' : '困毙，玩家胜';
       setStatus('困毙！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
     }
+    return;
+  }
+  if (isMaterialDraw(board)) {
+    gameOver = true;
+    gameResult = '双方无进攻子力，判和';
+    setStatus('双方均无进攻子力（只剩士象将帅），和棋');
     return;
   }
   if (st.status === 'check') setStatus('将军！');

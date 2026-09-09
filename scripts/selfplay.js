@@ -5,7 +5,7 @@
 // 规则:
 //   - A 先执红，隔局换先
 //   - depth 与 movetime 二选一：movetime>0 用每步固定时间，否则用固定深度
-//   - bestmove 为 (none) 或超过 max-plies 判和；被将死的一方判负
+//   - bestmove 为 (none) 或超过 max-plies 判和；被将死的一方判负；双方无进攻子力判和
 
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -52,6 +52,14 @@ function fenToBoard(fen) {
   });
   const stm = fen.split(/\s+/)[1] === 'w' ? 'red' : 'black';
   return { pieces, sideToMove: stm };
+}
+
+// 一方是否还有进攻子力（车马炮兵任一）
+function hasAttacking(board, side) {
+  for (const row of board.pieces)
+    for (const p of row)
+      if (p && p.side === side && (p.type === 'R' || p.type === 'C' || p.type === 'N' || p.type === 'P')) return true;
+  return false;
 }
 
 function pieceAt(b, f, r) { return b.pieces[r][f] || null; }
@@ -298,6 +306,10 @@ async function playGame(gameIdx, engA, engB) {
     fen = boardToFen(board);
     moves.push(bm);
     plies++;
+    // 双方无进攻子力判和（只剩将帅士象，不可能将死）
+    if (!hasAttacking(board, 'red') && !hasAttacking(board, 'black')) {
+      return { result: 'draw', winner: null, plies, reason: '双方无进攻子力' };
+    }
     // 重复局面判和（3 次）
     const key = posKey(board);
     const n = (seen.get(key) || 0) + 1;

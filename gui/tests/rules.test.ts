@@ -6,7 +6,9 @@ import {
   attackedBy,
   checkStatus,
   flyingGeneralFacing,
+  hasAttackingPieces,
   inCheck,
+  isMaterialDraw,
   legalMoves,
   pseudoMovesFrom,
 } from '../src/rules/rules';
@@ -137,5 +139,29 @@ describe('applyMove', () => {
     // 原局面不变
     expect(toFen(b).split(' ')[1]).toBe('w');
     expect(b.pieces[9][3]).not.toBeNull();
+  });
+});
+
+describe('无进攻子力判和', () => {
+  it('双方只剩将帅士象 → 判和', () => {
+    const b = fen('4ak3/9/4b4/9/9/9/9/4B4/4A4/4AK3 w - - 0 1');
+    expect(isMaterialDraw(b)).toBe(true);
+    expect(hasAttackingPieces(b, 'red')).toBe(false);
+    expect(hasAttackingPieces(b, 'black')).toBe(false);
+  });
+
+  it('一方有兵 → 不判和', () => {
+    const b = fen('4ak3/9/4b4/9/9/9/P8/4B4/4A4/4AK3 b - - 0 1');
+    expect(isMaterialDraw(b)).toBe(false);
+    expect(hasAttackingPieces(b, 'red')).toBe(true);
+  });
+
+  it('一方剩单车 → 不判和', () => {
+    const b = fen('4ak3/9/4b4/9/9/9/9/4B4/4A4/2R1K4 b - - 0 1');
+    expect(isMaterialDraw(b)).toBe(false);
+  });
+
+  it('初始局面 → 不判和', () => {
+    expect(isMaterialDraw(fen('rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1'))).toBe(false);
   });
 });
