@@ -2,7 +2,7 @@
 
 import { emptyBoard, initialBoard, parseFen } from '../board/fen';
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
-import { movesToChinese } from '../board/notation';
+import { moveToChinese, movesToChinese } from '../board/notation';
 import { applyMove, checkStatus, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { BoardView } from './board-view';
@@ -35,6 +35,7 @@ let gameOver = false;
 let gameResult = '';                    // 对局结果描述（存入棋谱）
 let startFen = '';                      // 本局起始 FEN（保存棋谱用）
 let movesHistory: string[] = [];       // 当前对局 ICCS 着法（内部坐标）
+let movesZhLive: string[] = [];        // 对应中文记谱（对弈实时显示）
 let selected: Square | null = null;
 let targets: Move[] = [];
 let waitingFor: null | 'engine' | 'analysis' = null;
@@ -78,7 +79,9 @@ function engineTurnNow(): boolean {
 function newGame() {
   view.replaceBoard(initialBoard());
   movesHistory = [];
+  movesZhLive = [];
   gameOver = false;
+  gameResult = '';
   selected = null;
   targets = [];
   cpHistory = [];
@@ -89,6 +92,8 @@ function newGame() {
   view.setLastMove(null, null);
   setStatus('');
   fenBox.value = view.getFen();
+  startFen = view.getFen();
+  renderMoveList(movesHistory, movesZhLive, 0, false);
   if (engineTurnNow()) engineMove();
 }
 
@@ -96,6 +101,10 @@ function doMove(mv: Move) {
   const board = view.getBoard();
   const nb = applyMove(board, mv);
   movesHistory.push(toIccs(mv));
+  if (mode === 'play') {
+    movesZhLive.push(moveToChinese(board, mv));
+    renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
+  }
   selected = null;
   targets = [];
   view.clearOverlay();
@@ -277,12 +286,20 @@ function statusTextFor(): string {
 }
 
 $('btnMode').addEventListener('click', () => {
+  if (mode === 'replay') return; // 复盘中：先退出复盘再切换模式
   if (mode === 'edit') {
     mode = 'play';
     ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
     ($('editPanel') as HTMLDivElement).style.opacity = '.4';
     gameMode = gameModeSel.value as 'pve' | 'eve';
     humanSide = sideSelect.value as Side;
+    gameOver = false;
+    gameResult = '';
+    movesHistory = [];
+    movesZhLive = [];
+    startFen = view.getFen();          // 记住起始局面（保存棋谱用）
+    moveListEl.style.display = 'block';
+    renderMoveList(movesHistory, movesZhLive, 0, false);
     setStatus('');
   } else {
     mode = 'edit';
@@ -290,6 +307,8 @@ $('btnMode').addEventListener('click', () => {
     ($('editPanel') as HTMLDivElement).style.opacity = '1';
     view.onSquare = null;
     waitingFor = null;
+    moveListEl.style.display = 'none';
+    moveListEl.innerHTML = '';
     setStatus('');
   }
 });
@@ -300,14 +319,13 @@ $('btnUndo').addEventListener('click', () => {
   // 悔棋：撤销人机各一步（简化：回退到人类行棋局面）；机机对弈不支持悔棋
   if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor) return;
   const undoCount = view.getBoard().sideToMove === humanSide ? 2 : 1;
-  const b = view.getBoard();
-  let nb = b;
   for (let i = 0; i < Math.min(undoCount, movesHistory.length); i++) {
-    // 通过重放实现悔棋
     movesHistory.pop();
+    movesZhLive.pop();
   }
-  // 从初始局面重放
-  nb = initialBoard();
+  // 从起始局面重放
+  let nb;
+  try { nb = parseFen(startFen).board; } catch { nb = initialBoard(); }
   for (const iccs of movesHistory) {
     const mv = parseIccs(iccs);
     if (mv) nb = applyMove(nb, mv);
@@ -316,6 +334,7 @@ $('btnUndo').addEventListener('click', () => {
   gameResult = '';
   view.replaceBoard(nb);
   selected = null; targets = [];
+  renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
   setStatus('');
   if (engineTurnNow()) engineMove();
   else if (analysisOn) analyze();
@@ -454,21 +473,23 @@ function updateReplayLabel() {
   replayLabel.textContent = parts.join(' · ');
 }
 
-// 渲染中文记谱列表，点击某步直接跳转
-function renderMoveList() {
-  if (!replayRecord) { moveListEl.innerHTML = ''; return; }
-  const n = replayRecord.moves.length;
+// 渲染中文记谱列表（复盘模式可点击跳转，对弈模式仅展示），当前步高亮并自动滚动
+function renderMoveList(moves: string[], zh: string[], curIdx: number, clickable: boolean) {
+  const n = moves.length;
   const parts: string[] = [];
   for (let i = 0; i < n; i++) {
-    const cls = i + 1 === replayIdx ? 'cur' : '';
-    if (i % 2 === 0) parts.push(`<span data-mv="${i + 1}" class="${cls}"><span class="no">${i / 2 + 1}.</span>${replayMovesZh[i] || replayRecord.moves[i]}</span>`);
-    else parts.push(`<span data-mv="${i + 1}" class="${cls}">${replayMovesZh[i] || replayRecord.moves[i]}</span>`);
+    const cls = i + 1 === curIdx ? 'cur' : '';
+    const text = zh[i] || moves[i];
+    if (i % 2 === 0) parts.push(`<span data-mv="${i + 1}" class="${cls}"><span class="no">${i / 2 + 1}.</span>${text}</span>`);
+    else parts.push(`<span data-mv="${i + 1}" class="${cls}">${text}</span>`);
     if (i % 2 === 1) parts.push('\n');
   }
   moveListEl.innerHTML = parts.join('');
-  moveListEl.querySelectorAll<HTMLSpanElement>('span[data-mv]').forEach(el => {
-    el.addEventListener('click', () => repGoTo(parseInt(el.dataset.mv ?? '0', 10)));
-  });
+  if (clickable) {
+    moveListEl.querySelectorAll<HTMLSpanElement>('span[data-mv]').forEach(el => {
+      el.addEventListener('click', () => repGoTo(parseInt(el.dataset.mv ?? '0', 10)));
+    });
+  }
   const cur = moveListEl.querySelector('span.cur');
   if (cur) cur.scrollIntoView({ block: 'nearest' });
 }
@@ -539,7 +560,7 @@ function enterReplay(rec: GameRecord) {
   ($('editPanel') as HTMLDivElement).style.opacity = '1';
   replayRow.style.display = 'flex';
   moveListEl.style.display = 'block';
-  renderMoveList();
+  renderMoveList(rec.moves, replayMovesZh, 0, true);
   ($('btnRepPlay') as HTMLButtonElement).textContent = '自动';
   updateReplayLabel();
   setStatus('');
@@ -571,7 +592,7 @@ function repGoTo(idx: number) {
   } else {
     view.setLastMove(null, null);
   }
-  renderMoveList();
+  renderMoveList(replayRecord.moves, replayMovesZh, idx, true);
   updateReplayLabel();
   setStatus('');
 }
