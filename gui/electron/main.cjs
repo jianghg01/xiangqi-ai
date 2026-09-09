@@ -1,11 +1,47 @@
 // Electron 主进程：加载 Vite 页面 + 托管皮卡鱼引擎子进程（UCI stdin/stdout 桥）
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, protocol } = require('electron');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
 let win = null;
 let eng = null;
+
+// 打包版：file:// 下 ES module 会被 CORS 拦截，改用自定义 app:// 协议加载 dist
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
+const MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.json': 'application/json',
+};
+
+function distDir() {
+  return path.join(__dirname, '..', 'dist');
+}
+
+function registerAppProtocol() {
+  protocol.handle('app', req => {
+    try {
+      const u = new URL(req.url);
+      let file = path.join(distDir(), decodeURIComponent(u.pathname));
+      if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+        file = path.join(distDir(), 'index.html');
+      }
+      const ext = path.extname(file).toLowerCase();
+      return new Response(fs.readFileSync(file), {
+        headers: { 'content-type': MIME[ext] || 'application/octet-stream' },
+      });
+    } catch (_) {
+      return new Response('not found', { status: 404 });
+    }
+  });
+}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -18,14 +54,39 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
-  win.loadURL(process.env.VITE_URL || 'http://localhost:5173');
+  // 打包版加载 app:// 自定义协议（ES module 兼容）；dev 由 VITE_URL 指向 Vite 开发服务器
+  if (process.env.VITE_URL) {
+    win.loadURL(process.env.VITE_URL);
+  } else {
+    win.loadURL('app://dist/index.html');
+  }
   win.on('closed', () => { win = null; });
+}
+
+// 引擎 exe 路径解析：兼容 dev（gui 为 cwd，引擎在 ../engine）与打包版（resources/app/engine）
+function resolveEnginePath(p) {
+  if (!p) return null;
+  const base = path.basename(p);
+  const candidates = [
+    p,
+    path.join(process.cwd(), p),
+    path.join(__dirname, '..', p),
+    path.join(__dirname, '..', 'engine', base),
+    path.join(__dirname, '..', '..', 'engine', base),
+  ];
+  for (const c of candidates) {
+    try { if (c && fs.existsSync(c)) return path.resolve(c); } catch (_) { /* ignore */ }
+  }
+  return null;
 }
 
 ipcMain.handle('engine:start', (_e, exePath) => {
   return new Promise((resolve, reject) => {
     if (eng) return resolve(true);
     if (!exePath) return reject(new Error('未指定引擎路径'));
+    const resolved = resolveEnginePath(exePath);
+    if (!resolved) return reject(new Error('找不到引擎程序: ' + exePath));
+    exePath = resolved;
     try {
       eng = spawn(exePath, [], { cwd: path.dirname(exePath) });
     } catch (err) {
@@ -86,7 +147,10 @@ ipcMain.handle('file:open', async () => {
 
 ipcMain.handle('engine:alive', () => !!eng);
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  if (!process.env.VITE_URL) registerAppProtocol();
+  createWindow();
+});
 app.on('window-all-closed', () => {
   if (eng) { try { eng.stdin.write('quit\n'); eng.kill(); } catch (_) {} }
   app.quit();

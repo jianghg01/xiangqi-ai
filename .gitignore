@@ -14,3 +14,4 @@ tools/
 Thumbs.db
 .DS_Store
 *.log
+release/
