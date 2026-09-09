@@ -87,8 +87,74 @@ function engineTurnNow(): boolean {
   return view.getBoard().sideToMove !== humanSide;
 }
 
+// ---------- 引擎搜索串行化 ----------
+// UCI 引擎搜索中不能再收 position/go（会被忽略或错乱），必须先 stop 并等 bestmove 回来
+let pendingAfterAnalysis: (() => void) | null = null;
+
+function stopAnalysisThen(action: () => void) {
+  if (waitingFor === 'analysis') {
+    pendingAfterAnalysis = action;
+    try { client.stop(); } catch { /* 引擎可能已退出 */ }
+    return;
+  }
+  action();
+}
+
+// ---------- 音效（Web Audio 合成，无外部资源） ----------
+let soundOn = true;
+let audioCtx: AudioContext | null = null;
+
+function playSound(kind: 'move' | 'capture' | 'check') {
+  if (!soundOn) return;
+  try {
+    audioCtx = audioCtx || new AudioContext();
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    // 落子：短促中频"嗒"；吃子：低频重击；将军：高频急促双音
+    const f0 = kind === 'move' ? 640 : kind === 'capture' ? 300 : 920;
+    const f1 = kind === 'move' ? 190 : kind === 'capture' ? 110 : 640;
+    osc.frequency.setValueAtTime(f0, t);
+    osc.frequency.exponentialRampToValueAtTime(f1, t + 0.09);
+    const vol = kind === 'capture' ? 0.5 : kind === 'check' ? 0.4 : 0.35;
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + (kind === 'capture' ? 0.2 : 0.13));
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.22);
+    if (kind === 'check') {
+      // 将军：紧跟第二个更高的短音
+      const osc2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(1150, t + 0.13);
+      osc2.frequency.exponentialRampToValueAtTime(760, t + 0.22);
+      gain2.gain.setValueAtTime(0.4, t + 0.13);
+      gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+      osc2.connect(gain2).connect(audioCtx.destination);
+      osc2.start(t + 0.13);
+      osc2.stop(t + 0.3);
+    }
+  } catch { /* 音频不可用时静默 */ }
+}
+
+$('btnSound').addEventListener('click', () => {
+  soundOn = !soundOn;
+  ($('btnSound') as HTMLButtonElement).textContent = soundOn ? '🔊音效:开' : '🔇音效:关';
+});
+
 // ---------- 对弈流程 ----------
 function newGame() {
+  const startAction = () => {
+    if (engineTurnNow()) engineMove();
+  };
+  if (waitingFor === 'analysis') {
+    // 分析中：停掉搜索，等 bestmove 回来再开新局引擎行棋
+    stopAnalysisThen(startAction);
+  } else {
+    startAction();
+  }
   view.replaceBoard(initialBoard());
   movesHistory = [];
   movesZhLive = [];
@@ -107,13 +173,14 @@ function newGame() {
   fenBox.value = view.getFen();
   startFen = view.getFen();
   renderMoveList(movesHistory, movesZhLive, 0, false);
-  if (engineTurnNow()) engineMove();
 }
 
 function doMove(mv: Move) {
   const board = view.getBoard();
+  const captured = !!board.pieces[mv.to.rank][mv.to.file];
   const nb = applyMove(board, mv);
   movesHistory.push(toIccs(mv));
+  playSound(captured ? 'capture' : 'move');
   if (mode === 'play') {
     movesZhLive.push(moveToChinese(board, mv));
     renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
@@ -166,14 +233,21 @@ function afterMove() {
     showEndBanner('双方无进攻子力 · 和棋', true);
     return;
   }
-  if (st.status === 'check') setStatus('将军！');
-  else setStatus('');
+  if (st.status === 'check') {
+    setStatus('将军！');
+    playSound('check');
+  } else setStatus('');
   if (engineTurnNow()) engineMove();
   else if (analysisOn && !waitingFor) analyze();
 }
 
 function engineMove() {
   if (!engineReady) return;
+  if (waitingFor === 'analysis') {
+    // 分析搜索中：先停，等 bestmove 回来再走子（避免搜索中发 go 被引擎忽略导致卡死）
+    stopAnalysisThen(() => engineMove());
+    return;
+  }
   waitingFor = 'engine';
   // 注意：只发当前 FEN，不再叠加 moves（FEN 已是最新位置，叠加会触发引擎严格校验崩溃）
   client.position(view.getFen());
@@ -211,6 +285,10 @@ function onBestmove(bm: string) {
     const best = lastInfoMap.get(1);
     if (best && best.scoreCp !== null) pushCp(best.scoreCp);
     setStatus(statusTextFor());
+    // 停分析后的挂起动作（如引擎接着行棋）
+    const action = pendingAfterAnalysis;
+    pendingAfterAnalysis = null;
+    if (action) action();
   }
 }
 
@@ -330,6 +408,7 @@ $('btnMode').addEventListener('click', () => {
     ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
     ($('editPanel') as HTMLDivElement).style.opacity = '1';
     view.onSquare = null;
+    if (waitingFor === 'analysis') stopAnalysisThen(() => {}); // 停掉残留搜索
     waitingFor = null;
     hideEndBanner();
     moveListEl.style.display = 'none';
@@ -618,6 +697,7 @@ function enterReplay(rec: GameRecord) {
   if (waitingFor) {
     try { client.stop(); } catch { /* 引擎可能已退出 */ }
     waitingFor = null;
+    pendingAfterAnalysis = null; // 避免旧挂起动作在复盘期间误触发
   }
   replayRecord = rec;
   replayIdx = 0;
