@@ -7,7 +7,7 @@ declare global {
       write(cmd: string): void;
       alive(): Promise<boolean>;
       onLine(cb: (line: string) => void): void;
-      saveText(defaultName: string, content: string): Promise<string | null>;
+      saveText(defaultName: string, content: string, kind?: 'json' | 'pgn'): Promise<string | null>;
       openText(): Promise<{ path: string; content: string } | null>;
     };
   }

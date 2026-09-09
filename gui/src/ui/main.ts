@@ -3,6 +3,7 @@
 import { emptyBoard, initialBoard, parseFen } from '../board/fen';
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
 import { moveToChinese, movesToChinese } from '../board/notation';
+import { exportPgn, parsePgn } from '../board/pgn';
 import { applyMove, checkStatus, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { BoardView } from './board-view';
@@ -521,12 +522,26 @@ $('btnSaveGame').addEventListener('click', async () => {
   }
 });
 
-// 打开棋谱 → 进入复盘
+// 打开棋谱 → 进入复盘（JSON 用自带数据；PGN 用中文/ICCS 记法反推解析）
 $('btnLoadGame').addEventListener('click', async () => {
   if (!engineApi) { setStatus('浏览器模式不支持打开棋谱（需 Electron）'); return; }
   const r = await engineApi.openText();
   if (!r) return;
   try {
+    const isPgn = /\.pgn$/i.test(r.path) || r.content.trimStart().startsWith('[');
+    if (isPgn) {
+      const meta = parsePgn(r.content);
+      if (!meta.moves.length) { setStatus('PGN 中未解析出有效着法'); return; }
+      enterReplay({
+        app: 'xiangqi-ai', version: 2, date: '',
+        startFen: meta.startFen,
+        mode: 'import',
+        redName: meta.redName, blackName: meta.blackName,
+        moves: meta.moves,
+        result: meta.result || '对局结束',
+      });
+      return;
+    }
     const rec = JSON.parse(r.content) as GameRecord;
     if (!rec || !Array.isArray(rec.moves) || rec.moves.some(m => typeof m !== 'string')) {
       setStatus('棋谱文件格式无效');
@@ -535,6 +550,31 @@ $('btnLoadGame').addEventListener('click', async () => {
     enterReplay(rec);
   } catch {
     setStatus('棋谱文件解析失败');
+  }
+});
+
+// 导出 PGN（中文纵线记法，鲨鱼象棋等第三方软件可读）
+$('btnSavePgn').addEventListener('click', async () => {
+  if (mode !== 'play' || !movesHistory.length) { setStatus('当前没有可导出的对局着法'); return; }
+  if (!engineApi) { setStatus('浏览器模式不支持导出（需 Electron）'); return; }
+  let startBoard;
+  try { startBoard = parseFen(startFen).board; } catch { startBoard = initialBoard(); }
+  const movesZh = movesToChinese(startBoard, movesHistory);
+  const pgn = exportPgn({
+    startFen: startFen || view.getFen(),
+    redName: sideName('red'),
+    blackName: sideName('black'),
+    result: gameResult || (gameOver ? '对局结束' : ''),
+    moves: [...movesHistory],
+    movesZh,
+    date: new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
+  });
+  const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+  try {
+    const savedPath = await engineApi.saveText(`对局_${ts}.pgn`, pgn, 'pgn');
+    setStatus(savedPath ? 'PGN 已导出' : '已取消导出');
+  } catch (err) {
+    setStatus('导出失败: ' + (err as Error).message);
   }
 });
 

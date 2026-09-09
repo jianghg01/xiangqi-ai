@@ -57,11 +57,17 @@ ipcMain.on('engine:write', (_e, cmd) => {
 });
 
 // 棋谱保存/打开（系统文件对话框）
-ipcMain.handle('file:save', async (_e, { defaultName, content }) => {
+const FILE_KINDS = {
+  json: { name: '棋谱 JSON', extensions: ['json'] },
+  pgn: { name: '象棋 PGN', extensions: ['pgn'] },
+};
+
+ipcMain.handle('file:save', async (_e, { defaultName, content, kind }) => {
+  const filters = [FILE_KINDS[kind] || FILE_KINDS.json];
   const r = await dialog.showSaveDialog(win, {
     title: '保存棋谱',
     defaultPath: defaultName,
-    filters: [{ name: '棋谱 JSON', extensions: ['json'] }],
+    filters,
   });
   if (r.canceled || !r.filePath) return null;
   fs.writeFileSync(r.filePath, content, 'utf8');
@@ -71,7 +77,7 @@ ipcMain.handle('file:save', async (_e, { defaultName, content }) => {
 ipcMain.handle('file:open', async () => {
   const r = await dialog.showOpenDialog(win, {
     title: '打开棋谱',
-    filters: [{ name: '棋谱 JSON', extensions: ['json'] }],
+    filters: [FILE_KINDS.json, FILE_KINDS.pgn],
     properties: ['openFile'],
   });
   if (r.canceled || !r.filePaths.length) return null;
