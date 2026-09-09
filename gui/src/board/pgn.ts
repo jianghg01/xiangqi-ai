@@ -93,6 +93,14 @@ function numVariants(t: string): string[] {
       if (v.includes(AR_NUM[i])) out.add(v.split(AR_NUM[i]).join(cn));
     }
   });
+  // 棋子字互换（来源软件常混用：红士写作士、黑象写作相、卒兵将帅互串）
+  const SWAPS: [string, string][] = [['士', '仕'], ['象', '相'], ['卒', '兵'], ['将', '帅']];
+  for (const [a, b] of SWAPS) {
+    for (const v of [...out]) {
+      if (v.includes(a)) out.add(v.split(a).join(b));
+      if (v.includes(b)) out.add(v.split(b).join(a));
+    }
+  }
   return [...out];
 }
 
@@ -126,16 +134,7 @@ export function parsePgn(text: string): PgnMeta {
     board = initialBoard();
   }
   const startFen = tags.FEN && board ? tags.FEN : 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1';
-  const moves: string[] = [];
-  const work = cloneBoard(board);
-  for (const token of tokens) {
-    const side: Side = moves.length % 2 === 0 ? 'red' : 'black';
-    const mv = matchToken(work, side, token);
-    if (!mv) break;
-    moves.push(toIccs(mv));
-    work.pieces[mv.to.rank][mv.to.file] = work.pieces[mv.from.rank][mv.from.file];
-    work.pieces[mv.from.rank][mv.from.file] = null;
-  }
+  const parsed = parseMoveTokens(board, tokens);
   let result = '';
   const tag = tags.Result ?? '';
   if (tag === '1-0') result = '红方胜';
@@ -146,6 +145,28 @@ export function parsePgn(text: string): PgnMeta {
     redName: tags.Red || '红方',
     blackName: tags.Black || '黑方',
     result,
-    moves,
+    moves: parsed.moves,
   };
+}
+
+/**
+ * 把中文纵线记法 / ICCS 混合 token 序列从指定起始局面解析为内部 ICCS 着法。
+ * 首手默认红方；遇到不合法的 token 即停，failedAt 为该 token 下标（全部合法为 -1）。
+ * 供古谱（名局欣赏）与 PGN 导入共用。
+ */
+export function parseMoveTokens(
+  startBoard: BoardData,
+  tokens: string[],
+): { moves: string[]; failedAt: number } {
+  const moves: string[] = [];
+  const work = cloneBoard(startBoard);
+  for (let i = 0; i < tokens.length; i++) {
+    const side: Side = moves.length % 2 === 0 ? 'red' : 'black';
+    const mv = matchToken(work, side, tokens[i]);
+    if (!mv) return { moves, failedAt: i };
+    moves.push(toIccs(mv));
+    work.pieces[mv.to.rank][mv.to.file] = work.pieces[mv.from.rank][mv.from.file];
+    work.pieces[mv.from.rank][mv.from.file] = null;
+  }
+  return { moves, failedAt: -1 };
 }

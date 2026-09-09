@@ -5,6 +5,7 @@ import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types
 import { moveToChinese, movesToChinese } from '../board/notation';
 import { exportPgn, parsePgn } from '../board/pgn';
 import { matchOpening } from '../board/openings';
+import { CLASSICS, CLASSIC_CATEGORIES } from '../board/classics';
 import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { BoardView } from './board-view';
@@ -911,3 +912,49 @@ $('btnRepPlay').addEventListener('click', () => {
 });
 
 $('btnRepExit').addEventListener('click', () => exitReplay());
+
+// ---------- 名局欣赏（古谱《自出洞来无敌手》） ----------
+const classicCatSel = $('classicCategory') as HTMLSelectElement;
+const classicGameSel = $('classicGame') as HTMLSelectElement;
+const classicInfoEl = $('classicInfo') as HTMLSpanElement;
+
+for (const cat of CLASSIC_CATEGORIES) {
+  classicCatSel.add(new Option(cat, cat));
+}
+
+function refreshClassicGames() {
+  const cat = classicCatSel.value;
+  classicGameSel.innerHTML = '';
+  for (const g of CLASSICS.filter(g => g.category === cat)) {
+    classicGameSel.add(new Option(`${g.name}（${g.opening}）`, g.id));
+  }
+  updateClassicInfo();
+}
+
+function updateClassicInfo() {
+  const g = CLASSICS.find(x => x.id === classicGameSel.value);
+  classicInfoEl.textContent = g ? `${g.moves.length} 手` : '';
+}
+
+classicCatSel.addEventListener('change', refreshClassicGames);
+classicGameSel.addEventListener('change', updateClassicInfo);
+refreshClassicGames();
+
+$('btnLoadClassic').addEventListener('click', () => {
+  const g = CLASSICS.find(x => x.id === classicGameSel.value);
+  if (!g) return;
+  // 数据已在构建期经规则库全量校验，这里直接重放
+  enterReplay({
+    app: 'xiangqi-ai',
+    version: 2,
+    date: '',
+    startFen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
+    mode: 'classic',
+    redName: '红（古谱先手）',
+    blackName: '黑（古谱后手）',
+    moves: [...g.moves],
+    movesZh: [...g.movesZh],
+    result: g.result,
+  });
+  setStatus(`名局欣赏：${g.category}·${g.name}（${g.opening}）`);
+});

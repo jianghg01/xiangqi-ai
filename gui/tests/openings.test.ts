@@ -17,15 +17,22 @@ describe('开局库', () => {
   it('空序列匹配所有开局中最长者，next 为第 1 步', () => {
     const m = matchOpening([]);
     expect(m).not.toBeNull();
-    // 最长的是中炮（8 步）
-    expect(m!.name).toBe('中炮进三兵对屏风马');
+    // 最长的是平炮兑车（12 步）
+    expect(m!.name).toBe('中炮过河车对屏风马平炮兑车');
     expect(m!.next).toBe('h7e7');
   });
 
   it('部分走子后匹配并给出下一步', () => {
-    const m = matchOpening(['h7e7', 'h0g2', 'h9g7', 'i0h0']);
-    expect(m!.name).toBe('中炮进三兵对屏风马');
-    expect(m!.next).toBe('i9h9');
+    const m = matchOpening(['h7e7', 'h0g2', 'h9g7', 'i0h0', 'i9h9', 'b0c2']);
+    // 此时最长匹配是五七炮/五六炮（10 步，前缀相同）与进三兵（8 步）
+    expect(['五七炮对屏风马', '五六炮对屏风马']).toContain(m!.name);
+    expect(m!.next).toBe('b9a7');
+    const m2 = matchOpening(['h7e7', 'h0g2', 'h9g7', 'i0h0']);
+    expect(m2!.next).toBe('i9h9');
+  });
+
+  it('开局库规模（16 条）', () => {
+    expect(OPENINGS.length).toBe(16);
   });
 
   it('开局走完时 next 为 null', () => {
