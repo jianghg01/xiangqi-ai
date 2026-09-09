@@ -145,6 +145,19 @@ ipcMain.handle('file:open', async () => {
   return { path: r.filePaths[0], content: fs.readFileSync(r.filePaths[0], 'utf8') };
 });
 
+// 导出棋盘局面 PNG（dataUrl -> 二进制写入）
+ipcMain.handle('file:save-image', async (_e, { defaultName, dataUrl }) => {
+  const r = await dialog.showSaveDialog(win, {
+    title: '导出局面图片',
+    defaultPath: defaultName,
+    filters: [{ name: 'PNG 图片', extensions: ['png'] }],
+  });
+  if (r.canceled || !r.filePath) return null;
+  const base64 = dataUrl.replace(/^data:image\/png;base64,/, '');
+  fs.writeFileSync(r.filePath, Buffer.from(base64, 'base64'));
+  return r.filePath;
+});
+
 ipcMain.handle('engine:alive', () => !!eng);
 
 app.whenReady().then(() => {

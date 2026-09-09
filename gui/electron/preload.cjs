@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('engine', {
   alive: () => ipcRenderer.invoke('engine:alive'),
   onLine: cb => ipcRenderer.on('engine:line', (_e, line) => cb(line)),
   saveText: (defaultName, content, kind) => ipcRenderer.invoke('file:save', { defaultName, content, kind }),
+  saveImage: (defaultName, dataUrl) => ipcRenderer.invoke('file:save-image', { defaultName, dataUrl }),
   openText: () => ipcRenderer.invoke('file:open'),
 });

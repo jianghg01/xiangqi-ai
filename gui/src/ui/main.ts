@@ -1,9 +1,10 @@
 // M3/M4 主界面逻辑：对弈（人机）+ 摆子编辑 + 实时分析
 
-import { emptyBoard, initialBoard, parseFen } from '../board/fen';
+import { BoardData, cloneBoard, emptyBoard, initialBoard, parseFen } from '../board/fen';
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
 import { moveToChinese, movesToChinese } from '../board/notation';
 import { exportPgn, parsePgn } from '../board/pgn';
+import { matchOpening } from '../board/openings';
 import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { BoardView } from './board-view';
@@ -144,6 +145,30 @@ $('btnSound').addEventListener('click', () => {
   ($('btnSound') as HTMLButtonElement).textContent = soundOn ? '🔊音效:开' : '🔇音效:关';
 });
 
+// ---------- 局面重复检测（三次重复判和，与 selfplay 同规则） ----------
+let posSeen = new Map<string, number>();
+
+function posKey(b: BoardData): string {
+  return b.pieces.map(row => row.map(p => (p ? (p.side === 'red' ? p.type : p.type.toLowerCase()) : '.')).join('')).join('/')
+    + ' ' + (b.sideToMove === 'red' ? 'w' : 'b');
+}
+
+// 从起始局面按着法序列重建重复计数（悔棋后调用）
+function rebuildPosSeen(start: BoardData, seq: string[]) {
+  const b = cloneBoard(start);
+  posSeen = new Map();
+  posSeen.set(posKey(b), 1);
+  for (const s of seq) {
+    const mv = parseIccs(s);
+    if (!mv) break;
+    b.pieces[mv.to.rank][mv.to.file] = b.pieces[mv.from.rank][mv.from.file];
+    b.pieces[mv.from.rank][mv.from.file] = null;
+    b.sideToMove = b.sideToMove === 'red' ? 'black' : 'red';
+    const k = posKey(b);
+    posSeen.set(k, (posSeen.get(k) || 0) + 1);
+  }
+}
+
 // ---------- 对弈流程 ----------
 function newGame() {
   const startAction = () => {
@@ -172,7 +197,9 @@ function newGame() {
   setStatus('');
   fenBox.value = view.getFen();
   startFen = view.getFen();
+  rebuildPosSeen(view.getBoard(), []);
   renderMoveList(movesHistory, movesZhLive, 0, false);
+  updateOpeningName();
 }
 
 function doMove(mv: Move) {
@@ -184,7 +211,11 @@ function doMove(mv: Move) {
   if (mode === 'play') {
     movesZhLive.push(moveToChinese(board, mv));
     renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
+    updateOpeningName();
   }
+  // 重复局面计数
+  const k = posKey(nb);
+  posSeen.set(k, (posSeen.get(k) || 0) + 1);
   selected = null;
   targets = [];
   view.clearOverlay();
@@ -233,6 +264,13 @@ function afterMove() {
     showEndBanner('双方无进攻子力 · 和棋', true);
     return;
   }
+  if ((posSeen.get(posKey(board)) || 0) >= 3) {
+    gameOver = true;
+    gameResult = '三次重复局面，判和';
+    setStatus('双方三次重复局面，和棋');
+    showEndBanner('三次重复局面 · 和棋', true);
+    return;
+  }
   if (st.status === 'check') {
     setStatus('将军！');
     playSound('check');
@@ -241,12 +279,38 @@ function afterMove() {
   else if (analysisOn && !waitingFor) analyze();
 }
 
+// ---------- 开局库（机机对弈开局秒走 + 开局名称显示） ----------
+const INITIAL_FEN_PART = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR';
+const openingNameEl = $('openingName') as HTMLDivElement;
+
+function updateOpeningName() {
+  if (mode !== 'play' || !movesHistory.length || startFen.split(' ')[0] !== INITIAL_FEN_PART) {
+    openingNameEl.textContent = '';
+    return;
+  }
+  const m = matchOpening(movesHistory);
+  openingNameEl.textContent = m ? `开局：${m.name}` : '';
+}
+
 function engineMove() {
   if (!engineReady) return;
   if (waitingFor === 'analysis') {
     // 分析搜索中：先停，等 bestmove 回来再走子（避免搜索中发 go 被引擎忽略导致卡死）
     stopAnalysisThen(() => engineMove());
     return;
+  }
+  // 机机对弈：开局库直接落子（从初始局面开始且未偏离开局序列时）
+  if (gameMode === 'eve' && startFen.split(' ')[0] === INITIAL_FEN_PART) {
+    const m = matchOpening(movesHistory);
+    if (m && m.next) {
+      const bookMv = parseIccs(m.next);
+      if (bookMv) {
+        const mover = view.getBoard().sideToMove === 'red' ? redNameInput.value : blackNameInput.value;
+        setStatus(`${mover}（开局库·${m.name}）`);
+        doMove(bookMv);
+        return;
+      }
+    }
   }
   waitingFor = 'engine';
   // 注意：只发当前 FEN，不再叠加 moves（FEN 已是最新位置，叠加会触发引擎严格校验崩溃）
@@ -402,6 +466,7 @@ $('btnMode').addEventListener('click', () => {
     startFen = view.getFen();          // 记住起始局面（保存棋谱用）
     moveListEl.style.display = 'block';
     renderMoveList(movesHistory, movesZhLive, 0, false);
+    updateOpeningName();
     setStatus('');
   } else {
     mode = 'edit';
@@ -439,6 +504,7 @@ $('btnUndo').addEventListener('click', () => {
   hideEndBanner();
   view.replaceBoard(nb);
   selected = null; targets = [];
+  rebuildPosSeen(nb, movesHistory);
   renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
   setStatus('');
   if (engineTurnNow()) engineMove();
@@ -663,6 +729,19 @@ $('btnLoadGame').addEventListener('click', async () => {
     enterReplay(rec);
   } catch {
     setStatus('棋谱文件解析失败');
+  }
+});
+
+// 导出棋盘局面 PNG 图片
+$('btnSnap').addEventListener('click', async () => {
+  if (!engineApi) { setStatus('浏览器模式不支持导出（需 Electron）'); return; }
+  try {
+    const dataUrl = canvas.toDataURL('image/png');
+    const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+    const savedPath = await engineApi.saveImage(`局面_${ts}.png`, dataUrl);
+    setStatus(savedPath ? '局面图片已导出' : '已取消导出');
+  } catch (err) {
+    setStatus('导出失败: ' + (err as Error).message);
   }
 });
 
