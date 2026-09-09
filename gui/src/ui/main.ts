@@ -2,6 +2,7 @@
 
 import { emptyBoard, initialBoard, parseFen } from '../board/fen';
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
+import { movesToChinese } from '../board/notation';
 import { applyMove, checkStatus, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { BoardView } from './board-view';
@@ -416,14 +417,17 @@ interface GameRecord {
   redName: string;
   blackName: string;
   moves: string[];      // ICCS 着法（内部坐标，rank 0=黑底线）
+  movesZh?: string[];   // 对应中文记谱（v2 起保存）
   result: string;
 }
 
 const replayRow = $('replayRow') as HTMLDivElement;
 const replayLabel = $('replayLabel') as HTMLDivElement;
+const moveListEl = $('moveList') as HTMLDivElement;
 let replayRecord: GameRecord | null = null;
 let replayIdx = 0;                       // 当前回放到第几步（0=起始局面）
 let replayTimer: number | null = null;
+let replayMovesZh: string[] = [];        // 每步中文记谱
 
 function sideName(side: Side): string {
   if (gameMode === 'eve') return side === 'red' ? (redNameInput.value || '红方引擎') : (blackNameInput.value || '黑方引擎');
@@ -443,25 +447,48 @@ function updateReplayLabel() {
   const n = replayRecord.moves.length;
   const parts = [
     `第 ${replayIdx}/${n} 步`,
+    replayIdx > 0 ? (replayMovesZh[replayIdx - 1] || replayRecord.moves[replayIdx - 1]) : '起始局面',
     `${replayRecord.redName} vs ${replayRecord.blackName}`,
   ];
   if (replayRecord.result) parts.push(replayRecord.result);
   replayLabel.textContent = parts.join(' · ');
 }
 
+// 渲染中文记谱列表，点击某步直接跳转
+function renderMoveList() {
+  if (!replayRecord) { moveListEl.innerHTML = ''; return; }
+  const n = replayRecord.moves.length;
+  const parts: string[] = [];
+  for (let i = 0; i < n; i++) {
+    const cls = i + 1 === replayIdx ? 'cur' : '';
+    if (i % 2 === 0) parts.push(`<span data-mv="${i + 1}" class="${cls}"><span class="no">${i / 2 + 1}.</span>${replayMovesZh[i] || replayRecord.moves[i]}</span>`);
+    else parts.push(`<span data-mv="${i + 1}" class="${cls}">${replayMovesZh[i] || replayRecord.moves[i]}</span>`);
+    if (i % 2 === 1) parts.push('\n');
+  }
+  moveListEl.innerHTML = parts.join('');
+  moveListEl.querySelectorAll<HTMLSpanElement>('span[data-mv]').forEach(el => {
+    el.addEventListener('click', () => repGoTo(parseInt(el.dataset.mv ?? '0', 10)));
+  });
+  const cur = moveListEl.querySelector('span.cur');
+  if (cur) cur.scrollIntoView({ block: 'nearest' });
+}
+
 // 保存当前对局
 $('btnSaveGame').addEventListener('click', async () => {
   if (mode !== 'play' || !movesHistory.length) { setStatus('当前没有可保存的对局着法'); return; }
   if (!engineApi) { setStatus('浏览器模式不支持保存（需 Electron）'); return; }
+  let startBoard;
+  try { startBoard = parseFen(startFen).board; } catch { startBoard = initialBoard(); }
   const rec: GameRecord = {
     app: 'xiangqi-ai',
-    version: 1,
+    version: 2,
     date: new Date().toISOString(),
     startFen: startFen || view.getFen(),
     mode: gameMode,
     redName: sideName('red'),
     blackName: sideName('black'),
     moves: [...movesHistory],
+    movesZh: movesToChinese(startBoard, movesHistory),
     result: gameResult || (gameOver ? '对局结束' : '对局未结束'),
   };
   const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
@@ -500,12 +527,19 @@ function enterReplay(rec: GameRecord) {
   replayRecord = rec;
   replayIdx = 0;
   mode = 'replay';
+  // 中文记谱：优先用棋谱自带（v2+），长度不符则现场重算
+  const startBoard = replayStartBoard(rec);
+  replayMovesZh = Array.isArray(rec.movesZh) && rec.movesZh.length === rec.moves.length
+    ? rec.movesZh
+    : movesToChinese(startBoard, rec.moves);
   view.onSquare = null;
-  view.replaceBoard(replayStartBoard(rec));
+  view.replaceBoard(startBoard);
   view.setLastMove(null, null);
   ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
   ($('editPanel') as HTMLDivElement).style.opacity = '1';
   replayRow.style.display = 'flex';
+  moveListEl.style.display = 'block';
+  renderMoveList();
   ($('btnRepPlay') as HTMLButtonElement).textContent = '自动';
   updateReplayLabel();
   setStatus('');
@@ -537,6 +571,7 @@ function repGoTo(idx: number) {
   } else {
     view.setLastMove(null, null);
   }
+  renderMoveList();
   updateReplayLabel();
   setStatus('');
 }
@@ -545,8 +580,11 @@ function exitReplay() {
   stopReplayTimer();
   replayRecord = null;
   replayIdx = 0;
+  replayMovesZh = [];
   mode = 'edit';
   replayRow.style.display = 'none';
+  moveListEl.style.display = 'none';
+  moveListEl.innerHTML = '';
   replayLabel.textContent = '';
   view.replaceBoard(initialBoard());
   view.setLastMove(null, null);

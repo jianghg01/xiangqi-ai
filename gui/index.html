@@ -27,6 +27,11 @@
   .analysis { font-size: 12.5px; line-height: 1.9; min-height: 72px; background: #241f18; border-radius: 6px; padding: 8px; white-space: pre-wrap; }
   .analysis .top { color: #9fe1cb; }
   .note { font-size: 12px; color: #a89a7d; margin-top: 6px; }
+  .moveList { display: none; max-height: 180px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; font-size: 13px; line-height: 1.9; margin-top: 8px; }
+  .moveList span { margin-right: 12px; white-space: nowrap; cursor: pointer; color: #d8c9a8; }
+  .moveList span:hover { color: #fff; }
+  .moveList span.cur { color: #f0a30a; font-weight: bold; }
+  .moveList span .no { color: #7d7060; margin-right: 2px; font-size: 11px; }
   canvas.curve { background: #241f18; border-radius: 6px; margin-top: 8px; }
 </style>
 </head>
@@ -138,6 +143,7 @@
       <button id="btnRepPlay">自动</button>
       <button id="btnRepExit">退出复盘</button>
     </div>
+    <div class="moveList" id="moveList"></div>
     <div class="note" id="replayLabel"></div>
   </div>
 
