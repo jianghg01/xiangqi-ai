@@ -17,9 +17,20 @@ const PIECE_R = 26;       // 棋子半径
 const W = MARGIN * 2 + CELL * 8;
 const H = MARGIN * 2 + CELL * 9;
 
-const BG = '#f5e7c8';
-const LINE = '#6b4a2b';
-const TEXT = '#5b3a1e';
+// 棋盘主题
+export interface BoardTheme {
+  bg: string;
+  line: string;
+  text: string;
+  pieceBg: string;
+  red: string;
+  black: string;
+}
+export const BOARD_THEMES: Record<string, { name: string; theme: BoardTheme }> = {
+  classic: { name: '经典木色', theme: { bg: '#f5e7c8', line: '#6b4a2b', text: '#5b3a1e', pieceBg: '#fdf6e3', red: '#b02a1e', black: '#1e3e6e' } },
+  walnut: { name: '胡桃深木', theme: { bg: '#d9b382', line: '#5a3a1a', text: '#4a2f14', pieceBg: '#fbf3df', red: '#a02318', black: '#173a5e' } },
+  jade: { name: '墨玉', theme: { bg: '#2e4636', line: '#c8b88a', text: '#d8c9a0', pieceBg: '#f2ead2', red: '#c23a28', black: '#28527a' } },
+};
 
 // 分析提示箭头（rank 0 = 引擎第一推荐）
 export interface Arrow {
@@ -43,6 +54,7 @@ export class BoardView {
   private lastMove: { from: Square; to: Square } | null = null;
   private checkSquare: Square | null = null;   // 被将军一方的将/帅位置（红圈标记）
   private arrows: Arrow[] = [];                // 分析提示箭头
+  private theme: BoardTheme = BOARD_THEMES.classic.theme;
   private flipped = false;                     // 人执黑时上下翻转棋盘
   // 对弈模式：设置后接管棋盘点击；为 null 时走编辑摆子逻辑
   onSquare: ((s: Square) => void) | null = null;
@@ -90,6 +102,12 @@ export class BoardView {
   setCheck(s: Square | null) { this.checkSquare = s; this.draw(); }
   setFlipped(v: boolean) { if (this.flipped !== v) { this.flipped = v; this.draw(); } }
   setArrows(arr: Arrow[]) { this.arrows = arr; this.draw(); }
+  setThemeByName(name: string) {
+    const t = BOARD_THEMES[name]?.theme;
+    if (!t) return;
+    this.theme = t;
+    this.draw();
+  }
 
   clearOverlay() {
     this.highlights = [];
@@ -174,11 +192,11 @@ export class BoardView {
   private draw() {
     const c = this.ctx;
     c.clearRect(0, 0, W, H);
-    c.fillStyle = BG;
+    c.fillStyle = this.theme.bg;
     c.fillRect(0, 0, W, H);
 
     // 横线 10 条
-    c.strokeStyle = LINE;
+    c.strokeStyle = this.theme.line;
     c.lineWidth = 1;
     for (let r = 0; r < 10; r++) {
       c.beginPath();
@@ -218,7 +236,7 @@ export class BoardView {
     }
 
     // 楚河汉界
-    c.fillStyle = TEXT;
+    c.fillStyle = this.theme.text;
     c.font = '28px serif';
     c.textAlign = 'center';
     c.textBaseline = 'middle';
@@ -230,7 +248,7 @@ export class BoardView {
       [1,2],[7,2],[0,3],[2,3],[4,3],[6,3],[8,3],
       [1,7],[7,7],[0,6],[2,6],[4,6],[6,6],[8,6],
     ];
-    c.strokeStyle = LINE;
+    c.strokeStyle = this.theme.line;
     for (const [f, r] of marks) {
       const [x, y] = this.toXy(sq(f, r));
       const g = 5, l = 10;
@@ -356,12 +374,12 @@ export class BoardView {
     if (lifted) { c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 12; }
     c.beginPath();
     c.arc(x, y, PIECE_R, 0, Math.PI * 2);
-    c.fillStyle = '#fdf6e3';
+    c.fillStyle = this.theme.pieceBg;
     c.fill();
-    c.strokeStyle = p.side === 'red' ? '#b02a1e' : '#1e3e6e';
+    c.strokeStyle = p.side === 'red' ? this.theme.red : this.theme.black;
     c.lineWidth = 2.5;
     c.stroke();
-    c.fillStyle = p.side === 'red' ? '#b02a1e' : '#1e3e6e';
+    c.fillStyle = p.side === 'red' ? this.theme.red : this.theme.black;
     c.font = 'bold 26px "KaiTi","SimSun",serif';
     c.textAlign = 'center';
     c.textBaseline = 'middle';

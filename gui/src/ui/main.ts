@@ -11,7 +11,7 @@ import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
 import { blunderProfile, pickBlunder } from '../uci/elo';
-import { BoardView, Arrow } from './board-view';
+import { BoardView, Arrow, BOARD_THEMES } from './board-view';
 import { findKing } from '../rules/rules';
 
 // ---------- DOM ----------
@@ -859,6 +859,7 @@ $('btnMode').addEventListener('click', () => {
     setStatus('');
   } else {
     mode = 'edit';
+    loopActive = false;
     ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
     ($('editPanel') as HTMLDivElement).style.opacity = '1';
     view.onSquare = null;
@@ -951,6 +952,7 @@ sideSelect.addEventListener('change', () => {
 
 gameModeSel.addEventListener('change', () => {
   gameMode = gameModeSel.value as 'pve' | 'eve';
+  loopActive = false; // 切换模式取消循环赛
   // 切换模式时显示对应配置行
   pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
   eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
@@ -1213,6 +1215,21 @@ function recordGame(winner: Side | 'draw') {
     while (arr.length > 500) arr.shift();
     localStorage.setItem(REC_KEY, JSON.stringify(arr));
   } catch { /* 忽略 */ }
+  // 循环赛计分与续局
+  if (loopActive) {
+    loopScores[winner === 'draw' ? 'draw' : winner]++;
+    loopDone++;
+    updateLoopReport();
+    if (loopDone >= loopTotal) {
+      loopActive = false;
+      updateLoopReport(true);
+      setStatus(`循环赛完成：红 ${loopScores.red} 胜 · 黑 ${loopScores.black} 胜 · 和 ${loopScores.draw}`);
+    } else {
+      setTimeout(() => {
+        if (loopActive && mode === 'play' && gameMode === 'eve' && !waitingFor) newGame();
+      }, 600);
+    }
+  }
 }
 
 function renderStats() {
@@ -1252,6 +1269,57 @@ $('btnStats').addEventListener('click', renderStats);
 $('btnStatsClear').addEventListener('click', () => {
   try { localStorage.removeItem(REC_KEY); } catch { /* 忽略 */ }
   statsReportEl.textContent = '已清空';
+});
+
+// ---------- 自动机机循环赛 ----------
+const loopCountInput = $('loopCount') as HTMLInputElement;
+const loopReportEl = $('loopReport') as HTMLDivElement;
+let loopActive = false;
+let loopTotal = 0;
+let loopDone = 0;
+let loopScores = { red: 0, black: 0, draw: 0 };
+
+function updateLoopReport(final = false) {
+  loopReportEl.textContent = `循环赛 ${loopDone}/${loopTotal} — 红 ${loopScores.red} · 黑 ${loopScores.black} · 和 ${loopScores.draw}${final ? ' · 已完成' : ''}`;
+}
+
+$('btnLoopStart').addEventListener('click', () => {
+  if (loopActive) return;
+  if (mode !== 'play' || gameMode !== 'eve' || !engineReady) {
+    setStatus('循环赛需在机机对弈模式并启动引擎后进行');
+    return;
+  }
+  loopTotal = Math.max(2, Math.min(200, parseInt(loopCountInput.value, 10) || 10));
+  loopDone = 0;
+  loopScores = { red: 0, black: 0, draw: 0 };
+  loopActive = true;
+  updateLoopReport();
+  newGame();
+});
+
+$('btnLoopStop').addEventListener('click', () => {
+  if (!loopActive) return;
+  loopActive = false;
+  updateLoopReport();
+  setStatus('循环赛已停止');
+});
+
+// ---------- 棋盘皮肤 ----------
+const themeSel = $('themeSel') as HTMLSelectElement;
+for (const [k, v] of Object.entries(BOARD_THEMES)) {
+  themeSel.add(new Option(v.name, k));
+}
+(function initTheme() {
+  let saved = 'classic';
+  try { saved = localStorage.getItem('xz_theme') || 'classic'; } catch { /* 忽略 */ }
+  if (BOARD_THEMES[saved]) {
+    themeSel.value = saved;
+    view.setThemeByName(saved);
+  }
+})();
+themeSel.addEventListener('change', () => {
+  view.setThemeByName(themeSel.value);
+  try { localStorage.setItem('xz_theme', themeSel.value); } catch { /* 忽略 */ }
 });
 
 // ---------- 棋谱库（Electron games/ 目录） ----------

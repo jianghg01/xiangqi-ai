@@ -127,6 +127,13 @@
           <option value="24" selected>满级（24层）</option>
         </select>
       </div>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">循环赛</span>
+        <input type="number" id="loopCount" value="10" min="2" max="200" title="自动对弈局数（2~200）" style="width:64px" />
+        <button id="btnLoopStart">开始</button>
+        <button id="btnLoopStop">停止</button>
+      </div>
+      <div class="note" id="loopReport"></div>
       <div class="note">不限时限时按各自强度分深度对打</div>
     </div>
     <div class="row">
@@ -169,6 +176,10 @@
         <option value="10-5">10 分 + 5 秒</option>
         <option value="20-10">20 分 + 10 秒</option>
       </select>
+    </div>
+    <div class="row">
+      <span style="font-size:13px;align-self:center">棋盘皮肤</span>
+      <select id="themeSel" title="棋盘配色主题"></select>
     </div>
     <div class="row">
       <span style="font-size:13px;align-self:center">每步时限</span>
