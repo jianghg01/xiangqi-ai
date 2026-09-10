@@ -1,6 +1,6 @@
 // M3/M4 主界面逻辑：对弈（人机）+ 摆子编辑 + 实时分析
 
-import { BoardData, cloneBoard, emptyBoard, initialBoard, parseFen } from '../board/fen';
+import { BoardData, cloneBoard, emptyBoard, initialBoard, parseFen, toFen } from '../board/fen';
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
 import { moveToChinese, movesToChinese } from '../board/notation';
 import { exportPgn, parsePgn } from '../board/pgn';
@@ -8,7 +8,8 @@ import { matchOpening } from '../board/openings';
 import { CLASSICS, CLASSIC_CATEGORIES } from '../board/classics';
 import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
-import { BoardView } from './board-view';
+import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
+import { BoardView, Arrow } from './board-view';
 import { findKing } from '../rules/rules';
 
 // ---------- DOM ----------
@@ -87,7 +88,7 @@ let movesHistory: string[] = [];       // 当前对局 ICCS 着法（内部坐�
 let movesZhLive: string[] = [];        // 对应中文记谱（对弈实时显示）
 let selected: Square | null = null;
 let targets: Move[] = [];
-let waitingFor: null | 'engine' | 'analysis' = null;
+let waitingFor: null | 'engine' | 'analysis' | 'review' = null;
 let engineReady = false;
 let analysisOn = false;
 let cpHistory: number[] = [];          // 红方视角胜率曲线数据
@@ -209,6 +210,126 @@ $('btnSound').addEventListener('click', () => {
   refreshSoundBtn();
 });
 
+// ---------- 分析提示箭头（推荐线画在棋盘上） ----------
+function updateArrows() {
+  if (!analysisOn || mode === 'replay' || mode === 'edit') {
+    view.setArrows([]);
+    return;
+  }
+  const arr: Arrow[] = [];
+  for (const k of [1, 2, 3]) {
+    const info = lastInfoMap.get(k);
+    if (!info || !info.pv.length) continue;
+    const mv = parseIccs(enginePvToLocal(info.pv)[0]);
+    if (mv) arr.push({ from: mv.from, to: mv.to, rank: k - 1 });
+  }
+  view.setArrows(arr);
+}
+
+// ---------- AI 复盘点评（逐手评分标记 ◎/?!/?/?? + ACPL） ----------
+const REVIEW_DEPTH = 12;                       // 点评搜索深度（速度与精度平衡）
+const reviewReportEl = $('reviewReport') as HTMLDivElement;
+let reviewing = false;
+let reviewRec: GameRecord | null = null;       // 点评对象（当前对局或复盘棋谱）
+let reviewIdx = 0;                             // 已完成评分的局面数（0..n）
+let reviewScores: number[] = [];               // 每个局面的最优评分（行棋方视角，杀棋 9999-N）
+let reviewMarks: (string | null)[] = [];       // 每手棋的标记
+let reviewClickable = false;                   // 点评结束后列表是否可点击（复盘模式）
+
+// 引擎评分 → 数值见 ../uci/review（normalizeScore）
+
+// 局面 k（startFen + 前 k 手）的 FEN
+function fenAt(startFen: string, moves: string[], k: number): string {
+  let b: BoardData;
+  try { b = parseFen(startFen).board; } catch { b = initialBoard(); }
+  for (let i = 0; i < k; i++) {
+    const mv = parseIccs(moves[i]);
+    if (!mv) break;
+    b = applyMove(b, mv);
+  }
+  return toFen(b);
+}
+
+function startReview() {
+  if (reviewing) { cancelReview(); return; }
+  if (!engineReady) { setStatus('AI点评需先启动引擎'); return; }
+  if (waitingFor) { setStatus('引擎忙，请稍候再点评'); return; }
+  // 点评对象：复盘中用棋谱，对弈中用当前对局
+  if (replayRecord) {
+    reviewRec = replayRecord;
+    reviewClickable = true;
+  } else if (mode === 'play' && movesHistory.length) {
+    reviewRec = {
+      app: 'xiangqi-ai', version: 2, date: '',
+      startFen: startFen || view.getFen(),
+      mode: gameMode,
+      redName: sideName('red'),
+      blackName: sideName('black'),
+      moves: [...movesHistory],
+      movesZh: [...movesZhLive],
+      result: gameResult || (gameOver ? '对局结束' : ''),
+    };
+    reviewClickable = false;
+  } else {
+    setStatus('没有可点评的对局着法');
+    return;
+  }
+  if (!reviewRec.moves.length) { setStatus('没有可点评的对局着法'); reviewRec = null; return; }
+  reviewing = true;
+  reviewIdx = 0;
+  reviewScores = [];
+  reviewMarks = [];
+  reviewReportEl.textContent = 'AI点评中…';
+  client.setOption('MultiPV', 1);
+  reviewStep();
+}
+
+function cancelReview() {
+  if (!reviewing) return;
+  reviewing = false;
+  if (waitingFor === 'review') {
+    try { client.stop(); } catch { /* 引擎可能已退出 */ }
+    waitingFor = null;
+  }
+  reviewReportEl.textContent = '已取消点评';
+  setStatus('');
+}
+
+function reviewStep() {
+  if (!reviewing || !reviewRec) return;
+  if (!engineReady) { reviewing = false; setStatus('引擎已停止，点评中断'); return; }
+  const n = reviewRec.moves.length;
+  if (reviewIdx > n) { finishReview(); return; }
+  setStatus(`AI点评中 ${reviewIdx}/${n}…`);
+  waitingFor = 'review';
+  client.position(fenAt(reviewRec.startFen, reviewRec.moves, reviewIdx));
+  client.go({ depth: REVIEW_DEPTH });
+}
+
+function finishReview() {
+  if (!reviewRec) return;
+  const n = reviewRec.moves.length;
+  // 行棋方（startFen 行棋方为第 0 手的行棋方）
+  let startSide: Side = 'red';
+  try { startSide = parseFen(reviewRec.startFen).board.sideToMove; } catch { /* 默认红 */ }
+  const losses = lossList(reviewScores, n);
+  reviewMarks = marksFor(losses, reviewScores);
+  const acc = summarize(losses, reviewMarks, startSide);
+  const fmt = (s: Side) => {
+    const a = acc[s];
+    if (!a.cnt) return '';
+    const name = s === 'red' ? (reviewRec!.redName || '红') : (reviewRec!.blackName || '黑');
+    return `${name} ACPL ${acplOf(a).toFixed(0)}（缓着${a.q1} 失误${a.q2} 大败${a.q3}）`;
+  };
+  reviewReportEl.textContent = [fmt('red'), fmt('black')].filter(Boolean).join(' · ') || '点评完成';
+  const cur = reviewClickable ? replayIdx : n;
+  renderMoveList(reviewRec.moves, reviewRec.movesZh ?? [], cur, reviewClickable, reviewMarks);
+  reviewing = false;
+  setStatus('点评完成');
+  // 恢复 MultiPV（分析 3 / 避和 2 / 普通 1）
+  client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1));
+}
+
 // ---------- 局面重复检测（三次重复判和，与 selfplay 同规则） ----------
 let posSeen = new Map<string, number>();
 
@@ -281,6 +402,9 @@ function newGame() {
   targets = [];
   cpHistory = [];
   lastInfoMap.clear();
+  view.setArrows([]);
+  reviewMarks = [];
+  reviewReportEl.textContent = '';
   drawCurve();
   analysisEl.textContent = '—';
   waitingFor = null;
@@ -480,6 +604,12 @@ function onBestmove(bm: string) {
     const action = pendingAfterAnalysis;
     pendingAfterAnalysis = null;
     if (action) action();
+  } else if (waitingFor === 'review') {
+    waitingFor = null;
+    const info = lastInfoMap.get(1);
+    reviewScores.push(normalizeScore(info?.scoreCp ?? null, info?.scoreMate ?? null));
+    reviewIdx++;
+    reviewStep();
   }
 }
 
@@ -487,6 +617,7 @@ function onInfo(info: EngineInfo) {
   if (!info.pv.length) return;
   lastInfoMap.set(info.multipv, info);
   renderAnalysis();
+  updateArrows();
 }
 
 // ---------- 分析面板 ----------
@@ -535,7 +666,7 @@ function drawCurve() {
 
 // ---------- 棋盘点击（对弈模式） ----------
 view.onSquare = (s: Square) => {
-  if (mode !== 'play' || gameOver || waitingFor) return;
+  if (mode !== 'play' || gameOver || waitingFor || reviewing) return;
   if (gameMode === 'eve') return; // 机机对弈：人不落子
   const board = view.getBoard();
   if (board.sideToMove !== humanSide) return; // 引擎回合
@@ -580,6 +711,7 @@ function statusTextFor(): string {
 
 $('btnMode').addEventListener('click', () => {
   if (mode === 'replay') return; // 复盘中：先退出复盘再切换模式
+  if (reviewing) cancelReview();
   if (mode === 'edit') {
     mode = 'play';
     ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
@@ -594,6 +726,7 @@ $('btnMode').addEventListener('click', () => {
     view.setFlipped(gameMode === 'pve' && humanSide === 'black'); // 人执黑：翻转棋盘
     resetClock();
     moveListEl.style.display = 'block';
+    reviewRow.style.display = 'flex';
     renderMoveList(movesHistory, movesZhLive, 0, false);
     updateOpeningName();
     setStatus('');
@@ -608,6 +741,9 @@ $('btnMode').addEventListener('click', () => {
     hideEndBanner();
     moveListEl.style.display = 'none';
     moveListEl.innerHTML = '';
+    reviewRow.style.display = 'none';
+    reviewReportEl.textContent = '';
+    reviewMarks = [];
     setStatus('');
   }
 });
@@ -616,7 +752,7 @@ $('btnNew').addEventListener('click', () => { if (mode === 'play') newGame(); })
 
 $('btnUndo').addEventListener('click', () => {
   // 悔棋：撤销人机各一步（简化：回退到人类行棋局面）；机机对弈不支持悔棋
-  if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor) return;
+  if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor || reviewing) return;
   const undoCount = view.getBoard().sideToMove === humanSide ? 2 : 1;
   for (let i = 0; i < Math.min(undoCount, movesHistory.length); i++) {
     movesHistory.pop();
@@ -635,6 +771,8 @@ $('btnUndo').addEventListener('click', () => {
   view.replaceBoard(nb);
   selected = null; targets = [];
   rebuildPosSeen(nb, movesHistory);
+  reviewMarks = [];
+  reviewReportEl.textContent = '';
   renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
   setStatus('');
   if (engineTurnNow()) engineMove();
@@ -664,6 +802,7 @@ $('btnStartEngine').addEventListener('click', async () => {
 $('btnAnalysis').addEventListener('click', () => {
   analysisOn = !analysisOn;
   ($('btnAnalysis') as HTMLButtonElement).textContent = analysisOn ? '关闭分析' : '开启分析';
+  if (!analysisOn) view.setArrows([]); // 关分析清掉推荐箭头
   // 分析用 MultiPV 3（多线参考）；对弈避和开启时用 2，关闭时 1（单线全速）
   if (engineReady) client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1));
   if (analysisOn && !waitingFor && mode === 'play' && gameMode === 'pve' && !gameOver) analyze();
@@ -782,14 +921,21 @@ function updateReplayLabel() {
 }
 
 // 渲染中文记谱列表（复盘模式可点击跳转，对弈模式仅展示），当前步高亮并自动滚动
-function renderMoveList(moves: string[], zh: string[], curIdx: number, clickable: boolean) {
+// marks：AI点评标记（与 moves 对齐，可为 null）
+function renderMoveList(moves: string[], zh: string[], curIdx: number, clickable: boolean, marks?: (string | null)[]) {
   const n = moves.length;
   const parts: string[] = [];
+  const mkHtml = (i: number) => {
+    const m = marks?.[i];
+    if (!m) return '';
+    const cls = m === '?!' ? 'mk-m1' : m === '?' ? 'mk-m2' : m === '??' ? 'mk-m3' : 'mk-m0';
+    return `<span class="mk ${cls}">${m === '?!' || m === '?' || m === '??' ? m : '◎'}</span>`;
+  };
   for (let i = 0; i < n; i++) {
     const cls = i + 1 === curIdx ? 'cur' : '';
     const text = zh[i] || moves[i];
-    if (i % 2 === 0) parts.push(`<span data-mv="${i + 1}" class="${cls}"><span class="no">${i / 2 + 1}.</span>${text}</span>`);
-    else parts.push(`<span data-mv="${i + 1}" class="${cls}">${text}</span>`);
+    if (i % 2 === 0) parts.push(`<span data-mv="${i + 1}" class="${cls}"><span class="no">${i / 2 + 1}.</span>${text}${mkHtml(i)}</span>`);
+    else parts.push(`<span data-mv="${i + 1}" class="${cls}">${text}${mkHtml(i)}</span>`);
     if (i % 2 === 1) parts.push('\n');
   }
   moveListEl.innerHTML = parts.join('');
@@ -924,6 +1070,9 @@ function enterReplay(rec: GameRecord) {
   ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
   ($('editPanel') as HTMLDivElement).style.opacity = '1';
   replayRow.style.display = 'flex';
+  reviewRow.style.display = 'flex';
+  reviewReportEl.textContent = '';
+  reviewMarks = [];
   moveListEl.style.display = 'block';
   renderMoveList(rec.moves, replayMovesZh, 0, true);
   ($('btnRepPlay') as HTMLButtonElement).textContent = '自动';
@@ -970,8 +1119,11 @@ function exitReplay() {
   mode = 'edit';
   hideEndBanner();
   replayRow.style.display = 'none';
+  reviewRow.style.display = 'none';
   moveListEl.style.display = 'none';
   moveListEl.innerHTML = '';
+  reviewReportEl.textContent = '';
+  reviewMarks = [];
   replayLabel.textContent = '';
   view.replaceBoard(initialBoard());
   view.setLastMove(null, null);
@@ -1000,6 +1152,10 @@ $('btnRepPlay').addEventListener('click', () => {
 });
 
 $('btnRepExit').addEventListener('click', () => exitReplay());
+
+// ---------- AI 点评按钮 ----------
+const reviewRow = $('reviewRow') as HTMLDivElement;
+$('btnReview').addEventListener('click', () => startReview());
 
 // ---------- 名局欣赏（古谱《自出洞来无敌手》） ----------
 const classicCatSel = $('classicCategory') as HTMLSelectElement;

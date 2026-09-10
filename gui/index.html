@@ -42,6 +42,12 @@
   .moveList span:hover { color: #fff; }
   .moveList span.cur { color: #f0a30a; font-weight: bold; }
   .moveList span .no { color: #7d7060; margin-right: 2px; font-size: 11px; }
+  .moveList .mk { font-weight: bold; margin-left: 1px; }
+  .moveList .mk-m1 { color: #f0a30a; }   /* ?! 缓着 */
+  .moveList .mk-m2 { color: #ff7a59; }   /* ?  失误 */
+  .moveList .mk-m3 { color: #ff3b30; }   /* ?? 大败 */
+  .moveList .mk-m0 { color: #57c77a; }   /* ◎ 好棋 */
+  .moveList .mk-unk { color: #7d7060; }  /* ？无标记 */
   canvas.curve { background: #241f18; border-radius: 6px; margin-top: 8px; }
 </style>
 </head>
@@ -193,7 +199,12 @@
       <button id="btnRepPlay">自动</button>
       <button id="btnRepExit">退出复盘</button>
     </div>
+    <div class="row" id="reviewRow" style="display:none">
+      <button id="btnReview" class="primary">AI 点评</button>
+      <span style="font-size:12px;color:#a89a7d;align-self:center">逐手评分标记 ◎/?!/?/??</span>
+    </div>
     <div class="moveList" id="moveList"></div>
+    <div class="note" id="reviewReport"></div>
     <div class="note" id="replayLabel"></div>
 
     <h3>名局欣赏（古谱《自出洞来无敌手》）</h3>

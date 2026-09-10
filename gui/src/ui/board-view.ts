@@ -21,6 +21,15 @@ const BG = '#f5e7c8';
 const LINE = '#6b4a2b';
 const TEXT = '#5b3a1e';
 
+// 分析提示箭头（rank 0 = 引擎第一推荐）
+export interface Arrow {
+  from: Square;
+  to: Square;
+  rank: number;
+}
+const ARROW_COLORS = ['rgba(240,163,10,.9)', 'rgba(86,156,214,.75)', 'rgba(150,150,150,.6)'];
+const ARROW_WIDTHS = [9, 7, 6];
+
 export class BoardView {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -33,6 +42,7 @@ export class BoardView {
   private highlights: Square[] = [];           // 对弈模式：合法落点
   private lastMove: { from: Square; to: Square } | null = null;
   private checkSquare: Square | null = null;   // 被将军一方的将/帅位置（红圈标记）
+  private arrows: Arrow[] = [];                // 分析提示箭头
   private flipped = false;                     // 人执黑时上下翻转棋盘
   // 对弈模式：设置后接管棋盘点击；为 null 时走编辑摆子逻辑
   onSquare: ((s: Square) => void) | null = null;
@@ -79,6 +89,7 @@ export class BoardView {
   }
   setCheck(s: Square | null) { this.checkSquare = s; this.draw(); }
   setFlipped(v: boolean) { if (this.flipped !== v) { this.flipped = v; this.draw(); } }
+  setArrows(arr: Arrow[]) { this.arrows = arr; this.draw(); }
 
   clearOverlay() {
     this.highlights = [];
@@ -302,6 +313,40 @@ export class BoardView {
       c.arc(x, y, PIECE_R + 10, 0, Math.PI * 2);
       c.stroke();
       c.lineWidth = 1;
+    }
+
+    // 分析提示箭头（半透明，最上层）
+    for (const a of this.arrows) {
+      const rank = Math.max(0, Math.min(2, a.rank));
+      const [x0, y0] = this.toXy(a.from);
+      const [x1, y1] = this.toXy(a.to);
+      const dx = x1 - x0, dy = y1 - y0;
+      const len = Math.hypot(dx, dy) || 1;
+      // 起止各留出棋子半径，箭头尖端再留 4px
+      const sx = x0 + (dx / len) * (PIECE_R - 2);
+      const sy = y0 + (dy / len) * (PIECE_R - 2);
+      const ex = x1 - (dx / len) * (PIECE_R + 4);
+      const ey = y1 - (dy / len) * (PIECE_R + 4);
+      const w = ARROW_WIDTHS[rank];
+      c.strokeStyle = ARROW_COLORS[rank];
+      c.fillStyle = ARROW_COLORS[rank];
+      c.lineWidth = w;
+      c.lineCap = 'round';
+      c.beginPath();
+      c.moveTo(sx, sy);
+      c.lineTo(ex, ey);
+      c.stroke();
+      // 箭头三角
+      const ang = Math.atan2(dy, dx);
+      const head = w * 2.4;
+      c.beginPath();
+      c.moveTo(ex + Math.cos(ang) * head, ey + Math.sin(ang) * head);
+      c.lineTo(ex + Math.cos(ang + 2.5) * head, ey + Math.sin(ang + 2.5) * head);
+      c.lineTo(ex + Math.cos(ang - 2.5) * head, ey + Math.sin(ang - 2.5) * head);
+      c.closePath();
+      c.fill();
+      c.lineWidth = 1;
+      c.lineCap = 'butt';
     }
   }
 
