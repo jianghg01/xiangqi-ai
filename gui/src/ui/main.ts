@@ -6,6 +6,7 @@ import { moveToChinese, movesToChinese } from '../board/notation';
 import { exportPgn, parsePgn } from '../board/pgn';
 import { matchOpening } from '../board/openings';
 import { CLASSICS, CLASSIC_CATEGORIES } from '../board/classics';
+import puzzlesJson from '../data/puzzles.json';
 import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
@@ -467,7 +468,7 @@ function startBoardForGame(): BoardData {
 }
 
 // ---------- 对弈流程 ----------
-function newGame() {
+function newGame(startBoardOverride?: BoardData) {
   const startAction = () => {
     if (engineTurnNow()) engineMove();
   };
@@ -477,7 +478,7 @@ function newGame() {
   } else {
     startAction();
   }
-  const startBoard = startBoardForGame();
+  const startBoard = startBoardOverride ?? startBoardForGame();
   view.replaceBoard(startBoard);
   movesHistory = [];
   movesZhLive = [];
@@ -491,6 +492,7 @@ function newGame() {
   view.setArrows([]);
   reviewMarks = [];
   reviewReportEl.textContent = '';
+  puzzleHumanMoves = 0;
   drawCurve();
   analysisEl.textContent = '—';
   waitingFor = null;
@@ -516,6 +518,8 @@ function doMove(mv: Move) {
   }
   // 局面变化，旧的推荐箭头作废（分析更新后重画）
   view.setArrows([]);
+  // 闯关：统计人行棋步数（预算校验用）
+  if (puzzleActive && board.sideToMove === humanSide) puzzleHumanMoves++;
   const nb = applyMove(board, mv);
   movesHistory.push(toIccs(mv));
   playSound(captured ? 'capture' : 'move');
@@ -544,6 +548,13 @@ function afterMove() {
   view.setCheck(st.status === 'check' || st.status === 'checkmate' ? findKing(board, board.sideToMove) : null);
   if (st.status === 'checkmate') {
     gameOver = true;
+    if (puzzleActive) {
+      gameResult = `闯关成功（${puzzleActive.movesToMate}步杀）`;
+      setStatus(`闯关成功！${puzzleActive.name}`);
+      showEndBanner(`闯关成功 · ${puzzleActive.name}`);
+      puzzleActive = null;
+      return;
+    }
     recordGame(board.sideToMove === 'red' ? 'black' : 'red');
     if (gameMode === 'eve') {
       const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
@@ -586,6 +597,14 @@ function afterMove() {
     gameResult = '三次重复局面，判和';
     setStatus('双方三次重复局面，和棋');
     showEndBanner('三次重复局面 · 和棋', true);
+    return;
+  }
+  // 闯关预算：攻方行棋超过 N步杀+1 仍未成杀 → 失败
+  if (puzzleActive && puzzleHumanMoves >= puzzleActive.movesToMate + 1) {
+    gameOver = true;
+    gameResult = '闯关失败，步数用尽';
+    setStatus('闯关失败：超出预算步数，可重新载入再试');
+    showEndBanner('闯关失败 · 步数用尽', true);
     return;
   }
   if (st.status === 'check') {
@@ -771,7 +790,7 @@ function drawCurve() {
 }
 
 // ---------- 棋盘点击（对弈模式） ----------
-view.onSquare = (s: Square) => {
+function playSquareClick(s: Square) {
   if (mode !== 'play' || gameOver || waitingFor || reviewing) return;
   if (gameMode === 'eve') return; // 机机对弈：人不落子
   const board = view.getBoard();
@@ -790,7 +809,8 @@ view.onSquare = (s: Square) => {
     targets = [];
     view.setHighlights([]);
   }
-};
+}
+view.onSquare = playSquareClick;
 
 // ---------- 模式切换 / 控件 ----------
 function setStatus(t: string) {
@@ -822,6 +842,7 @@ $('btnMode').addEventListener('click', () => {
     mode = 'play';
     ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
     ($('editPanel') as HTMLDivElement).style.opacity = '.4';
+    view.onSquare = playSquareClick; // 复盘/打谱后恢复棋盘落子
     gameMode = gameModeSel.value as 'pve' | 'eve';
     humanSide = sideSelect.value as Side;
     gameOver = false;
@@ -1030,6 +1051,7 @@ function updateReplayLabel() {
     `${replayRecord.redName} vs ${replayRecord.blackName}`,
   ];
   if (replayRecord.result) parts.push(replayRecord.result);
+  if (guessMode) parts.push(`打谱一次答对 ${guessFirst}/${guessAnswered}`);
   replayLabel.textContent = parts.join(' · ');
 }
 
@@ -1319,8 +1341,15 @@ function enterReplay(rec: GameRecord) {
   reviewRow.style.display = 'flex';
   reviewReportEl.textContent = '';
   reviewMarks = [];
+  // 进入复盘：退出打谱状态
+  guessMode = false;
+  guessFrom = null;
+  ($('btnGuess') as HTMLButtonElement).textContent = '打谱训练';
+  ($('btnRepNext') as HTMLButtonElement).disabled = false;
+  ($('btnRepLast') as HTMLButtonElement).disabled = false;
+  ($('btnRepPlay') as HTMLButtonElement).disabled = false;
   moveListEl.style.display = 'block';
-  renderMoveList(rec.moves, replayMovesZh, 0, true);
+  renderReplayList();
   ($('btnRepPlay') as HTMLButtonElement).textContent = '自动';
   updateReplayLabel();
   setStatus('');
@@ -1352,16 +1381,93 @@ function repGoTo(idx: number) {
   } else {
     view.setLastMove(null, null);
   }
-  renderMoveList(replayRecord.moves, replayMovesZh, idx, true);
+  renderReplayList();
   updateReplayLabel();
   setStatus('');
 }
+
+// ---------- 打谱训练（遮谱猜下一手） ----------
+let guessMode = false;
+let guessFrom: Square | null = null;
+let guessAnswered = 0;
+let guessFirst = 0;
+let guessWrongThisStep = false;
+
+// 复盘列表渲染：打谱模式下后续着法遮为「？」
+function renderReplayList() {
+  if (!replayRecord) return;
+  if (guessMode) {
+    const masked = replayRecord.moves.map((m, i) => (i < replayIdx ? m : '？'));
+    const maskedZh = replayMovesZh.map((z, i) => (i < replayIdx ? z : '？'));
+    renderMoveList(masked, maskedZh, replayIdx, false);
+  } else {
+    renderMoveList(replayRecord.moves, replayMovesZh, replayIdx, true);
+  }
+}
+
+function guessClick(s: Square) {
+  if (!guessMode || !replayRecord || replayIdx >= replayRecord.moves.length) return;
+  const b = view.getBoard();
+  if (!guessFrom) {
+    const p = b.pieces[s.rank][s.file];
+    if (p && p.side === b.sideToMove) {
+      guessFrom = s;
+      view.setHighlights([s]);
+    }
+    return;
+  }
+  const from = guessFrom;
+  guessFrom = null;
+  view.setHighlights([]);
+  const expected = replayRecord.moves[replayIdx];
+  if (toIccs({ from, to: s }) === expected) {
+    guessAnswered++;
+    if (!guessWrongThisStep) guessFirst++;
+    guessWrongThisStep = false;
+    playSound(b.pieces[s.rank][s.file] ? 'capture' : 'move');
+    repGoTo(replayIdx + 1);
+  } else {
+    guessWrongThisStep = true;
+    setStatus('打谱：这手不对，再想想');
+  }
+  updateReplayLabel();
+}
+
+$('btnGuess').addEventListener('click', () => {
+  if (mode !== 'replay' || !replayRecord) { setStatus('需先进入复盘（打开棋谱或载入名局）'); return; }
+  guessMode = !guessMode;
+  ($('btnGuess') as HTMLButtonElement).textContent = guessMode ? '退出打谱' : '打谱训练';
+  guessFrom = null;
+  view.setHighlights([]);
+  // 打谱中禁用会剧透答案的导航
+  ($('btnRepNext') as HTMLButtonElement).disabled = guessMode;
+  ($('btnRepLast') as HTMLButtonElement).disabled = guessMode;
+  ($('btnRepPlay') as HTMLButtonElement).disabled = guessMode;
+  if (guessMode) {
+    guessAnswered = 0;
+    guessFirst = 0;
+    guessWrongThisStep = false;
+    repGoTo(0);
+    view.onSquare = guessClick;
+    setStatus(`打谱训练：在棋盘上走出正确着法（共 ${replayRecord.moves.length} 手）`);
+  } else {
+    view.onSquare = null;
+    renderReplayList();
+    updateReplayLabel();
+    setStatus('');
+  }
+});
 
 function exitReplay() {
   stopReplayTimer();
   replayRecord = null;
   replayIdx = 0;
   replayMovesZh = [];
+  guessMode = false;
+  ($('btnGuess') as HTMLButtonElement).textContent = '打谱训练';
+  ($('btnRepNext') as HTMLButtonElement).disabled = false;
+  ($('btnRepLast') as HTMLButtonElement).disabled = false;
+  ($('btnRepPlay') as HTMLButtonElement).disabled = false;
   mode = 'edit';
   hideEndBanner();
   replayRow.style.display = 'none';
@@ -1402,6 +1508,65 @@ $('btnRepExit').addEventListener('click', () => exitReplay());
 // ---------- AI 点评按钮 ----------
 const reviewRow = $('reviewRow') as HTMLDivElement;
 $('btnReview').addEventListener('click', () => startReview());
+
+// ---------- 残局闯关（古谱杀局题库） ----------
+interface Puzzle {
+  id: string;
+  name: string;
+  fen: string;
+  side: Side;
+  movesToMate: number;
+  solution: string;
+}
+const PUZZLES = puzzlesJson as Puzzle[];
+const puzzleSel = $('puzzleSel') as HTMLSelectElement;
+const puzzleInfoEl = $('puzzleInfo') as HTMLSpanElement;
+let puzzleActive: Puzzle | null = null;
+let puzzleHumanMoves = 0;
+
+for (const p of PUZZLES) {
+  puzzleSel.add(new Option(`${p.name}（${p.movesToMate}步杀）`, p.id));
+}
+puzzleInfoEl.textContent = `共 ${PUZZLES.length} 关`;
+
+function loadPuzzle() {
+  const p = PUZZLES.find(x => x.id === puzzleSel.value);
+  if (!p) return;
+  stopReplayTimer();
+  if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; pendingAfterAnalysis = null; }
+  puzzleActive = p;
+  mode = 'play';
+  gameMode = 'pve';
+  gameModeSel.value = 'pve';
+  pveRow.style.display = 'flex';
+  eveRows.style.display = 'none';
+  humanSide = p.side;
+  sideSelect.value = p.side;
+  view.setFlipped(p.side === 'black');
+  ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
+  ($('editPanel') as HTMLDivElement).style.opacity = '.4';
+  view.onSquare = playSquareClick;
+  replayRow.style.display = 'none';
+  reviewRow.style.display = 'flex';
+  gameOver = false;
+  gameResult = '';
+  hideEndBanner();
+  let pb;
+  try { pb = parseFen(p.fen).board; } catch { setStatus('残局 FEN 无效'); return; }
+  newGame(pb);
+  setStatus(`残局闯关：${p.name} · ${p.movesToMate}步杀（预算 ${p.movesToMate + 1} 步）`);
+}
+$('btnPuzzleLoad').addEventListener('click', loadPuzzle);
+
+$('btnPuzzleHint').addEventListener('click', () => {
+  const p = puzzleActive ?? PUZZLES.find(x => x.id === puzzleSel.value);
+  if (!p) { setStatus('请先选择残局'); return; }
+  try {
+    const b = parseFen(p.fen).board;
+    const mv = parseIccs(p.solution);
+    if (mv) setStatus(`提示：${moveToChinese(b, mv)}（原谱共 ${p.movesToMate} 步杀）`);
+  } catch { setStatus('提示不可用'); }
+});
 
 // ---------- 名局欣赏（古谱《自出洞来无敌手》） ----------
 const classicCatSel = $('classicCategory') as HTMLSelectElement;

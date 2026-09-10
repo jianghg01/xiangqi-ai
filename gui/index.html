@@ -218,6 +218,7 @@
       <button id="btnRepNext">▶</button>
       <button id="btnRepLast">▶|</button>
       <button id="btnRepPlay">自动</button>
+      <button id="btnGuess">打谱训练</button>
       <button id="btnRepExit">退出复盘</button>
     </div>
     <div class="row" id="reviewRow" style="display:none">
@@ -241,6 +242,17 @@
       <button id="btnLibRefresh">刷新</button>
     </div>
     <div class="note" id="libList" style="line-height:2.1"></div>
+
+    <h3>残局闯关（古谱杀局）</h3>
+    <div class="row">
+      <select id="puzzleSel" style="flex:1;min-width:0" title="两步/三步杀残局，预算内完成即过关"></select>
+    </div>
+    <div class="row">
+      <button id="btnPuzzleLoad" class="primary">载入闯关</button>
+      <button id="btnPuzzleHint">提示</button>
+      <span style="font-size:12px;color:#a89a7d;align-self:center" id="puzzleInfo"></span>
+    </div>
+    <div class="note">攻方在预算步数（N步杀+1）内完成绝杀即过关，引擎全力防守</div>
 
     <h3>名局欣赏（古谱《自出洞来无敌手》）</h3>
     <div class="row">

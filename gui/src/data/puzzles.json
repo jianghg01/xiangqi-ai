@@ -1,0 +1,418 @@
+[
+ {
+  "id": "zi1-m2",
+  "name": "自字信手炮·第一局",
+  "fen": "2b1kab2/4aR3/2n1cN1cn/p3p3p/9/3p2P2/P1r1P3P/2N1C2C1/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "f1f0"
+ },
+ {
+  "id": "zi1-m3",
+  "name": "自字信手炮·第一局",
+  "fen": "2bakab2/1R3r3/2n1cN1cn/p3p3p/9/3p2P2/P1r1P3P/2N1C2C1/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "b1f1"
+ },
+ {
+  "id": "zi2-m2",
+  "name": "自字信手炮·第二局",
+  "fen": "2bak1b2/4a2R1/4c1c1r/p3C1p2/9/3p2P2/P3P4/2r4C1/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "h1e1"
+ },
+ {
+  "id": "zi2-m3",
+  "name": "自字信手炮·第二局",
+  "fen": "2bak1b1r/4a2R1/4c1c1n/p3C1p2/8R/3p2P2/P3P4/2r4C1/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "i4i2"
+ },
+ {
+  "id": "zi3-m2",
+  "name": "自字信手炮·第三局",
+  "fen": "3ak1b1r/4aR3/4bc1Cn/p1C5p/2pn5/6P2/P3P3P/5r3/9/2BAKAB1R w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "h2e2"
+ },
+ {
+  "id": "zi3-m3",
+  "name": "自字信手炮·第三局",
+  "fen": "3ak1b1r/4aR3/4bc1Cn/p3C3p/2pn5/6P2/P3P3P/2r6/9/2BAKAB1R w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e3c3"
+ },
+ {
+  "id": "zi4-m2",
+  "name": "自字信手炮·第四局",
+  "fen": "1r1ak1b2/4aR3/2C1b3n/p3r3p/2p4P1/9/P3P3P/9/4A4/2BAK1R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "g9g0"
+ },
+ {
+  "id": "zi4-m3",
+  "name": "自字信手炮·第四局",
+  "fen": "1r1ak1b2/4aR3/2C1b3n/p3C2rp/2p3P2/9/P3P3P/9/4A4/2BAK1R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "g4h4"
+ },
+ {
+  "id": "chu1-m2",
+  "name": "出字列手炮·第一局",
+  "fen": "2bkrRbC1/9/4c1c2/2p1C3p/pn1r2p2/8P/P1P1P1P2/2N6/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "f0e0"
+ },
+ {
+  "id": "chu1-m3",
+  "name": "出字列手炮·第一局",
+  "fen": "2bk1abC1/4r4/4c1c2/2p1C3p/pn1r2p2/5R2P/P1P1P1P2/2N6/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f5f0"
+ },
+ {
+  "id": "chu2-m2",
+  "name": "出字列手炮·第二局",
+  "fen": "1r3k3/4a4/1c2b2R1/2p1C1N1p/p2r5/8P/P1n1P1P2/2N6/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "h2h0"
+ },
+ {
+  "id": "chu2-m3",
+  "name": "出字列手炮·第二局",
+  "fen": "1r7/4ak3/1c2b1R2/2p1C1N1p/p2r5/8P/P1n1P1P2/2N6/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "g2h2"
+ },
+ {
+  "id": "chu3-m2",
+  "name": "出字列手炮·第三局",
+  "fen": "1rb1kabC1/5R3/4c4/2p1n1N1p/p2r5/8P/P1n1P1P2/2N6/9/1cBAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "f1f0"
+ },
+ {
+  "id": "chu3-m3",
+  "name": "出字列手炮·第三局",
+  "fen": "1rb2abC1/4k4/4c4/2p1n1N1p/p2r5/5R2P/P1n1P1P2/2N6/9/1cBAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f5f1"
+ },
+ {
+  "id": "chu4-m2",
+  "name": "出字列手炮·第四局",
+  "fen": "1rbaknbC1/9/n2cc4/2p1p1p1p/p8/9/P1P1P1C1P/2r5N/9/2BAKABR1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "g6g0"
+ },
+ {
+  "id": "chu4-m3",
+  "name": "出字列手炮·第四局",
+  "fen": "1rbakabC1/9/n2cc1n2/2p1p1p1p/p8/5R3/P1P1P1C1P/2r5N/9/2BAKABR1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f5f0"
+ },
+ {
+  "id": "dong1-m2",
+  "name": "洞字入手炮·第一局",
+  "fen": "rnbakrcC1/4a4/4b4/p1p1C3p/9/9/P1P1P1P1P/2c5R/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "i7f7"
+ },
+ {
+  "id": "dong1-m3",
+  "name": "洞字入手炮·第一局",
+  "fen": "r1bakrcC1/4a4/n3b4/p1p1p3p/9/9/P1P1P1P1P/2c1C3R/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e7e3"
+ },
+ {
+  "id": "dong2-m2",
+  "name": "洞字入手炮·第二局",
+  "fen": "1rbaka1RC/9/n3b4/p1p3p2/4RN3/9/P1P3P2/4C1c2/4K4/2BA1rB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "e4e2"
+ },
+ {
+  "id": "dong2-m3",
+  "name": "洞字入手炮·第二局",
+  "fen": "1rbak3C/4a2R1/n3b4/p1p3p2/4RN3/9/P1P3P2/4C1c2/4K4/2BA1rB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "h1h0"
+ },
+ {
+  "id": "dong3-m2",
+  "name": "洞字入手炮·第三局",
+  "fen": "r1bk1nb1C/4R4/n3N4/p1p3p2/9/9/P1P2rP2/4C1c2/9/2BAKAB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "e1e0"
+ },
+ {
+  "id": "dong3-m3",
+  "name": "洞字入手炮·第三局",
+  "fen": "r1b1knb1C/4a2R1/n3N4/p1p3p2/9/9/P1P2rP2/4C1c2/9/2BAKAB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "h1e1"
+ },
+ {
+  "id": "dong4-m2",
+  "name": "洞字入手炮·第四局",
+  "fen": "r2aR4/2n1akr2/4C1N2/p1p3p1p/9/9/P1P3P1P/5C3/6c2/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "e2e6"
+ },
+ {
+  "id": "dong4-m3",
+  "name": "洞字入手炮·第四局",
+  "fen": "r2aR4/2n2kr2/4CaN2/p1p3p1p/9/9/P1P3P1P/4C4/6c2/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e7f7"
+ },
+ {
+  "id": "lai1-m2",
+  "name": "来字窝心炮·第一局",
+  "fen": "2bakc1n1/4a4/1rn1bR3/p1p3p1p/4C4/9/P1P3r1P/2N6/4C4/2BAKAB1R w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "f2e2"
+ },
+ {
+  "id": "lai1-m3",
+  "name": "来字窝心炮·第一局",
+  "fen": "2bakcbn1/4a4/1rn1cR3/p1p3p1p/3NC4/9/P1P3r1P/2N6/4C4/2BAKAB1R w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "d4e2"
+ },
+ {
+  "id": "lai2-m2",
+  "name": "来字窝心炮·第二局",
+  "fen": "1r1a1k3/2Cra2R1/5c3/p1p3p1p/9/4p4/P7P/2N6/5R3/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "f8f2"
+ },
+ {
+  "id": "lai2-m3",
+  "name": "来字窝心炮·第二局",
+  "fen": "1r1a3R1/2Crak3/5c3/p1p3p1p/9/4p4/P7P/2N6/5R3/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "h0h1"
+ },
+ {
+  "id": "wu1-m2",
+  "name": "无字袖手炮·第一局",
+  "fen": "r1b1kC1R1/9/nc7/p1p1p3p/6p2/4r4/P7P/4B1N2/4A4/3RKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "d9d1"
+ },
+ {
+  "id": "wu1-m3",
+  "name": "无字袖手炮·第一局",
+  "fen": "r1b1kC1R1/9/nc7/p1p1p3p/4r1p2/4C4/P7P/4B1N2/4A4/R3KAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "a9d9"
+ },
+ {
+  "id": "wu3-m2",
+  "name": "无字袖手炮·第三局",
+  "fen": "1rb1kaR2/1Cc1aR3/n3c4/p3p1p1p/2p6/6P2/P1P1P3P/2N1B1r2/4A4/4KAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "f1e1"
+ },
+ {
+  "id": "wu3-m3",
+  "name": "无字袖手炮·第三局",
+  "fen": "1rbakaR2/1CcR5/n3c4/p3p1p1p/2p6/6P2/P1P1P3P/2N1B1r2/4A4/4KAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "d1f1"
+ },
+ {
+  "id": "wu4-m2",
+  "name": "无字袖手炮·第四局",
+  "fen": "rnbR5/1Cc1a2R1/4ck2C/p3p3p/2p2n3/6P2/P1P1P3P/2N1B4/4Ar3/4KAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "d0f0"
+ },
+ {
+  "id": "wu4-m3",
+  "name": "无字袖手炮·第四局",
+  "fen": "rnbR4C/1Cc1a2R1/4ckn2/p3p3p/2p6/6P2/P1P1P3P/2N1B4/4Ar3/4KAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "i0i2"
+ },
+ {
+  "id": "di1-m2",
+  "name": "敌字出手炮·第一局",
+  "fen": "2ba4r/5k3/4ba2n/pn2C1p1p/9/2C6/P1P1P3P/2Nr4B/9/2BAKA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "c5f5"
+ },
+ {
+  "id": "di1-m3",
+  "name": "敌字出手炮·第一局",
+  "fen": "2ba1k2r/2R6/4ba2n/pn2C1p1p/9/2C6/P1P1P3P/2Nr4B/9/2BAKA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "c1f1"
+ },
+ {
+  "id": "di5-m2",
+  "name": "敌字出手炮·第五局",
+  "fen": "C2k1ab2/2R6/4ca3/p3N1p2/8p/9/P3P1n1P/4B4/4A4/2B1KA1r1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "e3c2"
+ },
+ {
+  "id": "di5-m3",
+  "name": "敌字出手炮·第五局",
+  "fen": "C1R2ab2/3k5/4ca3/p3N1p2/8p/9/P3P1n1P/4B4/4A4/2B1KA1r1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "c0c1"
+ },
+ {
+  "id": "di2-m2",
+  "name": "敌字出手炮·第二局",
+  "fen": "2ba1abr1/9/4k3n/p3C1p1p/3R5/2C6/P1P5P/8B/4A4/2B1KA1r1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "c5e5"
+ },
+ {
+  "id": "di2-m3",
+  "name": "敌字出手炮·第二局",
+  "fen": "2ba1abr1/4k4/8n/p3C1p1p/3R1N3/2C6/P1P5P/8B/4A4/2B1KA1r1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f4e2"
+ },
+ {
+  "id": "di3-m2",
+  "name": "敌字出手炮·第三局",
+  "fen": "2bakab1r/9/2R3N1n/p3C1p2/9/8p/P1P1c3P/8B/4A4/2BK1A1r1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "c2e2"
+ },
+ {
+  "id": "di3-m3",
+  "name": "敌字出手炮·第三局",
+  "fen": "2bakab1r/9/2R3N1n/p3C1p2/9/8p/P1P1c3P/7rB/4A4/2B1KA1R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e9d9"
+ },
+ {
+  "id": "di4-m2",
+  "name": "敌字出手炮·第四局",
+  "fen": "5abr1/3ka4/C5N2/p5p1p/9/2P6/P3R1P1P/3C5/9/2BAKABr1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "a2d2"
+ },
+ {
+  "id": "di4-m3",
+  "name": "敌字出手炮·第四局",
+  "fen": "5abr1/4a4/C2k2N2/p5p1p/4R4/2P6/P3c1P1P/3C5/9/2BAKABr1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e4e6"
+ },
+ {
+  "id": "shou1-m2",
+  "name": "手字应手炮·第一局",
+  "fen": "2b1kNb2/9/2nR1a2n/p1p1C1p1p/4c4/8P/P8/2C6/4A1r2/2BA1KBr1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "f0e2"
+ },
+ {
+  "id": "shou1-m3",
+  "name": "手字应手炮·第一局",
+  "fen": "2bk1Nb2/9/2n1Ra2n/p1p1C1p1p/4c4/8P/P8/2C6/4A1r2/2BA1KBr1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e2d2"
+ },
+ {
+  "id": "shou2-m2",
+  "name": "手字应手炮·第二局",
+  "fen": "5ab2/3k5/2na2r1n/p1p1p1p1p/9/8P/P3C1P2/2C6/4A4/2BA1KB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "c7d7"
+ },
+ {
+  "id": "shou2-m3",
+  "name": "手字应手炮·第二局",
+  "fen": "3k1ab2/5R3/2na2r1n/p1p1p1p1p/9/8P/P3C1P2/2C6/4A4/2BA1KB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f1d1"
+ },
+ {
+  "id": "shou3-m2",
+  "name": "手字应手炮·第三局",
+  "fen": "2b2kbr1/2N1a2C1/2nc4n/p1p1p1p1p/2rR5/8P/P3P1P2/2N2C3/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "d4f4"
+ },
+ {
+  "id": "shou3-m3",
+  "name": "手字应手炮·第三局",
+  "fen": "2b2kbr1/2N1a2C1/2n2c2n/p1p1p1p1p/2rR5/8P/P3P1P2/2N1C4/9/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e7f7"
+ },
+ {
+  "id": "shou5-m2",
+  "name": "手字应手炮·第五局",
+  "fen": "2b1kab2/3RaR3/2n1N3n/p1p1p1p1p/2c6/8P/P5P2/2r1C4/4AK3/2BA2r2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "f1f0"
+ },
+ {
+  "id": "shou5-m3",
+  "name": "手字应手炮·第五局",
+  "fen": "2b1kab2/3RaR3/2n1N3n/p1p1p1p1p/4c4/8P/P5P2/2r1C4/4A4/2BA1Kr2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f9f8"
+ }
+]
