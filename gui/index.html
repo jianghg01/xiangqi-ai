@@ -77,15 +77,25 @@
         <option value="black">人执黑（后行）</option>
       </select>
       <span style="font-size:13px;align-self:center">引擎强度</span>
-      <select id="strength" title="搜索深度分级">
-        <option value="1">入门（1层）</option>
-        <option value="2">初级（2层）</option>
-        <option value="3">业余（3层）</option>
-        <option value="5">中级（5层）</option>
-        <option value="8">高级（8层）</option>
-        <option value="12">大师（12层）</option>
-        <option value="18">特大师（18层）</option>
-        <option value="24" selected>满级（24层）</option>
+      <select id="strength" title="搜索深度分级；低档位叠加概率性次优着法模拟 ELO 分段棋力">
+        <option value="1">入门（1层·约1200）</option>
+        <option value="2">初级（2层·约1300）</option>
+        <option value="3">业余（3层·约1400）</option>
+        <option value="5">中级（5层·约1600）</option>
+        <option value="8">高级（8层·约1800）</option>
+        <option value="12">大师（12层·约2100）</option>
+        <option value="18">特大师（18层·约2500）</option>
+        <option value="24" selected>满级（24层·约2800）</option>
+      </select>
+      <span style="font-size:13px;align-self:center">让子</span>
+      <select id="handicapSel" title="让子：引擎侧移除相应子力，只从初始局面开局时生效">
+        <option value="0" selected>不让子</option>
+        <option value="n1">让单马</option>
+        <option value="n2">让双马</option>
+        <option value="c1">让单炮</option>
+        <option value="c2">让双炮</option>
+        <option value="r1">让单车</option>
+        <option value="rnc">让车马炮</option>
       </select>
     </div>
     <div id="eveRows" style="display:none">
@@ -149,6 +159,17 @@
       </select>
     </div>
     <div class="note">避和求胜：引擎将主动避开三次重复/无进攻子力的和棋（已处败势时除外）</div>
+    <div class="row">
+      <span style="font-size:13px;align-self:center">赛制</span>
+      <select id="clockModeSel" title="正式赛制：包干/加秒，超时判负；不选则只统计用时">
+        <option value="0-0" selected>不限时</option>
+        <option value="5-0">包干 5 分钟</option>
+        <option value="10-0">包干 10 分钟</option>
+        <option value="20-0">包干 20 分钟</option>
+        <option value="10-5">10 分 + 5 秒</option>
+        <option value="20-10">20 分 + 10 秒</option>
+      </select>
+    </div>
     <div class="row">
       <span style="font-size:13px;align-self:center">每步时限</span>
       <select id="timeLimit" title="每步思考时间限制（人机/机机通用）；不限则按强度深度">

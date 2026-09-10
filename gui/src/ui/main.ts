@@ -9,6 +9,7 @@ import { CLASSICS, CLASSIC_CATEGORIES } from '../board/classics';
 import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
+import { blunderProfile, pickBlunder } from '../uci/elo';
 import { BoardView, Arrow } from './board-view';
 import { findKing } from '../rules/rules';
 
@@ -35,6 +36,8 @@ const avoidDrawSel = $('avoidDraw') as HTMLSelectElement;
 const useBookSel = $('useBook') as HTMLSelectElement;
 const threadsSel = $('threadsSel') as HTMLSelectElement;
 const hashSel = $('hashSel') as HTMLSelectElement;
+const handicapSel = $('handicapSel') as HTMLSelectElement;
+const clockModeSel = $('clockModeSel') as HTMLSelectElement;
 const endBanner = $('endBanner') as HTMLDivElement;
 
 // ---------- 对弈配置（避和/开局库/线程/哈希，localStorage 持久化） ----------
@@ -354,31 +357,112 @@ function rebuildPosSeen(start: BoardData, seq: string[]) {
   }
 }
 
-// ---------- 对局用时统计 ----------
+// ---------- 对局用时统计 / 赛制计时 ----------
 const clockEl = $('clock') as HTMLDivElement;
 let turnStart: number | null = null;   // 当前手开始思考的时刻
 let redMs = 0;
 let blackMs = 0;
+// 赛制（包干/加秒）：base=每方包干毫秒，inc=每步加秒毫秒；base=0 为不限时
+let clockBaseMs = 0;
+let clockIncMs = 0;
+let redLeftMs = 0;
+let blackLeftMs = 0;
+let lastTick: number | null = null;
 
 function fmtClock(ms: number): string {
-  const s = Math.floor(ms / 1000);
+  const s = Math.ceil(ms / 1000);
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
 
+function applyClockMode() {
+  const [b, i] = (clockModeSel.value || '0-0').split('-').map(Number);
+  clockBaseMs = (b || 0) * 60 * 1000;
+  clockIncMs = (i || 0) * 1000;
+}
+
+function onTimeout(loser: Side) {
+  gameOver = true;
+  turnStart = null;
+  lastTick = null;
+  if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; }
+  if (gameMode === 'eve') {
+    const winner = loser === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
+    gameResult = `超时，${winner}胜`;
+    setStatus(`超时！${winner}胜`);
+    showEndBanner(`超时 · ${winner}胜`);
+  } else {
+    const humanLost = loser === humanSide;
+    gameResult = humanLost ? '超时，引擎胜' : '超时，玩家胜';
+    setStatus('超时！' + (humanLost ? '你输了' : '你赢了'));
+    showEndBanner(humanLost ? '超时 · 引擎胜' : '超时 · 你赢了');
+  }
+}
+
 setInterval(() => {
-  if (mode !== 'play' || turnStart === null) return;
-  const cur = Date.now() - turnStart;
+  if (mode !== 'play' || gameOver || turnStart === null) { lastTick = null; return; }
+  const now = Date.now();
+  const dt = lastTick === null ? 0 : now - lastTick;
+  lastTick = now;
   const stm = view.getBoard().sideToMove;
-  const red = redMs + (stm === 'red' ? cur : 0);
-  const black = blackMs + (stm === 'black' ? cur : 0);
-  clockEl.textContent = `用时  红 ${fmtClock(red)} · 黑 ${fmtClock(black)}`;
-}, 500);
+  if (clockBaseMs > 0) {
+    // 赛制倒计时
+    if (stm === 'red') redLeftMs -= dt; else blackLeftMs -= dt;
+    if (redLeftMs <= 0) { onTimeout('red'); return; }
+    if (blackLeftMs <= 0) { onTimeout('black'); return; }
+    clockEl.textContent = `剩余  红 ${fmtClock(Math.max(0, redLeftMs))} · 黑 ${fmtClock(Math.max(0, blackLeftMs))}`;
+  } else {
+    // 不限时：累计用时展示
+    const cur = now - turnStart;
+    const red = redMs + (stm === 'red' ? cur : 0);
+    const black = blackMs + (stm === 'black' ? cur : 0);
+    clockEl.textContent = `用时  红 ${fmtClock(red)} · 黑 ${fmtClock(black)}`;
+  }
+}, 200);
 
 function resetClock() {
+  applyClockMode();
   redMs = 0;
   blackMs = 0;
+  redLeftMs = clockBaseMs;
+  blackLeftMs = clockBaseMs;
   turnStart = Date.now();
-  clockEl.textContent = '用时  红 00:00 · 黑 00:00';
+  clockEl.textContent = clockBaseMs > 0
+    ? `剩余  红 ${fmtClock(redLeftMs)} · 黑 ${fmtClock(blackLeftMs)}`
+    : '用时  红 00:00 · 黑 00:00';
+}
+
+// ---------- 让子（引擎侧移除子力，人机模式） ----------
+const HANDICAP_PLAN: Record<string, PieceType[]> = {
+  '0': [],
+  n1: ['N'],
+  n2: ['N', 'N'],
+  c1: ['C'],
+  c2: ['C', 'C'],
+  r1: ['R'],
+  rnc: ['R', 'N', 'C'],
+};
+
+// 本局起始局面：让子时从初始局面移除引擎侧指定子力（每类按边线→中线优先）
+function startBoardForGame(): BoardData {
+  const plan = HANDICAP_PLAN[handicapSel.value] || [];
+  const b = initialBoard();
+  if (!plan.length || gameMode !== 'pve') return b;
+  const engineSide: Side = humanSide === 'red' ? 'black' : 'red';
+  const fileOrder = [0, 8, 1, 7, 2, 6, 3, 5, 4];
+  for (const type of plan) {
+    for (const f of fileOrder) {
+      let removed = false;
+      for (let r = 0; r < 10 && !removed; r++) {
+        const p = b.pieces[r][f];
+        if (p && p.side === engineSide && p.type === type) {
+          b.pieces[r][f] = null;
+          removed = true;
+        }
+      }
+      if (removed) break;
+    }
+  }
+  return b;
 }
 
 // ---------- 对弈流程 ----------
@@ -392,7 +476,8 @@ function newGame() {
   } else {
     startAction();
   }
-  view.replaceBoard(initialBoard());
+  const startBoard = startBoardForGame();
+  view.replaceBoard(startBoard);
   movesHistory = [];
   movesZhLive = [];
   gameOver = false;
@@ -421,12 +506,15 @@ function newGame() {
 function doMove(mv: Move) {
   const board = view.getBoard();
   const captured = !!board.pieces[mv.to.rank][mv.to.file];
-  // 累计走子方本手思考用时
+  // 累计走子方本手思考用时；加秒制补时
   if (turnStart !== null) {
     const elapsed = Date.now() - turnStart;
-    if (board.sideToMove === 'red') redMs += elapsed; else blackMs += elapsed;
+    if (board.sideToMove === 'red') { redMs += elapsed; redLeftMs += clockIncMs; }
+    else { blackMs += elapsed; blackLeftMs += clockIncMs; }
     turnStart = Date.now();
   }
+  // 局面变化，旧的推荐箭头作废（分析更新后重画）
+  view.setArrows([]);
   const nb = applyMove(board, mv);
   movesHistory.push(toIccs(mv));
   playSound(captured ? 'capture' : 'move');
@@ -539,8 +627,8 @@ function engineMove() {
     }
   }
   waitingFor = 'engine';
-  // 避和求胜：开启时用 MultiPV 2 搜索，留出替代着法供避和切换；关闭时单线全速
-  client.setOption('MultiPV', avoidDrawOn() ? 2 : 1);
+  // 避和求胜（需 2 线）与低强度扰动（需 3 线）共用 MultiPV；都不需要时单线全速
+  client.setOption('MultiPV', avoidDrawOn() || blunderProfile(getDepth()) !== null ? 3 : 1);
   // 注意：只发当前 FEN，不再叠加 moves（FEN 已是最新位置，叠加会触发引擎严格校验崩溃）
   client.position(view.getFen());
   const limit = parseInt(timeLimitSel.value, 10) || 0;
@@ -580,6 +668,19 @@ function onBestmove(bm: string) {
     if (!raw) { setStatus('引擎着法解析失败: ' + bm); return; }
     // 引擎 ICCS 坐标（rank 0=红底线）转内部坐标（rank 0=黑底线）
     let mv = engineMoveToLocal(raw);
+    // ELO 扰动：低强度档概率性改走容差内的次优着法（模拟分段棋力）
+    const prof = blunderProfile(getDepth());
+    if (prof) {
+      const bestCp = lastInfoMap.get(1)?.scoreCp ?? null;
+      const cands: { mv: Move; cp: number }[] = [];
+      for (const k of [1, 2, 3]) {
+        const i = lastInfoMap.get(k);
+        const imv = i && i.pv.length ? parseIccs(enginePvToLocal(i.pv)[0]) : null;
+        if (i && imv && i.scoreCp !== null) cands.push({ mv: engineMoveToLocal(imv), cp: i.scoreCp });
+      }
+      const pick = pickBlunder(cands, bestCp, prof.margin, Math.random());
+      if (pick) mv = pick.mv;
+    }
     // 避和求胜：最佳着法将立即成和、且引擎不处败势时，改走评分可接受的替代着法
     if (avoidDrawOn() && wouldEndInDraw(mv)) {
       const best = lastInfoMap.get(1);
@@ -835,6 +936,13 @@ gameModeSel.addEventListener('change', () => {
 redStrengthSel.addEventListener('change', () => { if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame(); });
 blackStrengthSel.addEventListener('change', () => { if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame(); });
 timeLimitSel.addEventListener('change', () => { if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame(); });
+handicapSel.addEventListener('change', () => { if (mode === 'play' && gameMode === 'pve' && !waitingFor && !gameOver) newGame(); });
+clockModeSel.addEventListener('change', () => {
+  applyClockMode();
+  redLeftMs = clockBaseMs;
+  blackLeftMs = clockBaseMs;
+  if (mode === 'play') setStatus(clockBaseMs > 0 ? '赛制已更新，双方重新计时' : '已切换为不限时');
+});
 
 // ---------- 编辑面板（编辑模式专用） ----------
 const red: PieceType[] = ['K', 'A', 'B', 'N', 'R', 'C', 'P'];
