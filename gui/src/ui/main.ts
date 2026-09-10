@@ -10,7 +10,7 @@ import puzzlesJson from '../data/puzzles.json';
 import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
-import { blunderProfile, pickBlunder } from '../uci/elo';
+import { blunderProfile, pickBlunder, estimateElo, DEPTH_ELO } from '../uci/elo';
 import { BoardView, Arrow, BOARD_THEMES } from './board-view';
 import { findKing } from '../rules/rules';
 
@@ -328,6 +328,11 @@ function finishReview() {
   reviewReportEl.textContent = [fmt('red'), fmt('black')].filter(Boolean).join(' · ') || '点评完成';
   const cur = reviewClickable ? replayIdx : n;
   renderMoveList(reviewRec.moves, reviewRec.movesZh ?? [], cur, reviewClickable, reviewMarks);
+  // 复盘中的点评结果随棋谱保存（再次载入可直接显示）
+  if (reviewClickable && replayRecord) {
+    replayRecord.marks = [...reviewMarks];
+    replayRecord.review = reviewReportEl.textContent;
+  }
   reviewing = false;
   setStatus('点评完成');
   // 恢复 MultiPV（分析 3 / 避和 2 / 普通 1）
@@ -552,6 +557,7 @@ function afterMove() {
       gameResult = `闯关成功（${puzzleActive.movesToMate}步杀）`;
       setStatus(`闯关成功！${puzzleActive.name}`);
       showEndBanner(`闯关成功 · ${puzzleActive.name}`);
+      markPuzzleDone(puzzleActive.id);
       puzzleActive = null;
       return;
     }
@@ -1021,6 +1027,8 @@ interface GameRecord {
   moves: string[];      // ICCS 着法（内部坐标，rank 0=黑底线）
   movesZh?: string[];   // 对应中文记谱（v2 起保存）
   result: string;
+  marks?: (string | null)[]; // AI 点评标记（与 moves 对齐，v3 起保存）
+  review?: string;           // AI 点评 ACPL 汇总文本
 }
 
 const replayRow = $('replayRow') as HTMLDivElement;
@@ -1107,6 +1115,12 @@ $('btnSaveGame').addEventListener('click', async () => {
     movesZh: movesToChinese(startBoard, movesHistory),
     result: gameResult || (gameOver ? '对局结束' : '对局未结束'),
   };
+  // 已点评则随棋谱保存（载入复盘可直接显示标记与 ACPL）
+  if (reviewMarks.length === movesHistory.length) {
+    rec.marks = [...reviewMarks];
+    const rt = reviewReportEl.textContent;
+    if (rt && rt !== 'AI点评中…' && rt !== '已取消点评') rec.review = rt;
+  }
   const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
   try {
     const savedPath = await engineApi.saveText(`棋谱_${ts}.json`, JSON.stringify(rec, null, 2));
@@ -1244,18 +1258,23 @@ function renderStats() {
     const draw = pve.filter(r => r.winner === 'draw').length;
     const loss = pve.length - win - draw;
     lines.push(`人机对弈：胜 ${win} · 和 ${draw} · 负 ${loss}（胜率 ${((win / pve.length) * 100).toFixed(0)}%）`);
-    // 按强度档统计（胜/局）
-    const byStrength = new Map<string, { w: number; n: number }>();
+    // 按强度档统计（胜/局） + 棋力估算
+    const byStrength = new Map<string, { w: number; l: number; n: number }>();
     for (const r of pve) {
       const k = String(r.strength ?? '?');
-      const s = byStrength.get(k) || { w: 0, n: 0 };
+      const s = byStrength.get(k) || { w: 0, l: 0, n: 0 };
       s.n++;
       if (r.winner === r.humanSide) s.w++;
+      else if (r.winner !== 'draw') s.l++;
       byStrength.set(k, s);
     }
     const order = ['1', '2', '3', '5', '8', '12', '18', '24'];
     const parts = order.filter(k => byStrength.has(k)).map(k => `${k}层:${byStrength.get(k)!.w}/${byStrength.get(k)!.n}`);
     if (parts.length) lines.push(`分档胜/局：${parts.join(' · ')}`);
+    const est = estimateElo(order
+      .filter(k => byStrength.has(k))
+      .map(k => ({ elo: DEPTH_ELO[k] ?? 0, win: byStrength.get(k)!.w, loss: byStrength.get(k)!.l, games: byStrength.get(k)!.n })));
+    if (est) lines.push(`棋力参考：约 ${est}（各档 ≥3 局参与估算）`);
   }
   if (eve.length) {
     const redWin = eve.filter(r => r.winner === 'red').length;
@@ -1379,6 +1398,11 @@ $('btnLibSave').addEventListener('click', async () => {
     movesZh: movesToChinese(startBoard, movesHistory),
     result: gameResult || (gameOver ? '对局结束' : '对局未结束'),
   };
+  if (reviewMarks.length === movesHistory.length) {
+    rec.marks = [...reviewMarks];
+    const rt = reviewReportEl.textContent;
+    if (rt && rt !== 'AI点评中…' && rt !== '已取消点评') rec.review = rt;
+  }
   const res = await engineApi.libSave(`棋谱_${ts}.json`, JSON.stringify(rec, null, 2));
   setStatus(res === true ? '已存入棋谱库' : '保存失败');
   refreshLib();
@@ -1412,6 +1436,9 @@ function enterReplay(rec: GameRecord) {
   // 进入复盘：退出打谱状态
   guessMode = false;
   guessFrom = null;
+  // 载入棋谱自带的 AI 点评结果（如有）
+  reviewMarks = Array.isArray(rec.marks) && rec.marks.length === rec.moves.length ? [...rec.marks] : [];
+  reviewReportEl.textContent = rec.review ?? '';
   ($('btnGuess') as HTMLButtonElement).textContent = '打谱训练';
   ($('btnRepNext') as HTMLButtonElement).disabled = false;
   ($('btnRepLast') as HTMLButtonElement).disabled = false;
@@ -1469,7 +1496,7 @@ function renderReplayList() {
     const maskedZh = replayMovesZh.map((z, i) => (i < replayIdx ? z : '？'));
     renderMoveList(masked, maskedZh, replayIdx, false);
   } else {
-    renderMoveList(replayRecord.moves, replayMovesZh, replayIdx, true);
+    renderMoveList(replayRecord.moves, replayMovesZh, replayIdx, true, reviewMarks);
   }
 }
 
@@ -1592,10 +1619,27 @@ const puzzleInfoEl = $('puzzleInfo') as HTMLSpanElement;
 let puzzleActive: Puzzle | null = null;
 let puzzleHumanMoves = 0;
 
-for (const p of PUZZLES) {
-  puzzleSel.add(new Option(`${p.name}（${p.movesToMate}步杀）`, p.id));
+// 闯关进度记忆（localStorage）
+const PUZZLE_DONE_KEY = 'xz_puzzle_done';
+function getPuzzleDone(): Set<string> {
+  try { return new Set(JSON.parse(localStorage.getItem(PUZZLE_DONE_KEY) || '[]') as string[]); }
+  catch { return new Set(); }
 }
-puzzleInfoEl.textContent = `共 ${PUZZLES.length} 关`;
+function markPuzzleDone(id: string) {
+  const s = getPuzzleDone();
+  s.add(id);
+  try { localStorage.setItem(PUZZLE_DONE_KEY, JSON.stringify([...s])); } catch { /* 忽略 */ }
+  refreshPuzzleLabels();
+}
+function refreshPuzzleLabels() {
+  const done = getPuzzleDone();
+  puzzleSel.innerHTML = '';
+  for (const p of PUZZLES) {
+    puzzleSel.add(new Option(`${done.has(p.id) ? '✓ ' : ''}${p.name}（${p.movesToMate}步杀）`, p.id));
+  }
+  puzzleInfoEl.textContent = `共 ${PUZZLES.length} 关 · 已过 ${done.size} 关`;
+}
+refreshPuzzleLabels();
 
 function loadPuzzle() {
   const p = PUZZLES.find(x => x.id === puzzleSel.value);

@@ -55,6 +55,9 @@ export class BoardView {
   private checkSquare: Square | null = null;   // 被将军一方的将/帅位置（红圈标记）
   private arrows: Arrow[] = [];                // 分析提示箭头
   private theme: BoardTheme = BOARD_THEMES.classic.theme;
+  private dragFrom: Square | null = null;      // 拖拽中的棋子起点
+  private dragPos: [number, number] | null = null; // 拖拽当前像素位置
+  private swallowClick = false;                // 拖拽后吞掉紧随的 click
   private flipped = false;                     // 人执黑时上下翻转棋盘
   // 对弈模式：设置后接管棋盘点击；为 null 时走编辑摆子逻辑
   onSquare: ((s: Square) => void) | null = null;
@@ -72,7 +75,56 @@ export class BoardView {
     this.board = board;
 
     canvas.addEventListener('click', e => this.onClick(e));
+    canvas.addEventListener('mousedown', e => this.onMouseDown(e));
+    canvas.addEventListener('mousemove', e => this.onMouseMove(e));
+    canvas.addEventListener('mouseup', e => this.onMouseUp(e));
+    canvas.addEventListener('mouseleave', () => {
+      if (this.dragFrom) { this.dragFrom = null; this.dragPos = null; this.draw(); }
+    });
     this.draw();
+  }
+
+  // 拖拽走子：仅对弈模式（onSquare 已接管）启用；按住己方棋子拖到目标格即走子
+  private onMouseDown(e: MouseEvent) {
+    if (!this.onSquare || this.animating) return;
+    const s = this.toSquare(e);
+    if (!s) return;
+    if (!getPiece(this.board, s.file, s.rank)) return;
+    this.dragFrom = s;
+    this.dragPos = this.eventPos(e);
+  }
+
+  private onMouseMove(e: MouseEvent) {
+    if (!this.dragFrom) return;
+    this.dragPos = this.eventPos(e);
+    this.draw();
+    const p = getPiece(this.board, this.dragFrom.file, this.dragFrom.rank);
+    if (p && this.dragPos) this.drawPiece(p, this.dragPos[0], this.dragPos[1], true);
+  }
+
+  private onMouseUp(e: MouseEvent) {
+    if (!this.dragFrom) return;
+    const from = this.dragFrom;
+    this.dragFrom = null;
+    this.dragPos = null;
+    this.swallowClick = true; // 抑制 mouseup 后浏览器补发的 click
+    const to = this.toSquare(e);
+    const same = to && to.file === from.file && to.rank === from.rank;
+    if (to && !same) {
+      // 先选起点再落目标：与两次点击等价（复用现有选择/走子逻辑）
+      this.onSquare?.(from);
+      this.onSquare?.(to);
+    } else {
+      // 原地松手：等价单击选中
+      this.onSquare?.(from);
+    }
+    this.draw();
+  }
+
+  // 事件坐标 → 画布逻辑坐标（CSS 像素 = 逻辑像素）
+  private eventPos(e: MouseEvent): [number, number] {
+    const rect = this.canvas.getBoundingClientRect();
+    return [e.clientX - rect.left, e.clientY - rect.top];
   }
 
   setOnChange(cb: () => void) { this.onChange = cb; }
@@ -135,6 +187,7 @@ export class BoardView {
   }
 
   private onClick(e: MouseEvent) {
+    if (this.swallowClick) { this.swallowClick = false; return; }
     const s = this.toSquare(e);
     if (!s || this.animating) return;
     if (this.onSquare) {
@@ -268,9 +321,10 @@ export class BoardView {
       }
     }
 
-    // 棋子
+    // 棋子（拖拽中的棋子最后单独绘制在光标处）
     for (let r = 0; r < 10; r++)
       for (let f = 0; f < 9; f++) {
+        if (this.dragFrom && this.dragFrom.file === f && this.dragFrom.rank === r) continue;
         const p = getPiece(this.board, f, r);
         if (p) {
           const [x, y] = this.toXy(sq(f, r));

@@ -1,6 +1,6 @@
 // ELO 扰动逻辑测试
 import { describe, it, expect } from 'vitest';
-import { blunderProfile, pickBlunder } from '../src/uci/elo';
+import { blunderProfile, pickBlunder, estimateElo } from '../src/uci/elo';
 
 describe('blunderProfile 强度分档', () => {
   it('满级及以上不扰动', () => {
@@ -41,5 +41,24 @@ describe('pickBlunder 次优选择', () => {
   it('rand 越界保护', () => {
     expect(pickBlunder(cands, 100, 100, 5)?.key).toBe('c3');
     expect(pickBlunder(cands, 100, 100, -1)?.key).toBe('a1');
+  });
+});
+
+describe('estimateElo 棋力估算', () => {
+  it('样本不足（<3局）不参与估算', () => {
+    expect(estimateElo([{ elo: 1800, win: 2, loss: 0, games: 2 }])).toBeNull();
+  });
+  it('全胜表现分高于档位，全负低于档位', () => {
+    const win = estimateElo([{ elo: 1800, win: 4, loss: 0, games: 4 }])!;
+    const loss = estimateElo([{ elo: 1800, win: 0, loss: 4, games: 4 }])!;
+    expect(win).toBe(2200);           // 1800+400
+    expect(loss).toBe(1400);          // 1800-400
+  });
+  it('多档按局数加权', () => {
+    const r = estimateElo([
+      { elo: 1600, win: 4, loss: 0, games: 4 },  // 2000 ×4
+      { elo: 2100, win: 0, loss: 4, games: 4 },  // 1700 ×4
+    ])!;
+    expect(r).toBe(1850);             // (2000*4 + 1700*4)/8
   });
 });

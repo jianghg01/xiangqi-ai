@@ -4,6 +4,31 @@ export interface BlunderProfile {
   margin: number; // 可接受次优损失上限（厘兵）
 }
 
+// 各深度档参考 ELO（与强度下拉选项一致）
+export const DEPTH_ELO: Record<string, number> = {
+  '1': 1200, '2': 1300, '3': 1400, '5': 1600,
+  '8': 1800, '12': 2100, '18': 2500, '24': 2800,
+};
+
+export interface PerfRecord {
+  elo: number;    // 该档引擎参考 ELO
+  win: number;
+  loss: number;
+  games: number;
+}
+
+// 棋力估算（表现分法）：每档 ELO + 400*(胜-负)/局，按局数加权平均；每档不足 3 局不参与
+export function estimateElo(perfs: PerfRecord[]): number | null {
+  let sum = 0;
+  let n = 0;
+  for (const p of perfs) {
+    if (p.games < 3 || p.elo <= 0) continue;
+    sum += (p.elo + (400 * (p.win - p.loss)) / p.games) * p.games;
+    n += p.games;
+  }
+  return n ? Math.round(sum / n) : null;
+}
+
 // 按搜索深度档给出扰动参数；>=18 层（满级）不扰动
 export function blunderProfile(depth: number): BlunderProfile | null {
   if (depth >= 18) return null;
