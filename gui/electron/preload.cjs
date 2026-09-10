@@ -9,4 +9,8 @@ contextBridge.exposeInMainWorld('engine', {
   saveText: (defaultName, content, kind) => ipcRenderer.invoke('file:save', { defaultName, content, kind }),
   saveImage: (defaultName, dataUrl) => ipcRenderer.invoke('file:save-image', { defaultName, dataUrl }),
   openText: () => ipcRenderer.invoke('file:open'),
+  libList: () => ipcRenderer.invoke('lib:list'),
+  libRead: name => ipcRenderer.invoke('lib:read', name),
+  libSave: (name, content) => ipcRenderer.invoke('lib:save', { name, content }),
+  libDelete: name => ipcRenderer.invoke('lib:delete', name),
 });

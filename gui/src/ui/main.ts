@@ -384,6 +384,7 @@ function onTimeout(loser: Side) {
   gameOver = true;
   turnStart = null;
   lastTick = null;
+  recordGame(loser === 'red' ? 'black' : 'red');
   if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; }
   if (gameMode === 'eve') {
     const winner = loser === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
@@ -543,6 +544,7 @@ function afterMove() {
   view.setCheck(st.status === 'check' || st.status === 'checkmate' ? findKing(board, board.sideToMove) : null);
   if (st.status === 'checkmate') {
     gameOver = true;
+    recordGame(board.sideToMove === 'red' ? 'black' : 'red');
     if (gameMode === 'eve') {
       const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
       gameResult = `绝杀，${winner}胜`;
@@ -557,6 +559,7 @@ function afterMove() {
   }
   if (st.status === 'stalemate') {
     gameOver = true;
+    recordGame(board.sideToMove === 'red' ? 'black' : 'red');
     if (gameMode === 'eve') {
       const winner = board.sideToMove === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
       gameResult = `困毙，${winner}胜`;
@@ -571,6 +574,7 @@ function afterMove() {
   }
   if (isMaterialDraw(board)) {
     gameOver = true;
+    recordGame('draw');
     gameResult = '双方无进攻子力，判和';
     setStatus('双方均无进攻子力（只剩士象将帅），和棋');
     showEndBanner('双方无进攻子力 · 和棋', true);
@@ -578,6 +582,7 @@ function afterMove() {
   }
   if ((posSeen.get(posKey(board)) || 0) >= 3) {
     gameOver = true;
+    recordGame('draw');
     gameResult = '三次重复局面，判和';
     setStatus('双方三次重复局面，和棋');
     showEndBanner('三次重复局面 · 和棋', true);
@@ -1087,16 +1092,13 @@ $('btnSaveGame').addEventListener('click', async () => {
   }
 });
 
-// 打开棋谱 → 进入复盘（JSON 用自带数据；PGN 用中文/ICCS 记法反推解析）
-$('btnLoadGame').addEventListener('click', async () => {
-  if (!engineApi) { setStatus('浏览器模式不支持打开棋谱（需 Electron）'); return; }
-  const r = await engineApi.openText();
-  if (!r) return;
+// 棋谱文本（JSON/PGN）→ 复盘
+function loadRecordFromText(content: string): boolean {
   try {
-    const isPgn = /\.pgn$/i.test(r.path) || r.content.trimStart().startsWith('[');
+    const isPgn = content.trimStart().startsWith('[');
     if (isPgn) {
-      const meta = parsePgn(r.content);
-      if (!meta.moves.length) { setStatus('PGN 中未解析出有效着法'); return; }
+      const meta = parsePgn(content);
+      if (!meta.moves.length) { setStatus('PGN 中未解析出有效着法'); return false; }
       enterReplay({
         app: 'xiangqi-ai', version: 2, date: '',
         startFen: meta.startFen,
@@ -1105,17 +1107,27 @@ $('btnLoadGame').addEventListener('click', async () => {
         moves: meta.moves,
         result: meta.result || '对局结束',
       });
-      return;
+      return true;
     }
-    const rec = JSON.parse(r.content) as GameRecord;
+    const rec = JSON.parse(content) as GameRecord;
     if (!rec || !Array.isArray(rec.moves) || rec.moves.some(m => typeof m !== 'string')) {
       setStatus('棋谱文件格式无效');
-      return;
+      return false;
     }
     enterReplay(rec);
+    return true;
   } catch {
     setStatus('棋谱文件解析失败');
+    return false;
   }
+}
+
+// 打开棋谱 → 进入复盘（JSON 用自带数据；PGN 用中文/ICCS 记法反推解析）
+$('btnLoadGame').addEventListener('click', async () => {
+  if (!engineApi) { setStatus('浏览器模式不支持打开棋谱（需 Electron）'); return; }
+  const r = await engineApi.openText();
+  if (!r) return;
+  loadRecordFromText(r.content);
 });
 
 // 导出棋盘局面 PNG 图片
@@ -1154,6 +1166,132 @@ $('btnSavePgn').addEventListener('click', async () => {
   } catch (err) {
     setStatus('导出失败: ' + (err as Error).message);
   }
+});
+
+// ---------- 战绩统计（localStorage，上限 500 条） ----------
+interface StatRecord {
+  mode: string;
+  humanSide: Side | null;
+  winner: Side | 'draw';
+  strength: string | null;
+}
+const REC_KEY = 'xz_records';
+const statsReportEl = $('statsReport') as HTMLDivElement;
+
+function recordGame(winner: Side | 'draw') {
+  if (!movesHistory.length) return;
+  try {
+    const arr = JSON.parse(localStorage.getItem(REC_KEY) || '[]') as StatRecord[];
+    arr.push({
+      mode: gameMode,
+      humanSide: gameMode === 'pve' ? humanSide : null,
+      winner,
+      strength: gameMode === 'pve' ? strengthSel.value : null,
+    });
+    while (arr.length > 500) arr.shift();
+    localStorage.setItem(REC_KEY, JSON.stringify(arr));
+  } catch { /* 忽略 */ }
+}
+
+function renderStats() {
+  let arr: StatRecord[] = [];
+  try { arr = JSON.parse(localStorage.getItem(REC_KEY) || '[]') as StatRecord[]; } catch { /* 忽略 */ }
+  if (!arr.length) { statsReportEl.textContent = '暂无战绩'; return; }
+  const pve = arr.filter(r => r.mode === 'pve');
+  const eve = arr.filter(r => r.mode === 'eve');
+  const lines: string[] = [`共 ${arr.length} 局（人机 ${pve.length} · 机机 ${eve.length}）`];
+  if (pve.length) {
+    const win = pve.filter(r => r.winner === r.humanSide).length;
+    const draw = pve.filter(r => r.winner === 'draw').length;
+    const loss = pve.length - win - draw;
+    lines.push(`人机对弈：胜 ${win} · 和 ${draw} · 负 ${loss}（胜率 ${((win / pve.length) * 100).toFixed(0)}%）`);
+    // 按强度档统计（胜/局）
+    const byStrength = new Map<string, { w: number; n: number }>();
+    for (const r of pve) {
+      const k = String(r.strength ?? '?');
+      const s = byStrength.get(k) || { w: 0, n: 0 };
+      s.n++;
+      if (r.winner === r.humanSide) s.w++;
+      byStrength.set(k, s);
+    }
+    const order = ['1', '2', '3', '5', '8', '12', '18', '24'];
+    const parts = order.filter(k => byStrength.has(k)).map(k => `${k}层:${byStrength.get(k)!.w}/${byStrength.get(k)!.n}`);
+    if (parts.length) lines.push(`分档胜/局：${parts.join(' · ')}`);
+  }
+  if (eve.length) {
+    const redWin = eve.filter(r => r.winner === 'red').length;
+    const draw = eve.filter(r => r.winner === 'draw').length;
+    lines.push(`机机对弈：红胜 ${redWin} · 和 ${draw} · 黑胜 ${eve.length - redWin - draw}`);
+  }
+  statsReportEl.textContent = lines.join('\n');
+}
+
+$('btnStats').addEventListener('click', renderStats);
+$('btnStatsClear').addEventListener('click', () => {
+  try { localStorage.removeItem(REC_KEY); } catch { /* 忽略 */ }
+  statsReportEl.textContent = '已清空';
+});
+
+// ---------- 棋谱库（Electron games/ 目录） ----------
+const libListEl = $('libList') as HTMLDivElement;
+
+async function refreshLib() {
+  if (!engineApi?.libList) { libListEl.textContent = '（需 Electron）'; return; }
+  const r = await engineApi.libList();
+  if (!Array.isArray(r)) { libListEl.textContent = '读取失败：' + (('error' in r && r.error) || ''); return; }
+  if (!r.length) { libListEl.textContent = '库为空，对局后可存入'; return; }
+  libListEl.innerHTML = '';
+  for (const it of r) {
+    const row = document.createElement('div');
+    const d = new Date(it.mtime);
+    const span = document.createElement('span');
+    span.textContent = `${it.name}（${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}）`;
+    const btnLoad = document.createElement('button');
+    btnLoad.textContent = '载入';
+    btnLoad.addEventListener('click', async () => {
+      if (!engineApi?.libRead) return;
+      const rr = await engineApi.libRead(it.name);
+      if (!Array.isArray(rr) && 'error' in rr) { setStatus('读取失败：' + rr.error); return; }
+      if ('content' in rr) loadRecordFromText(rr.content);
+    });
+    const btnDel = document.createElement('button');
+    btnDel.textContent = '删除';
+    btnDel.addEventListener('click', async () => {
+      if (!engineApi?.libDelete) return;
+      await engineApi.libDelete(it.name);
+      refreshLib();
+    });
+    row.appendChild(span);
+    row.appendChild(document.createTextNode(' '));
+    row.appendChild(btnLoad);
+    row.appendChild(document.createTextNode(' '));
+    row.appendChild(btnDel);
+    libListEl.appendChild(row);
+  }
+}
+$('btnLibRefresh').addEventListener('click', refreshLib);
+
+$('btnLibSave').addEventListener('click', async () => {
+  if (!engineApi?.libSave) { setStatus('浏览器模式不支持（需 Electron）'); return; }
+  if (mode !== 'play' || !movesHistory.length) { setStatus('当前没有可保存的对局'); return; }
+  let startBoard;
+  try { startBoard = parseFen(startFen).board; } catch { startBoard = initialBoard(); }
+  const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+  const rec: GameRecord = {
+    app: 'xiangqi-ai',
+    version: 2,
+    date: new Date().toISOString(),
+    startFen: startFen || view.getFen(),
+    mode: gameMode,
+    redName: sideName('red'),
+    blackName: sideName('black'),
+    moves: [...movesHistory],
+    movesZh: movesToChinese(startBoard, movesHistory),
+    result: gameResult || (gameOver ? '对局结束' : '对局未结束'),
+  };
+  const res = await engineApi.libSave(`棋谱_${ts}.json`, JSON.stringify(rec, null, 2));
+  setStatus(res === true ? '已存入棋谱库' : '保存失败');
+  refreshLib();
 });
 
 function enterReplay(rec: GameRecord) {

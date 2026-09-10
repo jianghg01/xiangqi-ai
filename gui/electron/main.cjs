@@ -160,6 +160,45 @@ ipcMain.handle('file:save-image', async (_e, { defaultName, dataUrl }) => {
 
 ipcMain.handle('engine:alive', () => !!eng);
 
+// ---------- 棋谱库（gui/games/ 目录：列表/读取/保存/删除） ----------
+function libDir() { return path.join(__dirname, '..', 'games'); }
+
+ipcMain.handle('lib:list', () => {
+  try {
+    const dir = libDir();
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    return fs.readdirSync(dir)
+      .filter(f => f.endsWith('.json') || f.endsWith('.pgn'))
+      .map(f => {
+        const st = fs.statSync(path.join(dir, f));
+        return { name: f, size: st.size, mtime: st.mtimeMs };
+      })
+      .sort((a, b) => b.mtime - a.mtime);
+  } catch (e) { return { error: String(e) }; }
+});
+
+ipcMain.handle('lib:read', (_e, name) => {
+  try {
+    const file = path.join(libDir(), path.basename(String(name)));
+    if (!fs.existsSync(file)) return { error: '文件不存在' };
+    return { content: fs.readFileSync(file, 'utf8') };
+  } catch (e) { return { error: String(e) }; }
+});
+
+ipcMain.handle('lib:save', (_e, { name, content }) => {
+  try {
+    const dir = libDir();
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, path.basename(String(name))), String(content), 'utf8');
+    return true;
+  } catch (e) { return { error: String(e) }; }
+});
+
+ipcMain.handle('lib:delete', (_e, name) => {
+  try { fs.unlinkSync(path.join(libDir(), path.basename(String(name)))); return true; }
+  catch (e) { return { error: String(e) }; }
+});
+
 app.whenReady().then(() => {
   if (!process.env.VITE_URL) registerAppProtocol();
   createWindow();
