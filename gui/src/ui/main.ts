@@ -40,6 +40,7 @@ const hashSel = $('hashSel') as HTMLSelectElement;
 const handicapSel = $('handicapSel') as HTMLSelectElement;
 const clockModeSel = $('clockModeSel') as HTMLSelectElement;
 const endBanner = $('endBanner') as HTMLDivElement;
+const interveneChk = $('interveneChk') as HTMLInputElement;
 
 // ---------- 对弈配置（避和/开局库/线程/哈希，localStorage 持久化） ----------
 const CFG_KEY = 'xz_play_cfg';
@@ -90,6 +91,9 @@ let flipManual: boolean | null = null;
 const autoFlipped = () => gameMode === 'pve' && humanSide === 'black';
 function effectiveFlip(): boolean { return flipManual !== null ? flipManual : autoFlipped(); }
 function applyFlip() { view.setFlipped(effectiveFlip()); }
+// 干预引擎着法：挂起中的引擎建议着法（非空=引擎已想好，等人确认或改走）
+let engineProposal: { mv: Move; zh: string } | null = null;
+const interveneOn = () => interveneChk.checked && mode === 'play' && gameMode === 'pve' && !puzzleActive;
 let gameOver = false;
 let gameResult = '';                    // 对局结果描述（存入棋谱）
 let startFen = '';                      // 本局起始 FEN（保存棋谱用）
@@ -479,6 +483,7 @@ function startBoardForGame(): BoardData {
 
 // ---------- 对弈流程 ----------
 function newGame(startBoardOverride?: BoardData) {
+  engineProposal = null; // 清除挂起的引擎着法
   const startAction = () => {
     if (engineTurnNow()) engineMove();
   };
@@ -730,6 +735,14 @@ function onBestmove(bm: string) {
     // 记录引擎思考分数进胜率曲线
     const best = lastInfoMap.get(1);
     if (best && best.scoreCp !== null) pushCp(best.scoreCp);
+    // 干预开关：不直接落子，挂起为建议着法，等人确认或改走
+    if (interveneOn()) {
+      engineProposal = { mv, zh: moveToChinese(view.getBoard(), mv) };
+      view.setArrows([{ from: mv.from, to: mv.to, rank: 0 }]);
+      view.setHighlights([mv.to]);
+      setStatus(`引擎建议：${engineProposal.zh}（点击该子再点落点确认，或改走其他棋；关闭开关则自动落子）`);
+      return;
+    }
     doMove(mv);
   } else if (waitingFor === 'analysis') {
     waitingFor = null;
@@ -805,12 +818,30 @@ function playSquareClick(s: Square) {
   if (mode !== 'play' || gameOver || waitingFor || reviewing) return;
   if (gameMode === 'eve') return; // 机机对弈：人不落子
   const board = view.getBoard();
-  if (board.sideToMove !== humanSide) return; // 引擎回合
-  const p = board.pieces[s.rank][s.file];
+  // 干预模式：引擎行棋但着法已挂起——人替引擎确认/改走
+  if (board.sideToMove !== humanSide) {
+    if (!engineProposal) return; // 引擎仍在思考或未开干预
+    const p = board.pieces[s.rank][s.file];
+    if (selected) {
+      const hit = targets.find(m => m.to.file === s.file && m.to.rank === s.rank);
+      if (hit) { confirmEngineMove(hit); return; }
+    }
+    if (p && p.side === board.sideToMove) {
+      selected = s;
+      targets = legalMovesFrom(board, s);
+      view.setHighlights(targets.map(m => m.to));
+    } else {
+      selected = null;
+      targets = [];
+      view.setHighlights([]);
+    }
+    return;
+  }
   if (selected) {
     const hit = targets.find(m => m.to.file === s.file && m.to.rank === s.rank);
     if (hit) { doMove(hit); return; }
   }
+  const p = board.pieces[s.rank][s.file];
   if (p && p.side === humanSide) {
     selected = s;
     targets = legalMovesFrom(board, s);
@@ -822,6 +853,28 @@ function playSquareClick(s: Square) {
   }
 }
 view.onSquare = playSquareClick;
+
+// 干预确认：mv 为引擎建议或人改走的着法，清挂起并落子
+function confirmEngineMove(mv: Move) {
+  const prop = engineProposal;
+  const same = prop && mv.from.file === prop.mv.from.file && mv.from.rank === prop.mv.from.rank
+    && mv.to.file === prop.mv.to.file && mv.to.rank === prop.mv.to.rank;
+  const zh = moveToChinese(view.getBoard(), mv);
+  engineProposal = null;
+  view.setArrows([]);
+  view.setHighlights([]);
+  setStatus(same ? `采纳引擎着法：${zh}` : `手动改走：${zh}`);
+  doMove(mv);
+}
+
+// 干预开关：关闭时若引擎建议已挂起，立即按建议落子恢复自动
+interveneChk.addEventListener('change', () => {
+  if (!interveneChk.checked && engineProposal) {
+    const p = engineProposal;
+    engineProposal = null;
+    doMove(p.mv);
+  }
+});
 
 // ---------- 模式切换 / 控件 ----------
 function setStatus(t: string) {
@@ -861,6 +914,8 @@ $('btnMode').addEventListener('click', () => {
     movesHistory = [];
     movesZhLive = [];
     startFen = view.getFen();          // 记住起始局面（保存棋谱用）
+    engineProposal = null;
+    view.setArrows([]);
     flipManual = null; applyFlip(); // 恢复默认视角（人执黑自动翻转）
     resetClock();
     moveListEl.style.display = 'block';
@@ -876,6 +931,8 @@ $('btnMode').addEventListener('click', () => {
     view.onSquare = null;
     if (waitingFor === 'analysis') stopAnalysisThen(() => {}); // 停掉残留搜索
     waitingFor = null;
+    engineProposal = null;
+    view.setArrows([]);
     turnStart = null; // 停止计时
     hideEndBanner();
     moveListEl.style.display = 'none';
@@ -898,6 +955,8 @@ $('btnFlip').addEventListener('click', () => {
 $('btnUndo').addEventListener('click', () => {
   // 悔棋：撤销人机各一步（简化：回退到人类行棋局面）；机机对弈不支持悔棋
   if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor || reviewing) return;
+  // 干预挂起的建议着法随局面作废
+  if (engineProposal) { engineProposal = null; view.setArrows([]); }
   const undoCount = view.getBoard().sideToMove === humanSide ? 2 : 1;
   for (let i = 0; i < Math.min(undoCount, movesHistory.length); i++) {
     movesHistory.pop();
@@ -1430,6 +1489,9 @@ function enterReplay(rec: GameRecord) {
   replayRecord = rec;
   replayIdx = 0;
   mode = 'replay';
+  // 干预挂起的引擎着法随复盘作废
+  engineProposal = null;
+  view.setArrows([]);
   // 中文记谱：优先用棋谱自带（v2+），长度不符则现场重算
   const startBoard = replayStartBoard(rec);
   replayMovesZh = Array.isArray(rec.movesZh) && rec.movesZh.length === rec.moves.length
