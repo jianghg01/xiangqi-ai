@@ -199,6 +199,37 @@ ipcMain.handle('lib:delete', (_e, name) => {
   catch (e) { return { error: String(e) }; }
 });
 
+// ---------- LLM 复盘解说（OpenAI 兼容 /chat/completions；渲染进程只组装消息，网络在主进程） ----------
+ipcMain.handle('llm:chat', async (_e, { baseUrl, apiKey, model, messages, maxTokens = 2048, temperature = 0.6 }) => {
+  if (!baseUrl || !apiKey || !model) return { error: '请先填写 LLM 配置（Base URL / API Key / 模型）' };
+  const url = String(baseUrl).replace(/\/+$/, '') + '/chat/completions';
+  const body = { model, messages, max_tokens: maxTokens, temperature };
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 120000); // 120s 超时（深度复盘可能较长）
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify(body),
+      signal: ctl.signal,
+    });
+    clearTimeout(timer);
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => '');
+      return { error: `HTTP ${resp.status}: ${text.slice(0, 300)}` };
+    }
+    const data = await resp.json();
+    const content = data?.choices?.[0]?.message?.content;
+    if (typeof content !== 'string') {
+      return { error: '响应缺少 choices[0].message.content：' + JSON.stringify(data).slice(0, 300) };
+    }
+    return { content };
+  } catch (e) {
+    clearTimeout(timer);
+    return { error: String(e && e.message ? e.message : e).slice(0, 400) };
+  }
+});
+
 app.whenReady().then(() => {
   if (!process.env.VITE_URL) registerAppProtocol();
   createWindow();

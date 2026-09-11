@@ -14,6 +14,14 @@ declare global {
       libRead(name: string): Promise<{ content: string } | { error: string }>;
       libSave(name: string, content: string): Promise<boolean | { error: string }>;
       libDelete(name: string): Promise<boolean | { error: string }>;
+      llmChat(payload: {
+        baseUrl: string;
+        apiKey: string;
+        model: string;
+        messages: { role: 'system' | 'user'; content: string }[];
+        maxTokens?: number;
+        temperature?: number;
+      }): Promise<{ content: string } | { error: string }>;
     };
   }
 }

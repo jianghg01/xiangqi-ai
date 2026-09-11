@@ -240,6 +240,22 @@
       <button id="btnReview" class="primary">AI 点评</button>
       <span style="font-size:12px;color:#a89a7d;align-self:center">逐手评分标记 ◎/?!/?/??</span>
     </div>
+    <div class="row" id="llmRow" style="display:none">
+      <button id="btnLLM" class="primary" title="用大模型生成复盘解说（需先配置 LLM）">🤖 LLM 复盘解说</button>
+      <select id="llmStyle" title="解说风格">
+        <option value="brief" selected>简洁版</option>
+        <option value="deep">深度复盘版</option>
+      </select>
+      <button id="btnLlmCfgToggle" title="填写大模型接口配置">⚙配置</button>
+      <span style="font-size:12px;color:#a89a7d;align-self:center">对局结束后调用，不干预引擎思考</span>
+    </div>
+    <div class="row" id="llmCfgRow" style="display:none;flex-wrap:wrap;gap:4px">
+      <input type="text" id="llmBaseUrl" placeholder="Base URL（OpenAI兼容）" style="width:190px" title="如 https://api.siliconflow.cn/v1" />
+      <input type="text" id="llmModel" placeholder="模型名" style="width:150px" title="如 Qwen/Qwen3-235B-A22B-Instruct" />
+      <input type="password" id="llmApiKey" placeholder="API Key" style="width:170px" />
+      <button id="btnLlmSave" title="保存 LLM 配置到本地">保存配置</button>
+    </div>
+    <div class="note" id="llmReport" style="white-space:pre-wrap;line-height:1.8"></div>
     <div class="moveList" id="moveList"></div>
     <div class="note" id="reviewReport"></div>
     <div class="note" id="replayLabel"></div>

@@ -11,6 +11,7 @@ import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
 import { blunderProfile, pickBlunder, estimateElo, DEPTH_ELO } from '../uci/elo';
+import { buildMessages, tagForLoss, type ReviewStyle, type StepEval } from '../uci/llm-review';
 import { BoardView, Arrow, BOARD_THEMES } from './board-view';
 import { findKing } from '../rules/rules';
 
@@ -41,6 +42,16 @@ const handicapSel = $('handicapSel') as HTMLSelectElement;
 const clockModeSel = $('clockModeSel') as HTMLSelectElement;
 const endBanner = $('endBanner') as HTMLDivElement;
 const interveneChk = $('interveneChk') as HTMLInputElement;
+const btnLLM = $('btnLLM') as HTMLButtonElement;
+const llmRow = $('llmRow') as HTMLDivElement;
+const llmStyleSel = $('llmStyle') as HTMLSelectElement;
+const llmCfgRow = $('llmCfgRow') as HTMLDivElement;
+const llmBaseUrl = $('llmBaseUrl') as HTMLInputElement;
+const llmModel = $('llmModel') as HTMLInputElement;
+const llmApiKey = $('llmApiKey') as HTMLInputElement;
+const btnLlmSave = $('btnLlmSave') as HTMLButtonElement;
+const llmReport = $('llmReport') as HTMLDivElement;
+const btnLlmCfgToggle = $('btnLlmCfgToggle') as HTMLButtonElement;
 
 // ---------- 对弈配置（避和/开局库/线程/哈希，localStorage 持久化） ----------
 const CFG_KEY = 'xz_play_cfg';
@@ -246,6 +257,8 @@ let reviewing = false;
 let reviewRec: GameRecord | null = null;       // 点评对象（当前对局或复盘棋谱）
 let reviewIdx = 0;                             // 已完成评分的局面数（0..n）
 let reviewScores: number[] = [];               // 每个局面的最优评分（行棋方视角，杀棋 9999-N）
+// LLM 复盘数据：逐步收集（每步完整评估，供 llm-review 模块组装上下文）
+let reviewEvals: { fen: string; scoreCp: number | null; scoreMate: number | null; pv: string[]; depth: number }[] = [];
 let reviewMarks: (string | null)[] = [];       // 每手棋的标记
 let reviewClickable = false;                   // 点评结束后列表是否可点击（复盘模式）
 
@@ -292,6 +305,8 @@ function startReview() {
   reviewIdx = 0;
   reviewScores = [];
   reviewMarks = [];
+  reviewEvals = []; // 重置 LLM 复盘评估数据
+  llmReport.textContent = '';
   reviewReportEl.textContent = 'AI点评中…';
   client.setOption('MultiPV', 1);
   reviewStep();
@@ -346,7 +361,114 @@ function finishReview() {
   setStatus('点评完成');
   // 恢复 MultiPV（分析 3 / 避和 2 / 普通 1）
   client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1));
+  // LLM 解说挂起：点评数据就绪后自动续跑
+  if (llmPending) { llmPending = false; runLLMReview(); }
 }
+
+// ---------- LLM 复盘解说（独立模块，仅对局结束后调用，不干预引擎思考） ----------
+const LLM_CFG_KEY = 'xz_llm_cfg';
+interface LlmCfg { baseUrl: string; model: string; apiKey: string; }
+function loadLlmCfg(): LlmCfg {
+  try { return JSON.parse(localStorage.getItem(LLM_CFG_KEY) || '{}'); } catch { return { baseUrl: '', model: '', apiKey: '' }; }
+}
+function saveLlmCfg(c: LlmCfg) {
+  try { localStorage.setItem(LLM_CFG_KEY, JSON.stringify(c)); } catch { /* 忽略 */ }
+}
+// 初始化配置输入框
+(function initLlmCfg() {
+  const c = loadLlmCfg();
+  llmBaseUrl.value = c.baseUrl || '';
+  llmModel.value = c.model || '';
+  llmApiKey.value = c.apiKey || '';
+})();
+btnLlmSave.addEventListener('click', () => {
+  saveLlmCfg({ baseUrl: llmBaseUrl.value.trim(), model: llmModel.value.trim(), apiKey: llmApiKey.value.trim() });
+  setStatus('LLM 配置已保存');
+});
+btnLlmCfgToggle.addEventListener('click', () => {
+  llmCfgRow.style.display = llmCfgRow.style.display === 'flex' ? 'none' : 'flex';
+});
+
+// 收集 LLM 复盘上下文并调用大模型
+async function runLLMReview() {
+  if (!engineApi) { setStatus('LLM 复盘需 Electron 环境（浏览器模式无 IPC）'); return; }
+  if (!reviewRec || !reviewRec.moves.length) { setStatus('没有可解说的对局'); return; }
+  const cfg = loadLlmCfg();
+  if (!cfg.baseUrl || !cfg.model || !cfg.apiKey) {
+    llmCfgRow.style.display = 'flex';
+    setStatus('请先填写 LLM 配置（Base URL / 模型 / API Key）');
+    return;
+  }
+  // 需要评估数据：若尚未点评完毕，先跑 AI 点评（逐手评分收集）
+  if (reviewEvals.length !== reviewRec.moves.length + 1) {
+    setStatus('先生成 AI 点评评估…（完成后自动解说）');
+    llmPending = true;
+    startReview();
+    return;
+  }
+  llmReport.textContent = 'LLM 解说生成中…';
+  setStatus('LLM 复盘解说中…');
+  // 组装步级数据（与 reviewScores/reviewEvals 对齐：第 k+1 手走子方得失 = scores[k] + scores[k+1]）
+  let startSide: Side = 'red';
+  try { startSide = parseFen(reviewRec.startFen).board.sideToMove; } catch { /* 默认红 */ }
+  const steps: StepEval[] = [];
+  const moveZh = reviewRec.movesZh && reviewRec.movesZh.length === reviewRec.moves.length ? reviewRec.movesZh : [];
+  for (let k = 0; k < reviewRec.moves.length; k++) {
+    const ev = reviewEvals[k + 1];
+    const loss = (reviewScores[k] ?? 0) + (reviewScores[k + 1] ?? 0); // 走子方损失（负=得分提升）
+    steps.push({
+      ply: k + 1,
+      side: k % 2 === 0 ? startSide : (startSide === 'red' ? 'black' : 'red'),
+      moveZh: moveZh[k] || reviewRec.moves[k],
+      fenAfter: ev.fen,
+      scoreCp: ev.scoreCp,
+      pv: ev.pv.join(' '),
+      depth: ev.depth,
+      loss,
+      tag: tagForLoss(loss),
+    });
+  }
+  let pgn = '';
+  try {
+    const sb = parseFen(reviewRec.startFen).board;
+    const zhs = moveZh.length === reviewRec.moves.length ? moveZh : movesToChinese(sb, reviewRec.moves);
+    pgn = exportPgn({
+      startFen: reviewRec.startFen,
+      redName: reviewRec.redName, blackName: reviewRec.blackName,
+      result: reviewRec.result,
+      moves: [...reviewRec.moves],
+      movesZh: zhs,
+      date: reviewRec.date || new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
+    });
+  } catch { /* PGN 生成失败则用着法串代替 */ }
+  try {
+    const messages = buildMessages({
+      pgn,
+      startFen: reviewRec.startFen,
+      redName: reviewRec.redName || '红方',
+      blackName: reviewRec.blackName || '黑方',
+      result: reviewRec.result || '对局结束',
+      steps,
+      fullFens: reviewEvals.map(e => e.fen),
+      style: llmStyleSel.value as ReviewStyle,
+    });
+    const resp = await engineApi.llmChat({
+      baseUrl: cfg.baseUrl, apiKey: cfg.apiKey, model: cfg.model, messages,
+    });
+    if ('error' in resp) {
+      llmReport.textContent = 'LLM 调用失败：' + resp.error;
+      setStatus('LLM 解说失败');
+    } else {
+      llmReport.textContent = resp.content;
+      setStatus('LLM 复盘解说完成');
+    }
+  } catch (err) {
+    llmReport.textContent = 'LLM 调用异常：' + (err as Error).message;
+    setStatus('LLM 解说异常');
+  }
+}
+let llmPending = false; // AI 点评完成后继续 LLM 解说
+btnLLM.addEventListener('click', () => { runLLMReview(); });
 
 // ---------- 局面重复检测（三次重复判和，与 selfplay 同规则） ----------
 let posSeen = new Map<string, number>();
@@ -757,6 +879,14 @@ function onBestmove(bm: string) {
     waitingFor = null;
     const info = lastInfoMap.get(1);
     reviewScores.push(normalizeScore(info?.scoreCp ?? null, info?.scoreMate ?? null));
+    // 同步收集 LLM 复盘数据（当前局面 = fenAt(startFen, moves, reviewIdx)，与 reviewScores 对齐）
+    reviewEvals.push({
+      fen: fenAt(reviewRec?.startFen || startFen || '', reviewRec?.moves || movesHistory, reviewIdx),
+      scoreCp: info?.scoreCp ?? null,
+      scoreMate: info?.scoreMate ?? null,
+      pv: info?.pv ? [...info.pv] : [],
+      depth: info?.depth ?? 0,
+    });
     reviewIdx++;
     reviewStep();
   }
@@ -920,6 +1050,7 @@ $('btnMode').addEventListener('click', () => {
     resetClock();
     moveListEl.style.display = 'block';
     reviewRow.style.display = 'flex';
+    llmRow.style.display = 'flex';
     renderMoveList(movesHistory, movesZhLive, 0, false);
     updateOpeningName();
     setStatus('');
@@ -938,6 +1069,7 @@ $('btnMode').addEventListener('click', () => {
     moveListEl.style.display = 'none';
     moveListEl.innerHTML = '';
     reviewRow.style.display = 'none';
+    llmRow.style.display = 'none';
     reviewReportEl.textContent = '';
     reviewMarks = [];
     setStatus('');
@@ -1504,6 +1636,7 @@ function enterReplay(rec: GameRecord) {
   ($('editPanel') as HTMLDivElement).style.opacity = '1';
   replayRow.style.display = 'flex';
   reviewRow.style.display = 'flex';
+    llmRow.style.display = 'flex';
   reviewReportEl.textContent = '';
   reviewMarks = [];
   // 进入复盘：退出打谱状态
@@ -1640,6 +1773,7 @@ function exitReplay() {
   hideEndBanner();
   replayRow.style.display = 'none';
   reviewRow.style.display = 'none';
+    llmRow.style.display = 'none';
   moveListEl.style.display = 'none';
   moveListEl.innerHTML = '';
   reviewReportEl.textContent = '';
@@ -1733,6 +1867,7 @@ function loadPuzzle() {
   flipManual = null; applyFlip();
   replayRow.style.display = 'none';
   reviewRow.style.display = 'flex';
+    llmRow.style.display = 'flex';
   gameOver = false;
   gameResult = '';
   hideEndBanner();

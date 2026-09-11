@@ -13,4 +13,5 @@ contextBridge.exposeInMainWorld('engine', {
   libRead: name => ipcRenderer.invoke('lib:read', name),
   libSave: (name, content) => ipcRenderer.invoke('lib:save', { name, content }),
   libDelete: name => ipcRenderer.invoke('lib:delete', name),
+  llmChat: payload => ipcRenderer.invoke('llm:chat', payload),
 });
