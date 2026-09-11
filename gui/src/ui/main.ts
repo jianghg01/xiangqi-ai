@@ -85,6 +85,11 @@ function hideEndBanner() {
 let mode: 'edit' | 'play' | 'replay' = 'edit';
 let humanSide: Side = 'red';
 let gameMode: 'pve' | 'eve' = 'pve';   // pve=人机 eve=机机对弈（强软对强软）
+// 翻转棋盘：null=跟随默认视角（人执黑自动红上/黑下），true/false=手动指定
+let flipManual: boolean | null = null;
+const autoFlipped = () => gameMode === 'pve' && humanSide === 'black';
+function effectiveFlip(): boolean { return flipManual !== null ? flipManual : autoFlipped(); }
+function applyFlip() { view.setFlipped(effectiveFlip()); }
 let gameOver = false;
 let gameResult = '';                    // 对局结果描述（存入棋谱）
 let startFen = '';                      // 本局起始 FEN（保存棋谱用）
@@ -856,7 +861,7 @@ $('btnMode').addEventListener('click', () => {
     movesHistory = [];
     movesZhLive = [];
     startFen = view.getFen();          // 记住起始局面（保存棋谱用）
-    view.setFlipped(gameMode === 'pve' && humanSide === 'black'); // 人执黑：翻转棋盘
+    flipManual = null; applyFlip(); // 恢复默认视角（人执黑自动翻转）
     resetClock();
     moveListEl.style.display = 'block';
     reviewRow.style.display = 'flex';
@@ -883,6 +888,12 @@ $('btnMode').addEventListener('click', () => {
 });
 
 $('btnNew').addEventListener('click', () => { if (mode === 'play') newGame(); });
+// 翻转棋盘：手动切换上下视角（再次点击恢复默认视角）
+$('btnFlip').addEventListener('click', () => {
+  flipManual = !effectiveFlip();
+  applyFlip();
+  setStatus(effectiveFlip() ? '视角：红方在上（已翻转）' : '视角：红方在下（默认）');
+});
 
 $('btnUndo').addEventListener('click', () => {
   // 悔棋：撤销人机各一步（简化：回退到人类行棋局面）；机机对弈不支持悔棋
@@ -951,8 +962,8 @@ function getDepth(): number {
 
 sideSelect.addEventListener('change', () => {
   humanSide = sideSelect.value as Side;
-  // 人执黑时翻转棋盘（随时预览）
-  view.setFlipped(gameMode === 'pve' && humanSide === 'black');
+  // 人执黑时翻转棋盘（随时预览）；换边后复位手动翻转
+  flipManual = null; applyFlip();
   if (mode === 'play' && gameMode === 'pve' && !gameOver) newGame();
 });
 
@@ -962,7 +973,7 @@ gameModeSel.addEventListener('change', () => {
   // 切换模式时显示对应配置行
   pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
   eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
-  if (gameMode === 'eve') view.setFlipped(false); // 机机对弈固定红下视角
+  if (gameMode === 'eve') { flipManual = null; applyFlip(); } // 机机对弈固定红下视角
   if (mode === 'play' && !gameOver) newGame();
   else setStatus('');
 });
@@ -1654,10 +1665,10 @@ function loadPuzzle() {
   eveRows.style.display = 'none';
   humanSide = p.side;
   sideSelect.value = p.side;
-  view.setFlipped(p.side === 'black');
   ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
   ($('editPanel') as HTMLDivElement).style.opacity = '.4';
   view.onSquare = playSquareClick;
+  flipManual = null; applyFlip();
   replayRow.style.display = 'none';
   reviewRow.style.display = 'flex';
   gameOver = false;
