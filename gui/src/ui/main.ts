@@ -42,6 +42,7 @@ const handicapSel = $('handicapSel') as HTMLSelectElement;
 const clockModeSel = $('clockModeSel') as HTMLSelectElement;
 const endBanner = $('endBanner') as HTMLDivElement;
 const interveneChk = $('interveneChk') as HTMLInputElement;
+const autoDrawChk = $('autoDrawChk') as HTMLInputElement;
 const btnLLM = $('btnLLM') as HTMLButtonElement;
 const llmRow = $('llmRow') as HTMLDivElement;
 const llmStyleSel = $('llmStyle') as HTMLSelectElement;
@@ -57,6 +58,7 @@ const btnLlmCfgToggle = $('btnLlmCfgToggle') as HTMLButtonElement;
 const CFG_KEY = 'xz_play_cfg';
 const avoidDrawOn = () => avoidDrawSel.value === '1';
 const useBookOn = () => useBookSel.value === '1';
+const autoDrawOn = () => autoDrawChk.checked;
 function threadsValue(): number {
   return threadsSel.value === 'auto'
     ? Math.max(1, (navigator.hardwareConcurrency || 4) - 2)
@@ -117,6 +119,13 @@ let engineReady = false;
 let illegalRetry = 0;   // 引擎着法非法时的重发次数（防死循环）
 let analysisOn = false;
 let cpHistory: number[] = [];          // 红方视角胜率曲线数据
+// 必和死局自动判和：引擎连续多回合评估双方无明显优势时判和（避免强对强无限拉锯）
+let drawStreak = 0;                     // 连续「无杀且优势极小」的引擎回合数
+const AUTO_DRAW_STREAK = 3;            // 达到此数（含本回合共 3 个引擎着法）即判和
+const AUTO_DRAW_MIN_MOVES = 10;        // 至少走出 10 步（开局子力对等不算死和）才启用
+const AUTO_DRAW_MAX_ADV = 30;          // 优势低于 0.3 兵视为「无胜机」
+let lastEvalRedCp: number | null = null; // 引擎最近一次对弈评估（红方视角，厘兵）
+let lastEvalMate = false;                // 引擎最近一次评估是否处于绝杀线（有杀不判和）
 let lastInfoMap = new Map<number, EngineInfo>();
 
 // 强度分级 → 搜索深度（皮卡鱼新版无 Skill Level，用深度限强）
@@ -648,6 +657,9 @@ function newGame(startBoardOverride?: BoardData) {
   targets = [];
   cpHistory = [];
   lastInfoMap.clear();
+  drawStreak = 0;
+  lastEvalRedCp = null;
+  lastEvalMate = false;
   view.setArrows([]);
   reviewMarks = [];
   reviewReportEl.textContent = '';
@@ -777,6 +789,66 @@ function afterMove() {
   if (engineTurnNow()) engineMove();
   else if (analysisOn && !waitingFor) analyze();
 }
+
+// ---------- 必和死局自动判和 ----------
+// 引擎对「即将行棋的局面」评估：无杀线且双方优势极小（|红方视角cp|≤30）视为死和。
+// 连续 3 个引擎着法（约 3 回合）都如此 → 自动判和收尾，解决「强对强死和拉锯、谁也不提和」。
+// 在 onBestmove 引擎分支调用；返回 true 表示已判和（调用方须 return，不再落子）。
+// 避和求胜开着且引擎避开成功时 |cp| 会 >30，不触发，尊重用户求胜意图。
+function maybeAutoDraw(): boolean {
+  if (!autoDrawOn() || gameOver || mode !== 'play' || puzzleActive) return false;
+  // 开局子力对等不算死和：至少走出 10 步（走完本步）才启用
+  if (movesHistory.length + 1 < AUTO_DRAW_MIN_MOVES) { drawStreak = 0; return false; }
+  const best = lastInfoMap.get(1);
+  if (!best || best.scoreCp === null) { drawStreak = 0; return false; }
+  const side = view.getBoard().sideToMove;
+  const redCp = toRedPersp(best.scoreCp, side);
+  lastEvalRedCp = redCp;
+  lastEvalMate = best.scoreMate !== null;
+  const flat = !lastEvalMate && Math.abs(redCp) <= AUTO_DRAW_MAX_ADV;
+  drawStreak = flat ? drawStreak + 1 : 0;
+  if (drawStreak >= AUTO_DRAW_STREAK) {
+    drawStreak = 0;
+    gameOver = true;
+    recordGame('draw');
+    gameResult = '双方无胜机，自动判和';
+    setStatus('双方无胜机（引擎评估长期平手）· 自动判和');
+    showEndBanner('双方无胜机 · 自动判和', true);
+    return true;
+  }
+  return false;
+}
+
+// ---------- 人工提和（提和按钮） ----------
+function offerDraw() {
+  if (mode !== 'play' || gameOver || puzzleActive) return;
+  if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; clearPending(); }
+  if (gameMode === 'eve') {
+    // 机机对弈：由你作裁判直接判和
+    gameOver = true;
+    recordGame('draw');
+    gameResult = '对局提和 · 判和';
+    setStatus('机机对弈提和 · 判和');
+    showEndBanner('提和 · 和棋', true);
+    return;
+  }
+  // 人机对弈：引擎评估不占优（|红方cp|≤100 或已判杀线）才接受，否则拒绝
+  if (!engineReady || lastEvalRedCp === null) {
+    setStatus('引擎尚未评估本局，无法判断是否接受提和（先让引擎走一步）');
+    return;
+  }
+  const accepts = lastEvalMate || Math.abs(lastEvalRedCp) <= 100;
+  if (accepts) {
+    gameOver = true;
+    recordGame('draw');
+    gameResult = '引擎接受提和 · 判和';
+    setStatus('引擎评估无胜机，接受你的提和 · 和棋');
+    showEndBanner('引擎接受提和 · 和棋', true);
+  } else {
+    setStatus('引擎评估仍有胜机，拒绝提和，请继续对弈');
+  }
+}
+$('btnDrawOffer').addEventListener('click', offerDraw);
 
 // ---------- 开局库（机机对弈开局秒走 + 开局名称显示） ----------
 const INITIAL_FEN_PART = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR';
@@ -921,6 +993,8 @@ function onBestmove(bm: string) {
       return;
     }
     illegalRetry = 0;
+    // 必和死局自动判和：引擎对当前局面评估长期平手（无杀线、优势极小）→ 直接判和收尾
+    if (maybeAutoDraw()) return;
     // 干预开关：不直接落子，挂起为建议着法，等人确认或改走
     if (interveneOn()) {
       engineProposal = { mv, zh: moveToChinese(view.getBoard(), mv) };
@@ -1194,6 +1268,7 @@ $('btnUndo').addEventListener('click', () => {
   view.replaceBoard(nb);
   selected = null; targets = [];
   rebuildPosSeen(nb, movesHistory);
+  drawStreak = 0; lastEvalRedCp = null; lastEvalMate = false;
   reviewMarks = [];
   reviewReportEl.textContent = '';
   renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
