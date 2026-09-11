@@ -104,7 +104,7 @@ function effectiveFlip(): boolean { return flipManual !== null ? flipManual : au
 function applyFlip() { view.setFlipped(effectiveFlip()); }
 // 干预引擎着法：挂起中的引擎建议着法（非空=引擎已想好，等人确认或改走）
 let engineProposal: { mv: Move; zh: string } | null = null;
-const interveneOn = () => interveneChk.checked && mode === 'play' && gameMode === 'pve' && !puzzleActive;
+const interveneOn = () => interveneChk.checked && mode === 'play' && !puzzleActive;
 let gameOver = false;
 let gameResult = '';                    // 对局结果描述（存入棋谱）
 let startFen = '';                      // 本局起始 FEN（保存棋谱用）
@@ -260,8 +260,9 @@ $('btnSound').addEventListener('click', () => {
 });
 
 // ---------- 分析提示箭头（推荐线画在棋盘上） ----------
+// 只在「分析阶段」（人在思考）绘制；引擎思考/落子动画期间一律清空，避免旧箭头残留
 function updateArrows() {
-  if (!analysisOn || mode === 'replay' || mode === 'edit') {
+  if (!analysisOn || mode === 'replay' || mode === 'edit' || waitingFor !== 'analysis') {
     view.setArrows([]);
     return;
   }
@@ -815,6 +816,9 @@ function engineMove() {
   waitingFor = 'engine';
   // 避和求胜（需 2 线）与低强度扰动（需 3 线）共用 MultiPV；都不需要时单线全速
   client.setOption('MultiPV', avoidDrawOn() || blunderProfile(getDepth()) !== null ? 3 : 1);
+  // 清掉旧局面分析数据：防止扰动/避和捡到残留 PV（浅层搜索 info 来不及覆盖多线时曾导致非法着法卡死）
+  lastInfoMap.clear();
+  renderAnalysis();
   // 注意：只发当前 FEN，不再叠加 moves（FEN 已是最新位置，叠加会触发引擎严格校验崩溃）
   client.position(view.getFen());
   const limit = parseInt(timeLimitSel.value, 10) || 0;
@@ -828,7 +832,7 @@ function engineMove() {
 }
 
 function analyze() {
-  if (!engineReady || gameOver) return;
+  if (!engineReady || gameOver || engineProposal) return;
   waitingFor = 'analysis';
   // 分析固定 MultiPV 3（多线参考；引擎空闲时设置才生效，此处必然空闲）
   client.setOption('MultiPV', 3);
@@ -864,6 +868,12 @@ function onBestmove(bm: string) {
     if (!raw) { setStatus('引擎着法解析失败: ' + bm); return; }
     // 引擎 ICCS 坐标（rank 0=红底线）转内部坐标（rank 0=黑底线）
     let mv = engineMoveToLocal(raw);
+    // 当前局面合法着法集：扰动/避和/最终兜底共用
+    const legalNow = legalMoves(view.getBoard(), view.getBoard().sideToMove);
+    const isLegal = (c: Move) => legalNow.some(l =>
+      l.from.file === c.from.file && l.from.rank === c.from.rank &&
+      l.to.file === c.to.file && l.to.rank === c.to.rank,
+    );
     // ELO 扰动：低强度档概率性改走容差内的次优着法（模拟分段棋力）
     const prof = blunderProfile(getDepth());
     if (prof) {
@@ -872,7 +882,10 @@ function onBestmove(bm: string) {
       for (const k of [1, 2, 3]) {
         const i = lastInfoMap.get(k);
         const imv = i && i.pv.length ? parseIccs(enginePvToLocal(i.pv)[0]) : null;
-        if (i && imv && i.scoreCp !== null) cands.push({ mv: engineMoveToLocal(imv), cp: i.scoreCp });
+        if (i && imv && i.scoreCp !== null) {
+          const c = engineMoveToLocal(imv);
+          if (isLegal(c)) cands.push({ mv: c, cp: i.scoreCp }); // 只收当前局面合法着法
+        }
       }
       const pick = pickBlunder(cands, bestCp, prof.margin, Math.random());
       if (pick) mv = pick.mv;
@@ -882,9 +895,10 @@ function onBestmove(bm: string) {
       const best = lastInfoMap.get(1);
       const alt = lastInfoMap.get(2);
       const altMv = alt && alt.pv.length ? parseIccs(alt.pv[0]) : null;
+      const altLocal = altMv ? engineMoveToLocal(altMv) : null;
       // 引擎当前不落后超过 1 兵，且替代着法不落后超过 3 兵，才值得换着求胜
-      if (altMv && (best?.scoreCp ?? 0) > -100 && (alt?.scoreCp ?? -999) > -300) {
-        mv = engineMoveToLocal(altMv);
+      if (altLocal && isLegal(altLocal) && (best?.scoreCp ?? 0) > -100 && (alt?.scoreCp ?? -999) > -300) {
+        mv = altLocal;
         setStatus('避和求胜：改走替代着法');
       }
     }
@@ -892,11 +906,7 @@ function onBestmove(bm: string) {
     const best = lastInfoMap.get(1);
     if (best && best.scoreCp !== null) pushCp(best.scoreCp);
     // 着法合法性兜底：局面不同步/引擎异常时重发当前局面再思考（防着法丢失卡死）
-    const legalNow = legalMoves(view.getBoard(), view.getBoard().sideToMove);
-    if (legalNow.length && !legalNow.some(l =>
-      l.from.file === mv.from.file && l.from.rank === mv.from.rank &&
-      l.to.file === mv.to.file && l.to.rank === mv.to.rank,
-    )) {
+    if (legalNow.length && !isLegal(mv)) {
       if (illegalRetry < 2) {
         illegalRetry++;
         setStatus('引擎着法校验失败，正在重新思考…');
@@ -1000,10 +1010,10 @@ function drawCurve() {
 // ---------- 棋盘点击（对弈模式） ----------
 function playSquareClick(s: Square) {
   if (mode !== 'play' || gameOver || waitingFor || reviewing) return;
-  if (gameMode === 'eve') return; // 机机对弈：人不落子
   const board = view.getBoard();
-  // 干预模式：引擎行棋但着法已挂起——人替引擎确认/改走
-  if (board.sideToMove !== humanSide) {
+  // 干预模式：引擎行棋但着法已挂起——人替引擎确认/改走（人机、机机通用）
+  // 机机对弈未开干预时 engineProposal 恒为空，直接 return（人不落子）
+  if (gameMode === 'eve' || board.sideToMove !== humanSide) {
     if (!engineProposal) return; // 引擎仍在思考或未开干预
     const p = board.pieces[s.rank][s.file];
     if (selected) {
@@ -1089,7 +1099,6 @@ $('btnMode').addEventListener('click', () => {
   if (mode === 'edit') {
     mode = 'play';
     ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
-    ($('editPanel') as HTMLDivElement).style.opacity = '.4';
     view.onSquare = playSquareClick; // 复盘/打谱后恢复棋盘落子
     gameMode = gameModeSel.value as 'pve' | 'eve';
     humanSide = sideSelect.value as Side;
@@ -1112,7 +1121,6 @@ $('btnMode').addEventListener('click', () => {
     mode = 'edit';
     loopActive = false;
     ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
-    ($('editPanel') as HTMLDivElement).style.opacity = '1';
     view.onSquare = null;
     if (waitingFor) stopEngineThen(() => {}); // 停掉残留搜索（analysis/engine/review 一律作废旧结果）
     waitingFor = null;
@@ -1127,8 +1135,33 @@ $('btnMode').addEventListener('click', () => {
     reviewReportEl.textContent = '';
     reviewMarks = [];
     setStatus('');
+    setMenu('menuEdit'); // 编辑模式自动展开编辑棋盘工具
   }
 });
+
+// ---------- 顶部菜单（循环赛 / 编辑棋盘 / 关于） ----------
+const menuEntries = [
+  ['menuLoopBtn', 'menuLoop'],
+  ['menuEditBtn', 'menuEdit'],
+  ['menuAboutBtn', 'menuAbout'],
+] as const;
+let openMenu: string | null = null;
+function setMenu(which: string | null) {
+  openMenu = which;
+  for (const [b, p] of menuEntries) {
+    ($(b) as HTMLElement).classList.toggle('active', which === p);
+    ($(p) as HTMLElement).style.display = which === p ? 'block' : 'none';
+  }
+}
+for (const [b, p] of menuEntries) {
+  ($(b) as HTMLElement).addEventListener('click', ev => {
+    ev.stopPropagation();
+    setMenu(openMenu === p ? null : p);
+  });
+  // 面板内点击不关闭菜单（输入局数等）
+  ($(p) as HTMLElement).addEventListener('click', ev => ev.stopPropagation());
+}
+document.addEventListener('click', () => setMenu(null));
 
 $('btnNew').addEventListener('click', () => { if (mode === 'play') newGame(); });
 // 翻转棋盘：手动切换上下视角（再次点击恢复默认视角）
@@ -1209,7 +1242,13 @@ sideSelect.addEventListener('change', () => {
   humanSide = sideSelect.value as Side;
   // 人执黑时翻转棋盘（随时预览）；换边后复位手动翻转
   flipManual = null; applyFlip();
-  if (mode === 'play' && gameMode === 'pve' && !gameOver) newGame();
+  // 换边保留当前棋局（不重置）：轮到新执方继续
+  if (mode === 'play' && gameMode === 'pve' && !gameOver) {
+    if (waitingFor) stopEngineThen(() => { if (engineTurnNow()) engineMove(); });
+    else if (engineTurnNow()) engineMove();
+    else if (analysisOn) analyze();
+    else setStatus('');
+  }
 });
 
 gameModeSel.addEventListener('change', () => {
@@ -1219,8 +1258,13 @@ gameModeSel.addEventListener('change', () => {
   pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
   eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
   if (gameMode === 'eve') { flipManual = null; applyFlip(); } // 机机对弈固定红下视角
-  if (mode === 'play' && !gameOver) newGame();
-  else setStatus('');
+  // 切换人机/机机保留当前棋局（不重置）：按新模式继续对弈
+  if (mode === 'play' && !gameOver) {
+    if (waitingFor) stopEngineThen(() => { if (engineTurnNow()) engineMove(); });
+    else if (engineTurnNow()) engineMove();
+    else if (analysisOn) analyze();
+    else setStatus('');
+  } else setStatus('');
 });
 
 redStrengthSel.addEventListener('change', () => { if (mode === 'play' && gameMode === 'eve' && !waitingFor) newGame(); });
@@ -1564,7 +1608,13 @@ $('btnLoopStart').addEventListener('click', () => {
     setStatus('循环赛需在机机对弈模式并启动引擎后进行');
     return;
   }
-  loopTotal = Math.max(2, Math.min(200, parseInt(loopCountInput.value, 10) || 10));
+  // 必须人为填写局数才循环；不设置则不开（无默认局数）
+  const n = parseInt(loopCountInput.value, 10);
+  if (!n || n < 2) {
+    setStatus('请先在顶部「循环赛」菜单填写自动对弈局数（2~200 局）');
+    return;
+  }
+  loopTotal = Math.min(200, n);
   loopDone = 0;
   loopScores = { red: 0, black: 0, draw: 0 };
   loopActive = true;
@@ -1687,7 +1737,6 @@ function enterReplay(rec: GameRecord) {
   view.replaceBoard(startBoard);
   view.setLastMove(null, null);
   ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
-  ($('editPanel') as HTMLDivElement).style.opacity = '1';
   replayRow.style.display = 'flex';
   reviewRow.style.display = 'flex';
     llmRow.style.display = 'flex';
@@ -1916,7 +1965,6 @@ function loadPuzzle() {
   humanSide = p.side;
   sideSelect.value = p.side;
   ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
-  ($('editPanel') as HTMLDivElement).style.opacity = '.4';
   view.onSquare = playSquareClick;
   flipManual = null; applyFlip();
   replayRow.style.display = 'none';

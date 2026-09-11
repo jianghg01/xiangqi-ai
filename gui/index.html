@@ -49,9 +49,47 @@
   .moveList .mk-m0 { color: #57c77a; }   /* ◎ 好棋 */
   .moveList .mk-unk { color: #7d7060; }  /* ？无标记 */
   canvas.curve { background: #241f18; border-radius: 6px; margin-top: 8px; }
+  .app { display: flex; flex-direction: column; align-items: center; height: 100vh; position: relative; }
+  .menubar { display: flex; gap: 6px; padding: 8px 12px; background: #3a3227; border-radius: 10px; margin: 10px 0 0; }
+  .menuitem { background: #4a3f2e; font-size: 13px; }
+  .menuitem.active { background: #8d6d3f; }
+  .menuPanel { position: absolute; top: 46px; left: 12px; background: #3a3227; border: 1px solid #5a4c38; border-radius: 10px; padding: 12px; min-width: 340px; z-index: 60; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
 </style>
 </head>
 <body>
+<div class="app">
+  <div class="menubar">
+    <button class="menuitem" id="menuLoopBtn">循环赛 ▾</button>
+    <button class="menuitem" id="menuEditBtn">编辑棋盘 ▾</button>
+    <button class="menuitem" id="menuAboutBtn">关于 ▾</button>
+  </div>
+  <div class="menuPanel" id="menuLoop" style="display:none">
+    <div class="row">
+      <span style="font-size:13px;align-self:center">自动对弈局数</span>
+      <input type="number" id="loopCount" min="2" max="200" placeholder="如 10" title="自动对弈局数（2~200）；不填则不会自动循环" style="width:70px" />
+      <button id="btnLoopStart">开始循环</button>
+      <button id="btnLoopStop">停止</button>
+    </div>
+    <div class="note" id="loopReport"></div>
+    <div class="note">需机机对弈模式并已启动引擎；只有人为填写局数并点「开始循环」才会自动连赛，单局结束不会自己续局</div>
+  </div>
+  <div class="menuPanel" id="menuEdit" style="display:none">
+    <h3>棋子编辑（仅编辑模式）</h3>
+    <div class="palette" id="palette"></div>
+    <h3>FEN</h3>
+    <textarea id="fen"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button id="btnApply">载入 FEN</button>
+      <button id="btnInitial">初始局面</button>
+      <button id="btnClear">清空</button>
+    </div>
+    <div class="note">进入编辑模式后：点选下方棋子，再点棋盘上的格子摆放或删除（✕ 删除）；也可以直接编辑 FEN 后载入，用于摆残局/自测局面</div>
+  </div>
+  <div class="menuPanel" id="menuAbout" style="display:none">
+    <div class="note">象棋 AI · 基于 Pikafish（皮卡鱼）NNUE 引擎（GPL-3.0，UCI 协议）</div>
+    <div class="note">满级 24 层参考 ELO 约 4000（皮卡鱼官方论坛天梯）；人机/机机对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏</div>
+    <div class="note">干预引擎着法：人机/机机通用——引擎思考完不直接落子，由你点击确认或替它改走别的棋</div>
+  </div>
 <div class="wrap">
   <div class="boardWrap">
     <canvas id="board"></canvas>
@@ -131,14 +169,7 @@
           <option value="24" selected>满级（24层）</option>
         </select>
       </div>
-      <div class="row">
-        <span style="font-size:13px;align-self:center">循环赛</span>
-        <input type="number" id="loopCount" value="10" min="2" max="200" title="自动对弈局数（2~200）" style="width:64px" />
-        <button id="btnLoopStart">开始</button>
-        <button id="btnLoopStop">停止</button>
-      </div>
-      <div class="note" id="loopReport"></div>
-      <div class="note">不限时限时按各自强度分深度对打</div>
+      <div class="note">不限时限时按各自强度分深度对打；循环赛见顶部菜单</div>
     </div>
     <div class="row">
       <span style="font-size:13px;align-self:center">避和求胜</span>
@@ -296,18 +327,7 @@
     </div>
     <div class="note">纯阳道人古谱 · 七类三十五局 · 全部得先胜 · 载入后可自动播放/逐步研习</div>
   </div>
-
-  <div class="panel" id="editPanel">
-    <h3>棋子编辑（仅编辑模式）</h3>
-    <div class="palette" id="palette"></div>
-    <h3>FEN</h3>
-    <textarea id="fen"></textarea>
-    <div class="row" style="margin-top:8px">
-      <button id="btnApply">载入 FEN</button>
-      <button id="btnInitial">初始局面</button>
-      <button id="btnClear">清空</button>
-    </div>
-  </div>
+</div>
 </div>
 <script type="module" src="/src/ui/main.ts"></script>
 </body>
