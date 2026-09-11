@@ -31,13 +31,13 @@ describe('开局库', () => {
     expect(m2!.next).toBe('i9h9');
   });
 
-  it('开局库规模（16 条）', () => {
-    expect(OPENINGS.length).toBe(16);
+  it('开局库规模（27 条）', () => {
+    expect(OPENINGS.length).toBe(27);
   });
 
   it('开局走完时 next 为 null', () => {
-    const m = matchOpening(['c6c5', 'b2c2']);
-    expect(m!.name).toBe('仙人指路对卒底炮');
+    const m = matchOpening(['h7e7', 'b0a2', 'h9g7', 'h0g2', 'i9h9', 'i0h0']);
+    expect(m!.name).toBe('中炮对单提马');
     expect(m!.next).toBeNull();
   });
 

@@ -7,7 +7,7 @@ import { exportPgn, parsePgn } from '../board/pgn';
 import { matchOpening } from '../board/openings';
 import { CLASSICS, CLASSIC_CATEGORIES } from '../board/classics';
 import puzzlesJson from '../data/puzzles.json';
-import { applyMove, checkStatus, isMaterialDraw, legalMovesFrom } from '../rules/rules';
+import { applyMove, checkStatus, isMaterialDraw, legalMoves, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
 import { blunderProfile, pickBlunder, estimateElo, DEPTH_ELO } from '../uci/elo';
@@ -114,6 +114,7 @@ let selected: Square | null = null;
 let targets: Move[] = [];
 let waitingFor: null | 'engine' | 'analysis' | 'review' = null;
 let engineReady = false;
+let illegalRetry = 0;   // 引擎着法非法时的重发次数（防死循环）
 let analysisOn = false;
 let cpHistory: number[] = [];          // 红方视角胜率曲线数据
 let lastInfoMap = new Map<number, EngineInfo>();
@@ -131,6 +132,7 @@ if (engineApi) {
   engineApi.onLine((line: string) => {
     if (line.startsWith('ENGINE_')) {
       //引擎退出/出错：解除等待状态，避免界面卡死
+      clearPending();
       waitingFor = null;
       engineReady = false;
       engineState.textContent = line.startsWith('ENGINE_EXIT') ? `引擎已退出（${line.slice(12)}）` : '引擎错误';
@@ -152,10 +154,33 @@ function engineTurnNow(): boolean {
 // ---------- 引擎搜索串行化 ----------
 // UCI 引擎搜索中不能再收 position/go（会被忽略或错乱），必须先 stop 并等 bestmove 回来
 let pendingAfterAnalysis: (() => void) | null = null;
+// 丢弃下一次 bestmove：开新局/切模式时停止旧搜索，旧结果不得落到新棋盘
+let discardNextBestmove = false;
+let discardWatchdog: ReturnType<typeof setTimeout> | null = null;
 
-function stopAnalysisThen(action: () => void) {
-  if (waitingFor === 'analysis') {
+function clearPending() {
+  discardNextBestmove = false;
+  if (discardWatchdog) { clearTimeout(discardWatchdog); discardWatchdog = null; }
+  pendingAfterAnalysis = null;
+}
+
+// 引擎正在搜索（engine/analysis/review）时：stop 并丢弃旧结果，等 bestmove 回来后执行 action
+// （开新局/切模式/接着走子的统一入口，保证「搜索中绝不再发 position/go」的不变量）
+function stopEngineThen(action: () => void) {
+  if (waitingFor) {
+    discardNextBestmove = true;
     pendingAfterAnalysis = action;
+    if (discardWatchdog) clearTimeout(discardWatchdog);
+    discardWatchdog = setTimeout(() => {
+      discardWatchdog = null;
+      if (discardNextBestmove) {
+        discardNextBestmove = false;
+        waitingFor = null;
+        const a = pendingAfterAnalysis;
+        pendingAfterAnalysis = null;
+        if (a) a();
+      }
+    }, 15000); // 安全网：引擎异常未回 bestmove 时强制执行，避免界面卡死
     try { client.stop(); } catch { /* 引擎可能已退出 */ }
     return;
   }
@@ -605,16 +630,12 @@ function startBoardForGame(): BoardData {
 
 // ---------- 对弈流程 ----------
 function newGame(startBoardOverride?: BoardData) {
+  if (reviewing) cancelReview(); // 点评进行中：先取消（会停止 review 搜索）
   engineProposal = null; // 清除挂起的引擎着法
   const startAction = () => {
-    if (engineTurnNow()) engineMove();
+    if (engineReady && engineTurnNow()) engineMove();
   };
-  if (waitingFor === 'analysis') {
-    // 分析中：停掉搜索，等 bestmove 回来再开新局引擎行棋
-    stopAnalysisThen(startAction);
-  } else {
-    startAction();
-  }
+  // 必须先重置棋盘再启动引擎行棋（engineMove 发的是当前棋盘 FEN）
   const startBoard = startBoardOverride ?? startBoardForGame();
   view.replaceBoard(startBoard);
   movesHistory = [];
@@ -632,7 +653,6 @@ function newGame(startBoardOverride?: BoardData) {
   puzzleHumanMoves = 0;
   drawCurve();
   analysisEl.textContent = '—';
-  waitingFor = null;
   view.setLastMove(null, null);
   setStatus('');
   fenBox.value = view.getFen();
@@ -641,6 +661,9 @@ function newGame(startBoardOverride?: BoardData) {
   resetClock();
   renderMoveList(movesHistory, movesZhLive, 0, false);
   updateOpeningName();
+  // 引擎先手：若引擎正在搜索旧局面，先停并丢弃旧结果，等 bestmove 回来再开新局首步
+  if (waitingFor) stopEngineThen(startAction);
+  else startAction();
 }
 
 function doMove(mv: Move) {
@@ -658,6 +681,7 @@ function doMove(mv: Move) {
   // 闯关：统计人行棋步数（预算校验用）
   if (puzzleActive && board.sideToMove === humanSide) puzzleHumanMoves++;
   const nb = applyMove(board, mv);
+  illegalRetry = 0; // 成功落子：重置引擎着法校验重试计数
   movesHistory.push(toIccs(mv));
   playSound(captured ? 'capture' : 'move');
   if (mode === 'play') {
@@ -768,9 +792,9 @@ function updateOpeningName() {
 
 function engineMove() {
   if (!engineReady) return;
-  if (waitingFor === 'analysis') {
-    // 分析搜索中：先停，等 bestmove 回来再走子（避免搜索中发 go 被引擎忽略导致卡死）
-    stopAnalysisThen(() => engineMove());
+  if (waitingFor) {
+    // 引擎搜索中（分析/复盘等）：先停并丢弃旧结果，等 bestmove 回来再走子（避免搜索中发 go 被引擎忽略导致卡死）
+    stopEngineThen(() => engineMove());
     return;
   }
   // 开局库直接落子（从初始局面开始且未偏离开局序列时；人机/机机均可用，受配置开关控制）
@@ -824,6 +848,16 @@ function wouldEndInDraw(mv: Move): boolean {
 }
 
 function onBestmove(bm: string) {
+  // 旧搜索作废（开新局/切模式时 stop 的结果）：不得落子，只执行挂起动作
+  if (discardNextBestmove) {
+    discardNextBestmove = false;
+    if (discardWatchdog) { clearTimeout(discardWatchdog); discardWatchdog = null; }
+    waitingFor = null;
+    const action = pendingAfterAnalysis;
+    pendingAfterAnalysis = null;
+    if (action) action();
+    return;
+  }
   if (waitingFor === 'engine') {
     waitingFor = null;
     const raw = parseIccs(bm);
@@ -857,12 +891,32 @@ function onBestmove(bm: string) {
     // 记录引擎思考分数进胜率曲线
     const best = lastInfoMap.get(1);
     if (best && best.scoreCp !== null) pushCp(best.scoreCp);
+    // 着法合法性兜底：局面不同步/引擎异常时重发当前局面再思考（防着法丢失卡死）
+    const legalNow = legalMoves(view.getBoard(), view.getBoard().sideToMove);
+    if (legalNow.length && !legalNow.some(l =>
+      l.from.file === mv.from.file && l.from.rank === mv.from.rank &&
+      l.to.file === mv.to.file && l.to.rank === mv.to.rank,
+    )) {
+      if (illegalRetry < 2) {
+        illegalRetry++;
+        setStatus('引擎着法校验失败，正在重新思考…');
+        waitingFor = 'engine';
+        client.position(view.getFen());
+        client.go({ depth: getDepth() });
+      } else {
+        setStatus('引擎着法校验多次失败：请重启引擎或检查当前局面');
+        engineProposal = null;
+        view.setArrows([]);
+      }
+      return;
+    }
+    illegalRetry = 0;
     // 干预开关：不直接落子，挂起为建议着法，等人确认或改走
     if (interveneOn()) {
       engineProposal = { mv, zh: moveToChinese(view.getBoard(), mv) };
       view.setArrows([{ from: mv.from, to: mv.to, rank: 0 }]);
-      view.setHighlights([mv.to]);
-      setStatus(`引擎建议：${engineProposal.zh}（点击该子再点落点确认，或改走其他棋；关闭开关则自动落子）`);
+      view.setHighlights([mv.from, mv.to]);
+      setStatus(`引擎建议：${engineProposal.zh} —— 先点该子、再点落点即可确认（或改走其他棋；取消勾选「干预引擎着法」则自动落子）`);
       return;
     }
     doMove(mv);
@@ -1060,7 +1114,7 @@ $('btnMode').addEventListener('click', () => {
     ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
     ($('editPanel') as HTMLDivElement).style.opacity = '1';
     view.onSquare = null;
-    if (waitingFor === 'analysis') stopAnalysisThen(() => {}); // 停掉残留搜索
+    if (waitingFor) stopEngineThen(() => {}); // 停掉残留搜索（analysis/engine/review 一律作废旧结果）
     waitingFor = null;
     engineProposal = null;
     view.setArrows([]);
@@ -1616,7 +1670,7 @@ function enterReplay(rec: GameRecord) {
   if (waitingFor) {
     try { client.stop(); } catch { /* 引擎可能已退出 */ }
     waitingFor = null;
-    pendingAfterAnalysis = null; // 避免旧挂起动作在复盘期间误触发
+    clearPending(); // 避免旧挂起动作/看门狗在复盘期间误触发
   }
   replayRecord = rec;
   replayIdx = 0;
