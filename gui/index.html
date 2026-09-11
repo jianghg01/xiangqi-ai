@@ -79,14 +79,14 @@
       </select>
       <span style="font-size:13px;align-self:center">引擎强度</span>
       <select id="strength" title="搜索深度分级；低档位叠加概率性次优着法模拟 ELO 分段棋力">
-        <option value="1">入门（1层·约1200）</option>
-        <option value="2">初级（2层·约1300）</option>
-        <option value="3">业余（3层·约1400）</option>
-        <option value="5">中级（5层·约1600）</option>
-        <option value="8">高级（8层·约1800）</option>
-        <option value="12">大师（12层·约2100）</option>
-        <option value="18">特大师（18层·约2500）</option>
-        <option value="24" selected>满级（24层·约2800）</option>
+        <option value="1">入门（1层·约1400）</option>
+        <option value="2">初级（2层·约1600）</option>
+        <option value="3">业余（3层·约1800）</option>
+        <option value="5">中级（5层·约2100）</option>
+        <option value="8">高级（8层·约2400）</option>
+        <option value="12">大师（12层·约2700）</option>
+        <option value="18">特大师（18层·约3200）</option>
+        <option value="24" selected>满级（24层·约4000）</option>
       </select>
       <span style="font-size:13px;align-self:center">让子</span>
       <select id="handicapSel" title="让子：引擎侧移除相应子力，只从初始局面开局时生效">
@@ -188,10 +188,10 @@
     <div class="row">
       <span style="font-size:13px;align-self:center">每步时限</span>
       <select id="timeLimit" title="每步思考时间限制（人机/机机通用）；不限则按强度深度">
-        <option value="0">不限（按深度）</option>
+        <option value="0" selected>不限（按深度·默认）</option>
         <option value="500">0.5秒</option>
         <option value="1000">1秒</option>
-        <option value="2000" selected>2秒（推荐）</option>
+        <option value="2000">2秒</option>
         <option value="3000">3秒</option>
         <option value="5000">5秒</option>
         <option value="10000">10秒</option>
