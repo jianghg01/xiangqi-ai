@@ -42,7 +42,7 @@ const handicapSel = $('handicapSel') as HTMLSelectElement;
 const clockModeSel = $('clockModeSel') as HTMLSelectElement;
 const endBanner = $('endBanner') as HTMLDivElement;
 const interveneChk = $('interveneChk') as HTMLInputElement;
-const autoDrawChk = $('autoDrawChk') as HTMLInputElement;
+const naturalLimitSel = $('naturalLimitSel') as HTMLSelectElement;
 const btnLLM = $('btnLLM') as HTMLButtonElement;
 const llmRow = $('llmRow') as HTMLDivElement;
 const llmStyleSel = $('llmStyle') as HTMLSelectElement;
@@ -54,11 +54,10 @@ const btnLlmSave = $('btnLlmSave') as HTMLButtonElement;
 const llmReport = $('llmReport') as HTMLDivElement;
 const btnLlmCfgToggle = $('btnLlmCfgToggle') as HTMLButtonElement;
 
-// ---------- 对弈配置（避和/开局库/线程/哈希，localStorage 持久化） ----------
+// ---------- 对弈配置（避和/开局库/线程/哈希/自然限着，localStorage 持久化） ----------
 const CFG_KEY = 'xz_play_cfg';
 const avoidDrawOn = () => avoidDrawSel.value === '1';
 const useBookOn = () => useBookSel.value === '1';
-const autoDrawOn = () => autoDrawChk.checked;
 function threadsValue(): number {
   return threadsSel.value === 'auto'
     ? Math.max(1, (navigator.hardwareConcurrency || 4) - 2)
@@ -69,6 +68,7 @@ function saveCfg() {
     localStorage.setItem(CFG_KEY, JSON.stringify({
       avoidDraw: avoidDrawSel.value, useBook: useBookSel.value,
       threads: threadsSel.value, hash: hashSel.value,
+      naturalLimit: naturalLimitSel.value,
     }));
   } catch { /* 忽略存储失败 */ }
 }
@@ -79,9 +79,10 @@ function saveCfg() {
     if (c.useBook === '0' || c.useBook === '1') useBookSel.value = c.useBook;
     if (['auto', '2', '4', '6', '8'].includes(c.threads)) threadsSel.value = c.threads;
     if (['128', '256', '512', '1024'].includes(c.hash)) hashSel.value = c.hash;
+    if (['30', '40', '50', '60'].includes(c.naturalLimit)) naturalLimitSel.value = c.naturalLimit;
   } catch { /* 忽略读取失败 */ }
 })();
-[avoidDrawSel, useBookSel, threadsSel, hashSel].forEach(s => s.addEventListener('change', saveCfg));
+[avoidDrawSel, useBookSel, threadsSel, hashSel, naturalLimitSel].forEach(s => s.addEventListener('change', saveCfg));
 threadsSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Threads', threadsValue()); });
 hashSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Hash', parseInt(hashSel.value, 10)); });
 
@@ -119,13 +120,9 @@ let engineReady = false;
 let illegalRetry = 0;   // 引擎着法非法时的重发次数（防死循环）
 let analysisOn = false;
 let cpHistory: number[] = [];          // 红方视角胜率曲线数据
-// 必和死局自动判和：引擎连续多回合评估双方无明显优势时判和（避免强对强无限拉锯）
-let drawStreak = 0;                     // 连续「无杀且优势极小」的引擎回合数
-const AUTO_DRAW_STREAK = 3;            // 达到此数（含本回合共 3 个引擎着法）即判和
-const AUTO_DRAW_MIN_MOVES = 10;        // 至少走出 10 步（开局子力对等不算死和）才启用
-const AUTO_DRAW_MAX_ADV = 30;          // 优势低于 0.3 兵视为「无胜机」
-let lastEvalRedCp: number | null = null; // 引擎最近一次对弈评估（红方视角，厘兵）
-let lastEvalMate = false;                // 引擎最近一次评估是否处于绝杀线（有杀不判和）
+// 引擎最近一次对弈评估（红方视角，厘兵），供提和按钮判断引擎是否占优
+let lastEvalRedCp: number | null = null;
+let lastEvalMate = false;                // 引擎最近一次评估是否处于绝杀线
 let lastInfoMap = new Map<number, EngineInfo>();
 
 // 强度分级 → 搜索深度（皮卡鱼新版无 Skill Level，用深度限强）
@@ -657,7 +654,6 @@ function newGame(startBoardOverride?: BoardData) {
   targets = [];
   cpHistory = [];
   lastInfoMap.clear();
-  drawStreak = 0;
   lastEvalRedCp = null;
   lastEvalMate = false;
   view.setArrows([]);
@@ -790,57 +786,60 @@ function afterMove() {
   else if (analysisOn && !waitingFor) analyze();
 }
 
-// ---------- 必和死局自动判和 ----------
-// 引擎对「即将行棋的局面」评估：无杀线且双方优势极小（|红方视角cp|≤30）视为死和。
-// 连续 3 个引擎着法（约 3 回合）都如此 → 自动判和收尾，解决「强对强死和拉锯、谁也不提和」。
-// 在 onBestmove 引擎分支调用；返回 true 表示已判和（调用方须 return，不再落子）。
-// 避和求胜开着且引擎避开成功时 |cp| 会 >30，不触发，尊重用户求胜意图。
-function maybeAutoDraw(): boolean {
-  if (!autoDrawOn() || gameOver || mode !== 'play' || puzzleActive) return false;
-  // 开局子力对等不算死和：至少走出 10 步（走完本步）才启用
-  if (movesHistory.length + 1 < AUTO_DRAW_MIN_MOVES) { drawStreak = 0; return false; }
-  const best = lastInfoMap.get(1);
-  if (!best || best.scoreCp === null) { drawStreak = 0; return false; }
-  const side = view.getBoard().sideToMove;
-  const redCp = toRedPersp(best.scoreCp, side);
-  lastEvalRedCp = redCp;
-  lastEvalMate = best.scoreMate !== null;
-  const flat = !lastEvalMate && Math.abs(redCp) <= AUTO_DRAW_MAX_ADV;
-  drawStreak = flat ? drawStreak + 1 : 0;
-  if (drawStreak >= AUTO_DRAW_STREAK) {
-    drawStreak = 0;
-    gameOver = true;
-    recordGame('draw');
-    gameResult = '双方无胜机，自动判和';
-    setStatus('双方无胜机（引擎评估长期平手）· 自动判和');
-    showEndBanner('双方无胜机 · 自动判和', true);
-    return true;
-  }
-  return false;
+// ---------- 自然限着（中国象棋竞赛规则 2020版 4.2.4） ----------
+// 国家大赛和棋判据是客观的「连续 N 回合均未吃子」（不是主观"无胜机"）。
+// 达限着回合数（默认 40，即 80 个单方着法）时，走子方"自然限着"和棋条件成立 —— 用「提和」按钮判和。
+// 从 startFen 重放 movesHistory，统计末段连续未吃子着法是否 ≥ 限着着法数
+function naturalLimitReached(): boolean {
+  const limitPly = (parseInt(naturalLimitSel.value, 10) || 40) * 2;
+  try {
+    let b = parseFen(startFen).board;
+    let cap = 0;
+    for (const s of movesHistory) {
+      const mv = parseIccs(s);
+      if (!mv) break;
+      cap = b.pieces[mv.to.rank][mv.to.file] ? 0 : cap + 1; // 目标格有子=吃子，归零
+      b = applyMove(b, mv);
+    }
+    return cap >= limitPly;
+  } catch { return false; }
 }
 
-// ---------- 人工提和（提和按钮） ----------
+// ---------- 提和（自然限着 2020版 4.2.4；一方提议 + 另一方同意即和棋 4.2.1） ----------
 function offerDraw() {
   if (mode !== 'play' || gameOver || puzzleActive) return;
   if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; clearPending(); }
-  if (gameMode === 'eve') {
-    // 机机对弈：由你作裁判直接判和
+  const limitTurns = parseInt(naturalLimitSel.value, 10) || 40;
+  if (naturalLimitReached()) {
+    // 已走满 N 回合未吃子 → 自然限着成立，直接判和
     gameOver = true;
     recordGame('draw');
-    gameResult = '对局提和 · 判和';
-    setStatus('机机对弈提和 · 判和');
-    showEndBanner('提和 · 和棋', true);
+    gameResult = `连续${limitTurns}回合未吃子，自然限着判和`;
+    setStatus(`连续 ${limitTurns} 回合未吃子 · 自然限着判和`);
+    showEndBanner(`自然限着${limitTurns}回合 · 和棋`, true);
     return;
   }
-  // 人机对弈：引擎那一方评估不占优才接受提和（引擎是行棋方视角，转红方视角后与 humanSide 比）
+  // 未达自然限着：判断是否"双方均无取胜可能的简单局势"（4.2.2 公认死和子力）
+  if (gameMode === 'eve') {
+    // 机机：你作裁判。仅当双方确无取胜可能（死和子力）或已自然限着才判和；否则不能强行提和
+    if (isMaterialDraw(view.getBoard())) {
+      gameOver = true; recordGame('draw');
+      gameResult = '双方均无取胜可能，判和';
+      setStatus('双方均无取胜可能（公认死和子力）· 判和');
+      showEndBanner('无取胜可能 · 和棋', true);
+      return;
+    }
+    setStatus(`未达自然限着（需连续 ${limitTurns} 回合未吃子）且非公认死和子力：按 2020 规则 4.2，提和需双方同意/自然限着，本局暂不能判和`);
+    return;
+  }
+  // 人机：一方提和需对方同意（4.2.1）——引擎不占优才接受
   if (!engineReady || lastEvalRedCp === null) {
-    setStatus('引擎尚未评估本局，无法判断是否接受提和（先让引擎走一步）');
+    setStatus(`尚未走满 ${limitTurns} 回合未吃子，且引擎未评估本局（先让引擎走一步再提和）`);
     return;
   }
   const engineSide: Side = humanSide === 'red' ? 'black' : 'red';
-  // 引擎方优势（正 = 引擎占优）：红方优势为 lastEvalRedCp，黑方优势为其相反数
   const engineAdv = engineSide === 'red' ? lastEvalRedCp : -lastEvalRedCp;
-  const accepts = lastEvalMate || engineAdv <= 100; // 引擎劣势或最多优 1 兵即接受；明显占优则拒绝
+  const accepts = lastEvalMate || engineAdv <= 100;
   if (accepts) {
     gameOver = true;
     recordGame('draw');
@@ -979,7 +978,12 @@ function onBestmove(bm: string) {
     }
     // 记录引擎思考分数进胜率曲线
     const best = lastInfoMap.get(1);
-    if (best && best.scoreCp !== null) pushCp(best.scoreCp);
+    if (best && best.scoreCp !== null) {
+      pushCp(best.scoreCp);
+      // 记录引擎方视角评估，供「提和」按钮判断引擎是否占优（4.2.2 双方均无取胜可能）
+      lastEvalRedCp = toRedPersp(best.scoreCp, view.getBoard().sideToMove);
+      lastEvalMate = best.scoreMate !== null;
+    }
     // 着法合法性兜底：局面不同步/引擎异常时重发当前局面再思考（防着法丢失卡死）
     if (legalNow.length && !isLegal(mv)) {
       if (illegalRetry < 2) {
@@ -996,8 +1000,6 @@ function onBestmove(bm: string) {
       return;
     }
     illegalRetry = 0;
-    // 必和死局自动判和：引擎对当前局面评估长期平手（无杀线、优势极小）→ 直接判和收尾
-    if (maybeAutoDraw()) return;
     // 干预开关：不直接落子，挂起为建议着法，等人确认或改走
     if (interveneOn()) {
       engineProposal = { mv, zh: moveToChinese(view.getBoard(), mv) };
@@ -1271,7 +1273,7 @@ $('btnUndo').addEventListener('click', () => {
   view.replaceBoard(nb);
   selected = null; targets = [];
   rebuildPosSeen(nb, movesHistory);
-  drawStreak = 0; lastEvalRedCp = null; lastEvalMate = false;
+  lastEvalRedCp = null; lastEvalMate = false;
   reviewMarks = [];
   reviewReportEl.textContent = '';
   renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
@@ -1321,8 +1323,8 @@ sideSelect.addEventListener('change', () => {
   // 人执黑时翻转棋盘（随时预览）；换边后复位手动翻转
   flipManual = null; applyFlip();
   // 换边保留当前棋局（不重置）：轮到新执方继续
-  // 换边后旧评估作废：清掉必和自动判和的计数与缓存，避免基于旧评估误判
-  drawStreak = 0; lastEvalRedCp = null; lastEvalMate = false;
+  // 换边后旧引擎评估作废（提和判定基于最新评估）
+  lastEvalRedCp = null; lastEvalMate = false;
   if (mode === 'play' && gameMode === 'pve' && !gameOver) {
     if (waitingFor) stopEngineThen(() => { if (engineTurnNow()) engineMove(); });
     else if (engineTurnNow()) engineMove();
@@ -1334,14 +1336,12 @@ sideSelect.addEventListener('change', () => {
 gameModeSel.addEventListener('change', () => {
   gameMode = gameModeSel.value as 'pve' | 'eve';
   loopActive = false; // 切换模式取消循环赛
-  // 切换模式保留棋局：旧必和计数/评估作废，避免基于旧局面误判自动和
-  drawStreak = 0; lastEvalRedCp = null; lastEvalMate = false;
+  // 切换模式保留棋局：旧引擎评估作废（提和判定基于最新评估）
+  lastEvalRedCp = null; lastEvalMate = false;
   // 切换模式时显示对应配置行
   pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
   eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
   if (gameMode === 'eve') { flipManual = null; applyFlip(); } // 机机对弈固定红下视角
-  // 切换模式后旧评估作废：清掉必和自动判和的计数与缓存
-  drawStreak = 0; lastEvalRedCp = null; lastEvalMate = false;
   // 切换人机/机机保留当前棋局（不重置）：按新模式继续对弈
   if (mode === 'play' && !gameOver) {
     if (waitingFor) stopEngineThen(() => { if (engineTurnNow()) engineMove(); });

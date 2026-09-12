@@ -71,9 +71,16 @@
       <button id="btnLoopStop">停止</button>
     </div>
     <div class="row">
-      <label style="font-size:13px;align-self:center;display:flex;align-items:center;gap:4px" title="开启后：引擎评估双方长期无胜机（必和死局）时自动判和收尾，避免强对强无限拉锯；人机/机机均生效">
-        <input type="checkbox" id="autoDrawChk" checked /> 必和自动判和（默认开）
+      <label style="font-size:13px;align-self:center" title="自然限着回合数：连续 N 回合双方均未吃子时，「提和」按钮即可按自然限着判和（《2020版象棋竞赛规则》4.2.4，国家大赛常用40回合）">
+        自然限着
+        <select id="naturalLimitSel" style="margin-left:4px">
+          <option value="30">30回合</option>
+          <option value="40" selected>40回合（大赛常用）</option>
+          <option value="50">50回合</option>
+          <option value="60">60回合（最高）</option>
+        </select>
       </label>
+      <span style="font-size:12px;color:#a89a7d;align-self:center">连续未吃子达此回合 → 提和判和</span>
     </div>
     <div class="note" id="loopReport"></div>
     <div class="note">需机机对弈模式并已启动引擎；只有人为填写局数并点「开始循环」才会自动连赛，单局结束不会自己续局</div>
