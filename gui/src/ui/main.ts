@@ -832,12 +832,15 @@ function offerDraw() {
     showEndBanner('提和 · 和棋', true);
     return;
   }
-  // 人机对弈：引擎评估不占优（|红方cp|≤100 或已判杀线）才接受，否则拒绝
+  // 人机对弈：引擎那一方评估不占优才接受提和（引擎是行棋方视角，转红方视角后与 humanSide 比）
   if (!engineReady || lastEvalRedCp === null) {
     setStatus('引擎尚未评估本局，无法判断是否接受提和（先让引擎走一步）');
     return;
   }
-  const accepts = lastEvalMate || Math.abs(lastEvalRedCp) <= 100;
+  const engineSide: Side = humanSide === 'red' ? 'black' : 'red';
+  // 引擎方优势（正 = 引擎占优）：红方优势为 lastEvalRedCp，黑方优势为其相反数
+  const engineAdv = engineSide === 'red' ? lastEvalRedCp : -lastEvalRedCp;
+  const accepts = lastEvalMate || engineAdv <= 100; // 引擎劣势或最多优 1 兵即接受；明显占优则拒绝
   if (accepts) {
     gameOver = true;
     recordGame('draw');
@@ -1318,6 +1321,8 @@ sideSelect.addEventListener('change', () => {
   // 人执黑时翻转棋盘（随时预览）；换边后复位手动翻转
   flipManual = null; applyFlip();
   // 换边保留当前棋局（不重置）：轮到新执方继续
+  // 换边后旧评估作废：清掉必和自动判和的计数与缓存，避免基于旧评估误判
+  drawStreak = 0; lastEvalRedCp = null; lastEvalMate = false;
   if (mode === 'play' && gameMode === 'pve' && !gameOver) {
     if (waitingFor) stopEngineThen(() => { if (engineTurnNow()) engineMove(); });
     else if (engineTurnNow()) engineMove();
@@ -1329,10 +1334,14 @@ sideSelect.addEventListener('change', () => {
 gameModeSel.addEventListener('change', () => {
   gameMode = gameModeSel.value as 'pve' | 'eve';
   loopActive = false; // 切换模式取消循环赛
+  // 切换模式保留棋局：旧必和计数/评估作废，避免基于旧局面误判自动和
+  drawStreak = 0; lastEvalRedCp = null; lastEvalMate = false;
   // 切换模式时显示对应配置行
   pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
   eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
   if (gameMode === 'eve') { flipManual = null; applyFlip(); } // 机机对弈固定红下视角
+  // 切换模式后旧评估作废：清掉必和自动判和的计数与缓存
+  drawStreak = 0; lastEvalRedCp = null; lastEvalMate = false;
   // 切换人机/机机保留当前棋局（不重置）：按新模式继续对弈
   if (mode === 'play' && !gameOver) {
     if (waitingFor) stopEngineThen(() => { if (engineTurnNow()) engineMove(); });
