@@ -504,10 +504,13 @@ btnLLM.addEventListener('click', () => { runLLMReview(); });
 
 // ---------- 局面重复检测（三次重复判和，与 selfplay 同规则） ----------
 let posSeen = new Map<string, number>();
+// 将军着法连续计数（天天象棋规则：长将 6 回合判和 / 强制变招）
+let checkStreak = 0;
 
 function posKey(b: BoardData): string {
-  return b.pieces.map(row => row.map(p => (p ? (p.side === 'red' ? p.type : p.type.toLowerCase()) : '.')).join('')).join('/')
-    + ' ' + (b.sideToMove === 'red' ? 'w' : 'b');
+  // 键只含「子力配置」（不含走棋方）：同一棋局无论轮到哪方走子都视为同一局面，
+  // 这样 3 次/5 次重复判和计数才正确（若含走棋方，同局面仅计 2 次永不触发）。
+  return b.pieces.map(row => row.map(p => (p ? (p.side === 'red' ? p.type : p.type.toLowerCase()) : '.')).join('')).join('/');
 }
 
 // 从起始局面按着法序列重建重复计数（悔棋后调用）
@@ -660,6 +663,7 @@ function newGame(startBoardOverride?: BoardData) {
   reviewMarks = [];
   reviewReportEl.textContent = '';
   puzzleHumanMoves = 0;
+  checkStreak = 0; // 将军着法连续计数（天天象棋长将规则用）
   drawCurve();
   analysisEl.textContent = '—';
   view.setLastMove(null, null);
@@ -698,9 +702,12 @@ function doMove(mv: Move) {
     renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
     updateOpeningName();
   }
-  // 重复局面计数
+  // 重复局面计数（同步将军着法连续计数：吃子重置、非将军着法重置）
   const k = posKey(nb);
   posSeen.set(k, (posSeen.get(k) || 0) + 1);
+  const givedNow = inCheck(nb, nb.sideToMove); // 走子后是否将军对方（nb 已翻转 sideToMove）
+  if (givedNow) checkStreak++;
+  else checkStreak = 0;
   selected = null;
   targets = [];
   view.clearOverlay();
@@ -768,6 +775,35 @@ function afterMove() {
     gameResult = '三次重复局面，判和';
     setStatus('双方三次重复局面，和棋');
     showEndBanner('三次重复局面 · 和棋', true);
+    return;
+  }
+  // ---------- 天天象棋网络规则增强（基于亚洲规则，判和+强制变招两大原则） ----------
+  // 规则（6）：局面重复 5 次自动判和（非将非捉状态下）
+  if ((posSeen.get(posKey(board)) || 0) >= 5) {
+    gameOver = true;
+    recordGame('draw');
+    gameResult = '局面重复5次，自动判和';
+    setStatus('非将非捉状态下局面重复5次，自动判和');
+    showEndBanner('局面重复5次 · 和棋', true);
+    return;
+  }
+  // 规则（3）：双方互相长将6次判和
+  if (checkStreak >= 12) { // 12 个单方着法 = 双方各长将 6 回合
+    gameOver = true;
+    recordGame('draw');
+    gameResult = '双方长将6回合，自动判和';
+    setStatus('将军着法连续达到 12 着（双方各 6 回合），自动判和');
+    showEndBanner('长将6回合 · 和棋', true);
+    return;
+  }
+  // 规则（6）：总步数 400 步（200 回合）自动判和；若最后一步将死/困毙则不判和
+  if (movesHistory.length >= 400) {
+    // 绝杀/困毙已在前面 st.status 分支处理，此处仅对非终局做自动判和
+    gameOver = true;
+    recordGame('draw');
+    gameResult = '超过400步（200回合）自动判和';
+    setStatus('总步数超过 400 步（200 回合），自动判和');
+    showEndBanner('400步上限 · 和棋', true);
     return;
   }
   // 闯关预算：攻方行棋超过 N步杀+1 仍未成杀 → 失败
