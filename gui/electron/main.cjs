@@ -160,8 +160,15 @@ ipcMain.handle('file:save-image', async (_e, { defaultName, dataUrl }) => {
 
 ipcMain.handle('engine:alive', () => !!eng);
 
-// ---------- 棋谱库（gui/games/ 目录：列表/读取/保存/删除） ----------
-function libDir() { return path.join(__dirname, '..', 'games'); }
+// ---------- 棋谱库（dev: gui/games/；打包版: 用户数据目录/games，app.asar 内只读） ----------
+function libDir() {
+  if (app.isPackaged) {
+    const dir = path.join(app.getPath('userData'), 'games');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    return dir;
+  }
+  return path.join(__dirname, '..', 'games');
+}
 
 ipcMain.handle('lib:list', () => {
   try {

@@ -8,11 +8,48 @@
     "dev": "vite",
     "app": "electron .",
     "build": "tsc --noEmit && vite build",
+    "dist": "vite build && electron-builder --win nsis",
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "build": {
+    "appId": "com.xiangqi.ai",
+    "productName": "象棋AI",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../engine",
+        "to": "engine",
+        "filter": [
+          "**/*",
+          "!**/legal/Pikafish-*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "象棋AI"
+    }
+  },
   "devDependencies": {
     "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
     "vitest": "^2.1.4"
