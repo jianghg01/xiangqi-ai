@@ -2074,6 +2074,190 @@ $('btnPuzzleHint').addEventListener('click', () => {
   } catch { setStatus('提示不可用'); }
 });
 
+// ---------- 自定义残局（保存 / 载入 / 导出 / 导入） ----------
+interface CustomPuzzle {
+  id: string;
+  name: string;
+  fen: string;
+  side: Side;            // 攻方（先行方）
+  movesToMate: number;   // 杀法步数
+  solution: string;      // 参考着法（ICCS 或中文，可选）
+  date: string;
+}
+const CPZ_KEY = 'xz_custom_puzzles';
+
+function loadCustomPuzzles(): CustomPuzzle[] {
+  try {
+    const raw = localStorage.getItem(CPZ_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (Array.isArray(arr)) return arr as CustomPuzzle[];
+    return [];
+  } catch { return []; }
+}
+function saveCustomPuzzles(list: CustomPuzzle[]) {
+  try { localStorage.setItem(CPZ_KEY, JSON.stringify(list)); } catch { /* 忽略 */ }
+}
+
+const cpzNameInput = $('cpzName') as HTMLInputElement;
+const cpzSideSel = $('cpzSide') as HTMLSelectElement;
+const cpzMovesSel = $('cpzMoves') as HTMLSelectElement;
+const cpzSolutionInput = $('cpzSolution') as HTMLInputElement;
+const cpzSel = $('cpzSel') as HTMLSelectElement;
+const cpzInfoEl = $('cpzInfo') as HTMLDivElement;
+
+function refreshCpzLabels() {
+  const list = loadCustomPuzzles();
+  cpzSel.innerHTML = '';
+  for (const p of list) {
+    cpzSel.add(new Option(`${p.name}（${p.movesToMate}步杀）`, p.id));
+  }
+  cpzInfoEl.textContent = list.length
+    ? `共 ${list.length} 个自定义残局 · 选择后点「载入」即可闯关`
+    : '暂无自定义残局 · 在编辑模式摆好局面后点「保存残局」';
+}
+refreshCpzLabels();
+
+// 保存当前编辑模式局面为自定义残局（同时写入棋谱库 JSON）
+$('btnCpzSave').addEventListener('click', async () => {
+  const board = view.getBoard();
+  const pieceCount = board.pieces.flat().filter(Boolean).length;
+  if (pieceCount < 4) { setStatus('局面子力过少（至少 4 子），请摆好残局再保存'); return; }
+  const name = cpzNameInput.value.trim() || `自定义残局_${new Date().toISOString().slice(5,10).replace('-','/')}`;
+  const side = cpzSideSel.value as Side;
+  board.sideToMove = side;
+  const fenFull = toFen(board);
+  const movesToMate = parseInt(cpzMovesSel.value, 10) || 2;
+  const solution = cpzSolutionInput.value.trim();
+  const id = 'cpz-' + Date.now().toString(36);
+  const item: CustomPuzzle = {
+    id, name, fen: fenFull, side, movesToMate,
+    solution,
+    date: new Date().toISOString(),
+  };
+  const list = loadCustomPuzzles();
+  list.push(item);
+  saveCustomPuzzles(list);
+  refreshCpzLabels();
+  cpzSel.value = id;
+
+  // 同步到棋谱库（Electron 环境）：残局 PGN 文件
+  if (engineApi?.saveText) {
+    try {
+      const pgn = exportPgn({
+        startFen: fenFull,
+        redName: side === 'red' ? name : '防守方',
+        blackName: side === 'black' ? name : '防守方',
+        result: '',
+        moves: solution ? solution.split(/\s+/).slice(0, 2) : [],
+        movesZh: [],
+        date: new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
+      });
+      await engineApi.saveText(`残局_${name.replace(/[\\/:*?"<>|]/g, '')}_${id.slice(-6)}.pgn`, pgn, 'pgn');
+    } catch { /* PGN 同步失败不影响主保存 */ }
+  }
+  setStatus(`残局「${name}」已保存（${movesToMate}步杀，攻方${side === 'red' ? '红' : '黑'}）`);
+});
+
+// 载入自定义残局为闯关
+function loadCustomPuzzle() {
+  const p = loadCustomPuzzles().find(x => x.id === cpzSel.value);
+  if (!p) { setStatus('请先选择要载入的自定义残局'); return; }
+  stopReplayTimer();
+  if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; pendingAfterAnalysis = null; }
+  puzzleActive = {
+    id: p.id,
+    name: p.name,
+    fen: p.fen,
+    side: p.side,
+    movesToMate: p.movesToMate,
+    solution: p.solution,
+  };
+  mode = 'play';
+  gameMode = 'pve';
+  gameModeSel.value = 'pve';
+  pveRow.style.display = 'flex';
+  eveRows.style.display = 'none';
+  humanSide = p.side;
+  sideSelect.value = p.side;
+  ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
+  view.onSquare = playSquareClick;
+  flipManual = null; applyFlip();
+  replayRow.style.display = 'none';
+  reviewRow.style.display = 'flex';
+  llmRow.style.display = 'flex';
+  gameOver = false;
+  gameResult = '';
+  hideEndBanner();
+  let pb;
+  try { pb = parseFen(p.fen).board; } catch { setStatus('残局 FEN 无效'); return; }
+  newGame(pb);
+  setStatus(`自定义残局：${p.name} · ${p.movesToMate}步杀（预算 ${p.movesToMate + 1} 步）`);
+}
+$('btnCpzLoad').addEventListener('click', loadCustomPuzzle);
+
+// 删除选中的自定义残局
+$('btnCpzDelete').addEventListener('click', () => {
+  const id = cpzSel.value;
+  if (!id) { setStatus('请先选择要删除的残局'); return; }
+  const list = loadCustomPuzzles().filter(x => x.id !== id);
+  saveCustomPuzzles(list);
+  refreshCpzLabels();
+  setStatus('已删除');
+});
+
+// 导出选中残局为 PGN 文件（系统文件对话框）
+$('btnCpzExport').addEventListener('click', async () => {
+  const p = loadCustomPuzzles().find(x => x.id === cpzSel.value);
+  if (!p) { setStatus('请先选择要导出的残局'); return; }
+  if (!engineApi?.saveText) { setStatus('浏览器模式不支持导出（需 Electron）'); return; }
+  try {
+    const pgn = exportPgn({
+      startFen: p.fen,
+      redName: p.side === 'red' ? p.name : p.name + '（黑先）',
+      blackName: p.side === 'black' ? p.name : p.name + '（红先）',
+      result: '',
+      moves: p.solution ? p.solution.split(/\s+/) : [],
+      movesZh: [],
+      date: new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
+    });
+    const safe = p.name.replace(/[\\/:*?"<>|]/g, '');
+    const savedPath = await engineApi.saveText(`残局_${safe}.pgn`, pgn, 'pgn');
+    setStatus(savedPath ? `已导出 PGN：${savedPath}` : '已取消导出');
+  } catch (err) {
+    setStatus('导出失败: ' + (err as Error).message);
+  }
+});
+
+// 从 PGN 文件导入残局
+$('btnCpzImport').addEventListener('click', async () => {
+  if (!engineApi?.openText) { setStatus('浏览器模式不支持导入（需 Electron）'); return; }
+  const r = await engineApi.openText();
+  if (!r) return;
+  const meta = parsePgn(r.content);
+  if (!meta.startFen) { setStatus('PGN 中未找到 FEN，无法导入'); return; }
+  const safe = (r.path || '').split('\\').pop()?.split('/').pop() || '导入';
+  const name = safe.replace(/\.(pgn|json)$/i, '').replace(/^残局_/, '');
+  const side = cpzSideSel.value as Side;
+  const fen = meta.startFen;
+  const item: CustomPuzzle = {
+    id: 'cpz-' + Date.now().toString(36),
+    name: name || '导入残局',
+    fen, side,
+    movesToMate: parseInt(cpzMovesSel.value, 10) || 2,
+    solution: meta.moves.join(' '),
+    date: new Date().toISOString(),
+  };
+  const list = loadCustomPuzzles();
+  list.push(item);
+  saveCustomPuzzles(list);
+  refreshCpzLabels();
+  cpzSel.value = item.id;
+  cpzNameInput.value = item.name;
+  cpzSolutionInput.value = item.solution;
+  setStatus(`已导入「${item.name}」（${item.movesToMate}步杀，攻方${side === 'red' ? '红' : '黑'}）`);
+});
+
 // ---------- 名局欣赏（古谱《自出洞来无敌手》） ----------
 const classicCatSel = $('classicCategory') as HTMLSelectElement;
 const classicGameSel = $('classicGame') as HTMLSelectElement;

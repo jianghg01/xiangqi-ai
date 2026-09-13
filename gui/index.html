@@ -329,6 +329,34 @@
     </div>
     <div class="note">攻方在预算步数（N步杀+1）内完成绝杀即过关，引擎全力防守</div>
 
+    <h3>自定义残局</h3>
+    <div class="note">在编辑模式摆好局面后，填写下方信息即可保存；载入后与内置残局一样闯关挑战</div>
+    <div class="row" style="gap:4px;flex-wrap:wrap">
+      <input type="text" id="cpzName" placeholder="残局名称" style="width:160px" title="自定义残局名称" />
+      <select id="cpzSide" title="攻方执子（先行方）">
+        <option value="red" selected>红先</option>
+        <option value="black">黑先</option>
+      </select>
+      <select id="cpzMoves" title="杀法步数（攻方在 N 步内完成绝杀即过关）">
+        <option value="1">一步杀</option>
+        <option value="2" selected>两步杀</option>
+        <option value="3">三步杀</option>
+        <option value="4">四步杀</option>
+      </select>
+    </div>
+    <div class="row" style="gap:4px;flex-wrap:wrap">
+      <input type="text" id="cpzSolution" placeholder="参考着法（可选，如 f1f0 或 炮二平五）" style="width:200px" title="参考着法，供「提示」按钮显示；可填 ICCS 或中文纵线记法" />
+      <button id="btnCpzSave">保存残局</button>
+      <button id="btnCpzExport" title="把当前保存的残局导出为 PGN 文件">导出 PGN</button>
+      <button id="btnCpzImport" title="从 PGN 文件导入残局">导入 PGN</button>
+    </div>
+    <div class="row" style="gap:4px;flex-wrap:wrap">
+      <select id="cpzSel" style="flex:1;min-width:0" title="已保存的自定义残局"></select>
+      <button id="btnCpzLoad">载入</button>
+      <button id="btnCpzDelete">删除</button>
+    </div>
+    <div class="note" id="cpzInfo"></div>
+
     <h3>名局欣赏（古谱《自出洞来无敌手》）</h3>
     <div class="row">
       <select id="classicCategory" title="古谱七类" style="flex:1;min-width:0"></select>
