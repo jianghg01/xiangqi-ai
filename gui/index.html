@@ -188,6 +188,14 @@
       <div class="note">不限时限时按各自强度分深度对打；循环赛见顶部菜单</div>
     </div>
     <div class="row">
+      <span style="font-size:13px;align-self:center">规则体系</span>
+      <select id="ruleSet" title="判和规则体系：国规2020（自然限着+前25回合不提和）/ 网络规则（天天象棋：400步上限+重复5次+长将6回合判和）/ 休闲简化（点提和即判和）">
+        <option value="guogui" selected>国规 2020（竞赛标准）</option>
+        <option value="net">网络规则（天天象棋）</option>
+        <option value="casual">休闲简化</option>
+      </select>
+    </div>
+    <div class="row">
       <span style="font-size:13px;align-self:center">避和求胜</span>
       <select id="avoidDraw" title="引擎发现即将三次重复/子力和棋且自己不处败势时，自动改走评分可接受的替代着法，继续求胜">
         <option value="1" selected>开（推荐强软）</option>

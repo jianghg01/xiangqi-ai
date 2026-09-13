@@ -12,7 +12,7 @@ import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMove
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
 import { blunderProfile, pickBlunder, estimateElo, DEPTH_ELO } from '../uci/elo';
 import { buildMessages, tagForLoss, type ReviewStyle, type StepEval } from '../uci/llm-review';
-import { BoardView, Arrow, BOARD_THEMES, type FlipMode } from './board-view';
+import { BoardView, Arrow, BOARD_W, BOARD_H, BOARD_THEMES, type FlipMode } from './board-view';
 import { findKing } from '../rules/rules';
 
 // ---------- DOM ----------
@@ -45,6 +45,7 @@ const clockModeSel = $('clockModeSel') as HTMLSelectElement;
 const endBanner = $('endBanner') as HTMLDivElement;
 const interveneChk = $('interveneChk') as HTMLInputElement;
 const naturalLimitSel = $('naturalLimitSel') as HTMLSelectElement;
+const ruleSetSel = $('ruleSet') as HTMLSelectElement;
 const btnLLM = $('btnLLM') as HTMLButtonElement;
 const llmRow = $('llmRow') as HTMLDivElement;
 const llmStyleSel = $('llmStyle') as HTMLSelectElement;
@@ -57,6 +58,9 @@ const llmReport = $('llmReport') as HTMLDivElement;
 const btnLlmCfgToggle = $('btnLlmCfgToggle') as HTMLButtonElement;
 
 // ---------- 对弈配置（避和/开局库/线程/哈希/自然限着，localStorage 持久化） ----------
+// 判和规则体系：guogui=国规2020（自然限着+25回合不提和） net=网络规则（天天象棋：400步/重复5次/长将6回合） casual=休闲简化
+type RuleSet = 'guogui' | 'net' | 'casual';
+let ruleSet: RuleSet = 'guogui';
 const CFG_KEY = 'xz_play_cfg';
 const avoidDrawOn = () => avoidDrawSel.value === '1';
 const useBookOn = () => useBookSel.value === '1';
@@ -73,6 +77,7 @@ function saveCfg() {
       sacrifice: sacrificeModeChk.checked ? '1' : '0',
       threads: threadsSel.value, hash: hashSel.value,
       naturalLimit: naturalLimitSel.value,
+      ruleSet: ruleSetSel.value,
     }));
   } catch { /* 忽略存储失败 */ }
 }
@@ -86,9 +91,19 @@ function saveCfg() {
     if (['auto', '2', '4', '6', '8'].includes(c.threads)) threadsSel.value = c.threads;
     if (['128', '256', '512', '1024'].includes(c.hash)) hashSel.value = c.hash;
     if (['40', '50', '60'].includes(c.naturalLimit)) naturalLimitSel.value = c.naturalLimit;
+    if (['guogui', 'net', 'casual'].includes(c.ruleSet)) ruleSetSel.value = c.ruleSet;
   } catch { /* 忽略读取失败 */ }
+  ruleSet = ruleSetSel.value as RuleSet; // loadCfg 直接设值不触发 change，手动同步运行时变量
 })();
-[avoidDrawSel, useBookSel, openingCategorySel, sacrificeModeChk, threadsSel, hashSel, naturalLimitSel].forEach(s => s.addEventListener('change', saveCfg));
+[avoidDrawSel, useBookSel, openingCategorySel, sacrificeModeChk, threadsSel, hashSel, naturalLimitSel, ruleSetSel].forEach(s => s.addEventListener('change', saveCfg));
+ruleSetSel.addEventListener('change', () => {
+  ruleSet = ruleSetSel.value as RuleSet;
+  setStatus(ruleSet === 'guogui'
+    ? '规则体系：国规2020（自然限着·25回合不提和）'
+    : ruleSet === 'net'
+      ? '规则体系：网络规则（400步·重复5次·长将6回合判和）'
+      : '规则体系：休闲简化（点击提和即判和）');
+});
 threadsSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Threads', threadsValue()); });
 hashSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Hash', parseInt(hashSel.value, 10)); });
 
@@ -128,7 +143,7 @@ let movesHistory: string[] = [];       // 当前对局 ICCS 着法（内部坐�
 let movesZhLive: string[] = [];        // 对应中文记谱（对弈实时显示）
 let selected: Square | null = null;
 let targets: Move[] = [];
-let waitingFor: null | 'engine' | 'analysis' | 'review' = null;
+let waitingFor: null | 'engine' | 'analysis' | 'review' | 'hint' = null;
 let engineReady = false;
 let illegalRetry = 0;   // 引擎着法非法时的重发次数（防死循环）
 let analysisOn = false;
@@ -143,6 +158,18 @@ const ANALYSIS_DEPTH = 14;
 
 const view = new BoardView(canvas, initialBoard());
 view.setOnChange(() => { fenBox.value = view.getFen(); });
+
+// ---------- 棋盘自适应缩放（窗口/分屏等比缩小，Canvas 缓冲不变、CSS 拉伸显示） ----------
+function fitBoard() {
+  const scale = Math.max(0.35, Math.min(1,
+    (window.innerHeight - 240) / BOARD_H, // 扣掉菜单/按钮/状态栏高度
+    (window.innerWidth - 420) / BOARD_W,  // 扣掉右侧面板宽度与边距
+  ));
+  canvas.style.width = Math.round(BOARD_W * scale) + 'px';
+  canvas.style.height = Math.round(BOARD_H * scale) + 'px';
+}
+window.addEventListener('resize', fitBoard);
+fitBoard();
 
 // ---------- UCI 客户端 ----------
 const engineApi = window.engine;
@@ -791,34 +818,37 @@ function afterMove() {
     showEndBanner('三次重复局面 · 和棋', true);
     return;
   }
-  // ---------- 天天象棋网络规则增强（基于亚洲规则，判和+强制变招两大原则） ----------
-  // 规则（6）：局面重复 5 次自动判和（非将非捉状态下）
-  if ((posSeen.get(posKey(board)) || 0) >= 5) {
-    gameOver = true;
-    recordGame('draw');
-    gameResult = '局面重复5次，自动判和';
-    setStatus('非将非捉状态下局面重复5次，自动判和');
-    showEndBanner('局面重复5次 · 和棋', true);
-    return;
-  }
-  // 规则（3）：双方互相长将6次判和
-  if (checkStreak >= 12) { // 12 个单方着法 = 双方各长将 6 回合
-    gameOver = true;
-    recordGame('draw');
-    gameResult = '双方长将6回合，自动判和';
-    setStatus('将军着法连续达到 12 着（双方各 6 回合），自动判和');
-    showEndBanner('长将6回合 · 和棋', true);
-    return;
-  }
-  // 规则（6）：总步数 400 步（200 回合）自动判和；若最后一步将死/困毙则不判和
-  if (movesHistory.length >= 400) {
-    // 绝杀/困毙已在前面 st.status 分支处理，此处仅对非终局做自动判和
-    gameOver = true;
-    recordGame('draw');
-    gameResult = '超过400步（200回合）自动判和';
-    setStatus('总步数超过 400 步（200 回合），自动判和');
-    showEndBanner('400步上限 · 和棋', true);
-    return;
+  // ---------- 网络规则（天天象棋，基于亚洲规则）特有判和 ----------
+  // 仅「网络规则」体系启用；国规 2020 不设 400 步上限与重复5次/长将判和（长将属棋例裁决范畴，本程序简化为不提和即继续）
+  if (ruleSet === 'net') {
+    // 规则（6）：局面重复 5 次自动判和（非将非捉状态下）
+    if ((posSeen.get(posKey(board)) || 0) >= 5) {
+      gameOver = true;
+      recordGame('draw');
+      gameResult = '局面重复5次，自动判和';
+      setStatus('非将非捉状态下局面重复5次，自动判和');
+      showEndBanner('局面重复5次 · 和棋', true);
+      return;
+    }
+    // 规则（3）：双方互相长将6次判和
+    if (checkStreak >= 12) { // 12 个单方着法 = 双方各长将 6 回合
+      gameOver = true;
+      recordGame('draw');
+      gameResult = '双方长将6回合，自动判和';
+      setStatus('将军着法连续达到 12 着（双方各 6 回合），自动判和');
+      showEndBanner('长将6回合 · 和棋', true);
+      return;
+    }
+    // 规则（6）：总步数 400 步（200 回合）自动判和；若最后一步将死/困毙则不判和
+    if (movesHistory.length >= 400) {
+      // 绝杀/困毙已在前面 st.status 分支处理，此处仅对非终局做自动判和
+      gameOver = true;
+      recordGame('draw');
+      gameResult = '超过400步（200回合）自动判和';
+      setStatus('总步数超过 400 步（200 回合），自动判和');
+      showEndBanner('400步上限 · 和棋', true);
+      return;
+    }
   }
   // 闯关预算：攻方行棋超过 N步杀+1 仍未成杀 → 失败
   if (puzzleActive && puzzleHumanMoves >= puzzleActive.movesToMate + 1) {
@@ -843,8 +873,12 @@ function afterMove() {
 // 若 N 回合内未吃子 → 自然限着成立，「提和」按钮可直接判和。
 // 同时 4.3 条：前 25 回合（含）内双方不得提和。
 // 从 startFen 重放 movesHistory：统计末段「未吃子」着法数，将军着法按上述规则封顶。
+// 自然限着回合数：网络规则固定 60（天天自然限招 120 步，60 回合）；国规用下拉（40/50/60）
+function naturalLimitTurns(): number {
+  return ruleSet === 'net' ? 60 : (parseInt(naturalLimitSel.value, 10) || 50);
+}
 function naturalLimitReached(): boolean {
-  const limitTurns = parseInt(naturalLimitSel.value, 10) || 50;
+  const limitTurns = naturalLimitTurns();
   const limitPly = limitTurns * 2; // 单方着法上限
   const CHECK_CAP = 8;             // 2020 版：将军着法只计 8 着
   try {
@@ -885,13 +919,22 @@ function withinMinDrawWindow(): boolean {
 // ---------- 提和（自然限着 2020版 4.2.4；一方提议 + 另一方同意即和棋 4.2.1） ----------
 function offerDraw() {
   if (mode !== 'play' || gameOver || puzzleActive) return;
-  // 4.3 条：前 25 回合（含）内双方不得提和
-  if (withinMinDrawWindow()) {
+  // 休闲简化：点击「提和」即协商判和（不计较胜负）
+  if (ruleSet === 'casual') {
+    gameOver = true;
+    recordGame('draw');
+    gameResult = '休闲模式 · 协商和棋';
+    setStatus('休闲简化模式：双方同意和棋');
+    showEndBanner('协商和棋', true);
+    return;
+  }
+  // 4.3 条：前 25 回合（含）内双方不得提和（仅国规；网络规则可随时提和）
+  if (ruleSet === 'guogui' && withinMinDrawWindow()) {
     setStatus(`按 2020 规则 4.3，前 ${MIN_DRAW_TURNS} 回合内不得提和（当前已 ${Math.floor(movesHistory.length / 2)} 回合）`);
     return;
   }
   if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; clearPending(); }
-  const limitTurns = parseInt(naturalLimitSel.value, 10) || 50;
+  const limitTurns = naturalLimitTurns();
   if (naturalLimitReached()) {
     // 已走满 N 回合未吃子（将军着法只计 8 着）→ 自然限着成立，直接判和
     gameOver = true;
@@ -1168,6 +1211,18 @@ function onBestmove(bm: string) {
     });
     reviewIdx++;
     reviewStep();
+  } else if (waitingFor === 'hint') {
+    // 残局/局面提示：引擎求解当前局面最佳着法（不落子、不入棋谱、不动胜率曲线）
+    waitingFor = null;
+    const raw = parseIccs(bm);
+    if (raw) {
+      const mv = engineMoveToLocal(raw);
+      setStatus(`引擎提示：${moveToChinese(view.getBoard(), mv)} 较优`);
+    } else {
+      setStatus('引擎提示不可用');
+    }
+    // 恢复 MultiPV（分析3 / 避和2 / 普通1），避免影响后续对弈/分析
+    try { client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1)); } catch { /* 引擎可能已退出 */ }
   }
 }
 
@@ -2269,11 +2324,21 @@ $('btnPuzzleLoad').addEventListener('click', loadPuzzle);
 $('btnPuzzleHint').addEventListener('click', () => {
   const p = puzzleActive ?? PUZZLES.find(x => x.id === puzzleSel.value);
   if (!p) { setStatus('请先选择残局'); return; }
+  // 优先引擎实时求解当前局面最佳着法（内置/自定义残局通用）；引擎未启动或正忙则回退原谱答案
+  if (engineReady && !waitingFor && !gameOver) {
+    waitingFor = 'hint';
+    lastInfoMap.clear();
+    client.setOption('MultiPV', 1); // 提示只要一条线，搜索更快
+    client.position(view.getFen());
+    client.go({ depth: 12 });
+    setStatus('引擎求解提示中…');
+    return;
+  }
   try {
     const b = parseFen(p.fen).board;
     const mv = parseIccs(p.solution);
     if (mv) setStatus(`提示：${moveToChinese(b, mv)}（原谱共 ${p.movesToMate} 步杀）`);
-  } catch { setStatus('提示不可用'); }
+  } catch { setStatus('提示不可用（可启动引擎后实时求解）'); }
 });
 
 // ---------- 自定义残局（保存 / 载入 / 导出 / 导入） ----------

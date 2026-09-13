@@ -175,15 +175,17 @@ export class BoardView {
   }
 
   // 屏幕像素 -> 棋盘坐标（按翻转模式镜像；ud=180° 旋转，lr=水平镜像）
+  // k 为显示缩放比例：Canvas 缓冲尺寸固定（W×H），CSS 拉伸到 k 倍显示，事件坐标需同步换算
   private toSquare(e: MouseEvent): Square | null {
     const rect = this.canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left - MARGIN;
-    const y = e.clientY - rect.top - MARGIN;
-    const file = Math.round(x / CELL);
-    const rank = Math.round(y / CELL);
+    const k = rect.width / W;
+    const x = e.clientX - rect.left - MARGIN * k;
+    const y = e.clientY - rect.top - MARGIN * k;
+    const file = Math.round(x / (CELL * k));
+    const rank = Math.round(y / (CELL * k));
     if (file < 0 || file > 8 || rank < 0 || rank > 9) return null;
-    if (Math.abs(x - file * CELL) > CELL * 0.45) return null;
-    if (Math.abs(y - rank * CELL) > CELL * 0.45) return null;
+    if (Math.abs(x - file * CELL * k) > CELL * k * 0.45) return null;
+    if (Math.abs(y - rank * CELL * k) > CELL * k * 0.45) return null;
     if (this.flipMode === 'ud') return sq(8 - file, 9 - rank);
     if (this.flipMode === 'lr') return sq(8 - file, rank);
     return sq(file, rank);
