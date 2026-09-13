@@ -1,6 +1,12 @@
 // 棋盘 Canvas 渲染 + 摆子交互 + 走子动画
 // 界面方向：红方在下（rank 9 在屏幕底部），rank 0（黑方）在屏幕顶部
 
+// 棋盘视角翻转模式：
+//   none — 红方在下（默认）
+//   ud   — 上下翻转（180° 旋转：红上黑下，执黑视角）
+//   lr   — 左右翻转（水平镜像：纯左右对调，执子方仍在底部）
+export type FlipMode = 'none' | 'ud' | 'lr';
+
 import { BoardData, getPiece, setPiece, toFen } from '../board/fen';
 import {
   Piece,
@@ -58,7 +64,7 @@ export class BoardView {
   private dragFrom: Square | null = null;      // 拖拽中的棋子起点
   private dragPos: [number, number] | null = null; // 拖拽当前像素位置
   private swallowClick = false;                // 拖拽后吞掉紧随的 click
-  private flipped = false;                     // 人执黑时上下翻转棋盘
+  private flipMode: FlipMode = 'none';         // 棋盘视角：默认/上下翻转/左右翻转
   // 对弈模式：设置后接管棋盘点击；为 null 时走编辑摆子逻辑
   onSquare: ((s: Square) => void) | null = null;
 
@@ -152,7 +158,8 @@ export class BoardView {
     this.draw();
   }
   setCheck(s: Square | null) { this.checkSquare = s; this.draw(); }
-  setFlipped(v: boolean) { if (this.flipped !== v) { this.flipped = v; this.draw(); } }
+  setFlipMode(m: FlipMode) { if (this.flipMode !== m) { this.flipMode = m; this.draw(); } }
+  getFlipMode(): FlipMode { return this.flipMode; }
   setArrows(arr: Arrow[]) { this.arrows = arr; this.draw(); }
   setThemeByName(name: string) {
     const t = BOARD_THEMES[name]?.theme;
@@ -167,7 +174,7 @@ export class BoardView {
     this.draw();
   }
 
-  // 屏幕像素 -> 棋盘坐标（flipped 时上下左右镜像）
+  // 屏幕像素 -> 棋盘坐标（按翻转模式镜像；ud=180° 旋转，lr=水平镜像）
   private toSquare(e: MouseEvent): Square | null {
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left - MARGIN;
@@ -177,12 +184,16 @@ export class BoardView {
     if (file < 0 || file > 8 || rank < 0 || rank > 9) return null;
     if (Math.abs(x - file * CELL) > CELL * 0.45) return null;
     if (Math.abs(y - rank * CELL) > CELL * 0.45) return null;
-    return this.flipped ? sq(8 - file, 9 - rank) : sq(file, rank);
+    if (this.flipMode === 'ud') return sq(8 - file, 9 - rank);
+    if (this.flipMode === 'lr') return sq(8 - file, rank);
+    return sq(file, rank);
   }
 
   private toXy(s: Square): [number, number] {
-    const f = this.flipped ? 8 - s.file : s.file;
-    const r = this.flipped ? 9 - s.rank : s.rank;
+    let f = s.file;
+    let r = s.rank;
+    if (this.flipMode === 'ud') { f = 8 - f; r = 9 - r; }
+    else if (this.flipMode === 'lr') { f = 8 - f; }
     return [MARGIN + f * CELL, MARGIN + r * CELL];
   }
 

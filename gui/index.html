@@ -112,13 +112,16 @@
     <div class="row">
       <button id="btnMode" class="primary">进入对弈</button>
       <button id="btnNew">新对局</button>
-      <button id="btnUndo">悔棋</button>
+      <button id="btnUndo" title="悔棋：人机撤销人机各一步；人人对弈撤销双方各一步">悔棋</button>
+      <button id="btnUndoEngine" title="帮机悔棋：撤销引擎刚走的一步，再点「帮机重走」让引擎重新思考">帮机悔棋</button>
+      <button id="btnRedoEngine" title="帮机重走：让引擎（重新）思考当前局面并走一步">帮机重走</button>
       <button id="btnDrawOffer" title="向对方提和：人机时引擎不占优即接受判和；机机时你作裁判，直接判和">提和</button>
-      <button id="btnFlip" title="切换棋盘上下视角（红方在上/在下）">↕翻转棋盘</button>
+      <button id="btnFlip" title="切换棋盘视角：上下翻转（红上黑下）↔ 左右翻转（水平镜像）↔ 恢复默认">↕上下翻转</button>
     </div>
     <div class="row">
       <select id="gameMode" title="对局模式">
         <option value="pve">人机对弈</option>
+        <option value="pvp">人人对弈（双人同屏）</option>
         <option value="eve">机机对弈（强软对强软）</option>
       </select>
     </div>

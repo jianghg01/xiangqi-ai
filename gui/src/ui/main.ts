@@ -12,7 +12,7 @@ import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMove
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
 import { blunderProfile, pickBlunder, estimateElo, DEPTH_ELO } from '../uci/elo';
 import { buildMessages, tagForLoss, type ReviewStyle, type StepEval } from '../uci/llm-review';
-import { BoardView, Arrow, BOARD_THEMES } from './board-view';
+import { BoardView, Arrow, BOARD_THEMES, type FlipMode } from './board-view';
 import { findKing } from '../rules/rules';
 
 // ---------- DOM ----------
@@ -105,12 +105,19 @@ function hideEndBanner() {
 // ---------- 状态 ----------
 let mode: 'edit' | 'play' | 'replay' = 'edit';
 let humanSide: Side = 'red';
-let gameMode: 'pve' | 'eve' = 'pve';   // pve=人机 eve=机机对弈（强软对强软）
-// 翻转棋盘：null=跟随默认视角（人执黑自动红上/黑下），true/false=手动指定
-let flipManual: boolean | null = null;
-const autoFlipped = () => gameMode === 'pve' && humanSide === 'black';
-function effectiveFlip(): boolean { return flipManual !== null ? flipManual : autoFlipped(); }
-function applyFlip() { view.setFlipped(effectiveFlip()); }
+let gameMode: 'pve' | 'pvp' | 'eve' = 'pve';   // pve=人机 pvp=人人同屏 eve=机机对弈（强软对强软）
+// 棋盘视角：null=跟随默认（人执黑自动上下翻转），'ud'=上下翻转（红上黑下），'lr'=左右翻转（水平镜像）
+let flipManual: FlipMode | null = null;
+const autoFlipped = (): FlipMode => (gameMode === 'pve' && humanSide === 'black' ? 'ud' : 'none');
+function effectiveFlip(): FlipMode { return flipManual !== null ? flipManual : autoFlipped(); }
+function applyFlip() { view.setFlipMode(effectiveFlip()); refreshFlipBtn(); }
+// 翻转按钮为「循环切换器」：默认 → 上下翻转 → 左右翻转 → 默认…
+function refreshFlipBtn() {
+  const btn = $('btnFlip') as HTMLButtonElement;
+  const m = effectiveFlip();
+  btn.textContent = m === 'none' ? '↕上下翻转' : m === 'ud' ? '↔左右翻转' : '⟲恢复视角';
+  btn.title = '切换棋盘视角：上下翻转（红上黑下）↔ 左右翻转（水平镜像）↔ 恢复默认';
+}
 // 干预引擎着法：挂起中的引擎建议着法（非空=引擎已想好，等人确认或改走）
 let engineProposal: { mv: Move; zh: string } | null = null;
 const interveneOn = () => interveneChk.checked && mode === 'play' && !puzzleActive;
@@ -160,6 +167,7 @@ client.onInfo = info => onInfo(info);
 function engineTurnNow(): boolean {
   if (mode !== 'play' || gameOver || !engineReady) return false;
   if (gameMode === 'eve') return true; // 机机对弈：两侧都是引擎
+  if (gameMode === 'pvp') return false; // 人人对弈：引擎不参与行棋
   return view.getBoard().sideToMove !== humanSide;
 }
 
@@ -906,6 +914,15 @@ function offerDraw() {
     setStatus(`未达自然限着（需 ${limitTurns} 回合未吃子，将军计8着）且非公认死和子力：按 2020 规则 4.2，提和需双方同意/自然限着，本局暂不能判和`);
     return;
   }
+  if (gameMode === 'pvp') {
+    // 人人对弈（同屏双人）：点击「提和」即双方协商同意和棋（4.2.1）
+    gameOver = true;
+    recordGame('draw');
+    gameResult = '双方同意和棋';
+    setStatus('双方同意和棋');
+    showEndBanner('双方同意和棋', true);
+    return;
+  }
   // 人机：一方提和需对方同意（4.2.1）——引擎不占优才接受
   if (!engineReady || lastEvalRedCp === null) {
     setStatus(`尚未走满 ${limitTurns} 回合未吃子，且引擎未评估本局（先让引擎走一步再提和）`);
@@ -1211,7 +1228,7 @@ function playSquareClick(s: Square) {
   const board = view.getBoard();
   // 干预模式：引擎行棋但着法已挂起——人替引擎确认/改走（人机、机机通用）
   // 机机对弈未开干预时 engineProposal 恒为空，直接 return（人不落子）
-  if (gameMode === 'eve' || board.sideToMove !== humanSide) {
+  if (gameMode === 'eve' || (gameMode === 'pve' && board.sideToMove !== humanSide)) {
     if (!engineProposal) return; // 引擎仍在思考或未开干预
     const p = board.pieces[s.rank][s.file];
     if (selected) {
@@ -1233,8 +1250,10 @@ function playSquareClick(s: Square) {
     const hit = targets.find(m => m.to.file === s.file && m.to.rank === s.rank);
     if (hit) { doMove(hit); return; }
   }
+  // 人人对弈：双方均为人走子（点己方棋子）；人机：仅 humanSide 可走
+  const mySide = gameMode === 'pve' ? humanSide : board.sideToMove;
   const p = board.pieces[s.rank][s.file];
-  if (p && p.side === humanSide) {
+  if (p && p.side === mySide) {
     selected = s;
     targets = legalMovesFrom(board, s);
     view.setHighlights(targets.map(m => m.to));
@@ -1286,6 +1305,10 @@ function statusTextFor(): string {
     }
     return `${red} vs ${black} · ${turn}行棋`;
   }
+  if (gameMode === 'pvp') {
+    if (gameOver) return '对局结束';
+    return `人人对弈 · ${turn}行棋`;
+  }
   if (gameOver) return '对局结束';
   const who = turn === (humanSide === 'red' ? '红方' : '黑方') ? '你' : '引擎';
   return `对弈中 · ${turn}行棋（${who}）`;
@@ -1298,7 +1321,7 @@ $('btnMode').addEventListener('click', () => {
     mode = 'play';
     ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
     view.onSquare = playSquareClick; // 复盘/打谱后恢复棋盘落子
-    gameMode = gameModeSel.value as 'pve' | 'eve';
+    gameMode = gameModeSel.value as 'pve' | 'pvp' | 'eve';
     humanSide = sideSelect.value as Side;
     gameOver = false;
     gameResult = '';
@@ -1364,17 +1387,21 @@ document.addEventListener('click', () => setMenu(null));
 $('btnNew').addEventListener('click', () => { if (mode === 'play') newGame(); });
 // 翻转棋盘：手动切换上下视角（再次点击恢复默认视角）
 $('btnFlip').addEventListener('click', () => {
-  flipManual = !effectiveFlip();
+  // 循环切换视角：默认 → 上下翻转 → 左右翻转 → 默认（按钮文字随状态变化）
+  const cur = effectiveFlip();
+  flipManual = cur === 'none' ? 'ud' : cur === 'ud' ? 'lr' : null;
   applyFlip();
-  setStatus(effectiveFlip() ? '视角：红方在上（已翻转）' : '视角：红方在下（默认）');
+  const m = effectiveFlip();
+  setStatus(m === 'ud' ? '视角：红方在上（上下翻转）' : m === 'lr' ? '视角：左右翻转（镜像）' : '视角：红方在下（默认）');
 });
+refreshFlipBtn(); // 初始化翻转按钮文字（默认/上下/左右循环切换）
 
 $('btnUndo').addEventListener('click', () => {
-  // 悔棋：撤销人机各一步（简化：回退到人类行棋局面）；机机对弈不支持悔棋
+  // 悔棋：人机撤销人机各一步（回退到人类行棋局面）；人人对弈撤销双方各一步；机机对弈不支持悔棋
   if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor || reviewing) return;
   // 干预挂起的建议着法随局面作废
   if (engineProposal) { engineProposal = null; view.setArrows([]); }
-  const undoCount = view.getBoard().sideToMove === humanSide ? 2 : 1;
+  const undoCount = gameMode === 'pvp' ? 2 : (view.getBoard().sideToMove === humanSide ? 2 : 1);
   for (let i = 0; i < Math.min(undoCount, movesHistory.length); i++) {
     movesHistory.pop();
     movesZhLive.pop();
@@ -1399,6 +1426,54 @@ $('btnUndo').addEventListener('click', () => {
   setStatus('');
   if (engineTurnNow()) engineMove();
   else if (analysisOn) analyze();
+});
+
+// 帮机悔棋：撤销引擎刚走的一步（回到人行棋局面），不自动重走，等人确认后点「帮机重走」
+$('btnUndoEngine').addEventListener('click', () => {
+  if (mode !== 'play' || gameMode === 'pvp' || movesHistory.length === 0 || waitingFor || reviewing) return;
+  // 干预挂起（引擎已想好但未落子）：直接作废建议即可
+  if (engineProposal) {
+    engineProposal = null;
+    view.setArrows([]);
+    view.setHighlights([]);
+    setStatus('已取消引擎建议着法');
+    return;
+  }
+  const board = view.getBoard();
+  // pve：仅当轮到人行棋（引擎刚走完）时才存在「引擎的最后一步」可撤
+  if (gameMode === 'pve' && board.sideToMove !== humanSide) {
+    setStatus('当前轮到引擎行棋，没有可撤销的引擎着法');
+    return;
+  }
+  movesHistory.pop();
+  movesZhLive.pop();
+  let nb;
+  try { nb = parseFen(startFen).board; } catch { nb = initialBoard(); }
+  for (const iccs of movesHistory) {
+    const mv = parseIccs(iccs);
+    if (mv) nb = applyMove(nb, mv);
+  }
+  gameOver = false;
+  gameResult = '';
+  hideEndBanner();
+  view.replaceBoard(nb);
+  selected = null; targets = [];
+  rebuildPosSeen(nb, movesHistory);
+  lastEvalRedCp = null; lastEvalMate = false;
+  view.setLastMove(null, null);
+  view.setCheck(null);
+  view.setArrows([]);
+  renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
+  setStatus('已撤销引擎着法 —— 点「帮机重走」让引擎重新思考');
+});
+
+// 帮机重走：让引擎（重新）思考当前局面并走一步（人机/机机通用；人人对弈无引擎可重走）
+$('btnRedoEngine').addEventListener('click', () => {
+  if (mode !== 'play' || gameOver || !engineReady) { setStatus('需在对弈模式且引擎已启动'); return; }
+  if (gameMode === 'pvp') { setStatus('人人对弈无引擎可重走'); return; }
+  if (!engineTurnNow()) { setStatus('当前轮到人行棋，引擎不行动'); return; }
+  if (engineProposal) { engineProposal = null; view.setArrows([]); view.setHighlights([]); }
+  engineMove(); // engineMove 内部自行处理搜索中串行化（stopEngineThen）
 });
 
 $('btnStartEngine').addEventListener('click', async () => {
@@ -1453,7 +1528,7 @@ sideSelect.addEventListener('change', () => {
 });
 
 gameModeSel.addEventListener('change', () => {
-  gameMode = gameModeSel.value as 'pve' | 'eve';
+  gameMode = gameModeSel.value as 'pve' | 'pvp' | 'eve';
   loopActive = false; // 切换模式取消循环赛
   // 切换模式保留棋局：旧引擎评估作废（提和判定基于最新评估）
   lastEvalRedCp = null; lastEvalMate = false;
@@ -1461,7 +1536,8 @@ gameModeSel.addEventListener('change', () => {
   pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
   eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
   if (gameMode === 'eve') { flipManual = null; applyFlip(); } // 机机对弈固定红下视角
-  // 切换人机/机机保留当前棋局（不重置）：按新模式继续对弈
+  else if (gameMode === 'pvp') { flipManual = null; applyFlip(); } // 人人对弈默认红下视角
+  // 切换模式保留当前棋局（不重置）：按新模式继续对弈
   if (mode === 'play' && !gameOver) {
     if (waitingFor) stopEngineThen(() => { if (engineTurnNow()) engineMove(); });
     else if (engineTurnNow()) engineMove();
@@ -1544,6 +1620,7 @@ let replayMovesZh: string[] = [];        // 每步中文记谱
 
 function sideName(side: Side): string {
   if (gameMode === 'eve') return side === 'red' ? (redNameInput.value || '红方引擎') : (blackNameInput.value || '黑方引擎');
+  if (gameMode === 'pvp') return side === 'red' ? '红方玩家' : '黑方玩家';
   return side === humanSide ? '玩家' : '引擎';
 }
 
@@ -1755,7 +1832,8 @@ function renderStats() {
   if (!arr.length) { statsReportEl.textContent = '暂无战绩'; return; }
   const pve = arr.filter(r => r.mode === 'pve');
   const eve = arr.filter(r => r.mode === 'eve');
-  const lines: string[] = [`共 ${arr.length} 局（人机 ${pve.length} · 机机 ${eve.length}）`];
+  const pvp = arr.filter(r => r.mode === 'pvp');
+  const lines: string[] = [`共 ${arr.length} 局（人机 ${pve.length} · 机机 ${eve.length} · 人人 ${pvp.length}）`];
   if (pve.length) {
     const win = pve.filter(r => r.winner === r.humanSide).length;
     const draw = pve.filter(r => r.winner === 'draw').length;
@@ -1783,6 +1861,11 @@ function renderStats() {
     const redWin = eve.filter(r => r.winner === 'red').length;
     const draw = eve.filter(r => r.winner === 'draw').length;
     lines.push(`机机对弈：红胜 ${redWin} · 和 ${draw} · 黑胜 ${eve.length - redWin - draw}`);
+  }
+  if (pvp.length) {
+    const redWin = pvp.filter(r => r.winner === 'red').length;
+    const draw = pvp.filter(r => r.winner === 'draw').length;
+    lines.push(`人人对弈：红胜 ${redWin} · 和 ${draw} · 黑胜 ${pvp.length - redWin - draw}`);
   }
   statsReportEl.textContent = lines.join('\n');
 }
