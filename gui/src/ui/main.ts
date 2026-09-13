@@ -7,7 +7,7 @@ import { exportPgn, parsePgn } from '../board/pgn';
 import { matchOpening } from '../board/openings';
 import { CLASSICS, CLASSIC_CATEGORIES } from '../board/classics';
 import puzzlesJson from '../data/puzzles.json';
-import { applyMove, checkStatus, isMaterialDraw, legalMoves, legalMovesFrom } from '../rules/rules';
+import { applyMove, checkStatus, inCheck, isMaterialDraw, legalMoves, legalMovesFrom } from '../rules/rules';
 import { UciClient, EngineInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../uci/engine-client';
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
 import { blunderProfile, pickBlunder, estimateElo, DEPTH_ELO } from '../uci/elo';
@@ -79,7 +79,7 @@ function saveCfg() {
     if (c.useBook === '0' || c.useBook === '1') useBookSel.value = c.useBook;
     if (['auto', '2', '4', '6', '8'].includes(c.threads)) threadsSel.value = c.threads;
     if (['128', '256', '512', '1024'].includes(c.hash)) hashSel.value = c.hash;
-    if (['30', '40', '50', '60'].includes(c.naturalLimit)) naturalLimitSel.value = c.naturalLimit;
+    if (['40', '50', '60'].includes(c.naturalLimit)) naturalLimitSel.value = c.naturalLimit;
   } catch { /* 忽略读取失败 */ }
 })();
 [avoidDrawSel, useBookSel, threadsSel, hashSel, naturalLimitSel].forEach(s => s.addEventListener('change', saveCfg));
@@ -786,35 +786,67 @@ function afterMove() {
   else if (analysisOn && !waitingFor) analyze();
 }
 
-// ---------- 自然限着（中国象棋竞赛规则 2020版 4.2.4） ----------
-// 国家大赛和棋判据是客观的「连续 N 回合均未吃子」（不是主观"无胜机"）。
-// 达限着回合数（默认 40，即 80 个单方着法）时，走子方"自然限着"和棋条件成立 —— 用「提和」按钮判和。
-// 从 startFen 重放 movesHistory，统计末段连续未吃子着法是否 ≥ 限着着法数
+// ---------- 自然限着（《象棋竞赛规则 2020版》4.2.4 + 快棋细则 29.1.1） ----------
+// 和棋判据是客观的「连续 N 回合均未吃子」（不是主观"无胜机"）。
+// 2020 版细则：专业赛事自然限着 50 回合，其中「将军」着法只计 8 着
+// （连续将军阶段仅认前 8 着，超出部分不计入未吃子着法；中间插有非将军着法则重新累计）。
+// 若 N 回合内未吃子 → 自然限着成立，「提和」按钮可直接判和。
+// 同时 4.3 条：前 25 回合（含）内双方不得提和。
+// 从 startFen 重放 movesHistory：统计末段「未吃子」着法数，将军着法按上述规则封顶。
 function naturalLimitReached(): boolean {
-  const limitPly = (parseInt(naturalLimitSel.value, 10) || 40) * 2;
+  const limitTurns = parseInt(naturalLimitSel.value, 10) || 50;
+  const limitPly = limitTurns * 2; // 单方着法上限
+  const CHECK_CAP = 8;             // 2020 版：将军着法只计 8 着
   try {
-    let b = parseFen(startFen).board;
-    let cap = 0;
-    for (const s of movesHistory) {
-      const mv = parseIccs(s);
+    const startBoard = parseFen(startFen).board;
+    const startSide: Side = startBoard.sideToMove;
+    let b = startBoard;
+    let cap = 0;      // 末段连续未吃子着法计数
+    let checkStreak = 0; // 连续将军阶段已计着法数（达 8 封顶）
+    for (let i = 0; i < movesHistory.length; i++) {
+      const mv = parseIccs(movesHistory[i]);
       if (!mv) break;
-      cap = b.pieces[mv.to.rank][mv.to.file] ? 0 : cap + 1; // 目标格有子=吃子，归零
-      b = applyMove(b, mv);
+      const mover: Side = i % 2 === 0 ? startSide : (startSide === 'red' ? 'black' : 'red'); // 着法序号推导走子方（不依赖 b.sideToMove 状态）
+      const isCap = b.pieces[mv.to.rank][mv.to.file] != null; // 目标格有子=吃子
+      const after = applyMove(b, mv);
+      const gived = inCheck(after, mover === 'red' ? 'black' : 'red'); // 走子后是否将军对方
+      if (isCap) {
+        cap = 0; checkStreak = 0; // 吃子重置
+      } else {
+        if (gived) {
+          if (checkStreak < CHECK_CAP) { cap++; checkStreak++; }
+          // 连续将军超出 8 着：该着法不再累计
+        } else {
+          cap++; checkStreak = 0; // 非将军着法正常累计，并重置将军计数
+        }
+      }
+      b = after;
     }
     return cap >= limitPly;
   } catch { return false; }
 }
 
+// 4.3 条：前 25 回合（含）内不得提和（机机/人机通用）
+const MIN_DRAW_TURNS = 25;
+function withinMinDrawWindow(): boolean {
+  return movesHistory.length < MIN_DRAW_TURNS * 2; // 单方着法 < 50 即仍在 25 回合窗口内
+}
+
 // ---------- 提和（自然限着 2020版 4.2.4；一方提议 + 另一方同意即和棋 4.2.1） ----------
 function offerDraw() {
   if (mode !== 'play' || gameOver || puzzleActive) return;
+  // 4.3 条：前 25 回合（含）内双方不得提和
+  if (withinMinDrawWindow()) {
+    setStatus(`按 2020 规则 4.3，前 ${MIN_DRAW_TURNS} 回合内不得提和（当前已 ${Math.floor(movesHistory.length / 2)} 回合）`);
+    return;
+  }
   if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; clearPending(); }
-  const limitTurns = parseInt(naturalLimitSel.value, 10) || 40;
+  const limitTurns = parseInt(naturalLimitSel.value, 10) || 50;
   if (naturalLimitReached()) {
-    // 已走满 N 回合未吃子 → 自然限着成立，直接判和
+    // 已走满 N 回合未吃子（将军着法只计 8 着）→ 自然限着成立，直接判和
     gameOver = true;
     recordGame('draw');
-    gameResult = `连续${limitTurns}回合未吃子，自然限着判和`;
+    gameResult = `${limitTurns}回合自然限着（将军计8着）· 判和`;
     setStatus(`连续 ${limitTurns} 回合未吃子 · 自然限着判和`);
     showEndBanner(`自然限着${limitTurns}回合 · 和棋`, true);
     return;
@@ -829,7 +861,7 @@ function offerDraw() {
       showEndBanner('无取胜可能 · 和棋', true);
       return;
     }
-    setStatus(`未达自然限着（需连续 ${limitTurns} 回合未吃子）且非公认死和子力：按 2020 规则 4.2，提和需双方同意/自然限着，本局暂不能判和`);
+    setStatus(`未达自然限着（需 ${limitTurns} 回合未吃子，将军计8着）且非公认死和子力：按 2020 规则 4.2，提和需双方同意/自然限着，本局暂不能判和`);
     return;
   }
   // 人机：一方提和需对方同意（4.2.1）——引擎不占优才接受
