@@ -1,4 +1,4 @@
-// Electron 主进程：加载 Vite 页面 + 托管皮卡鱼引擎子进程（UCI stdin/stdout 桥）
+// Electron 主进程：加载 Vite 页面 + 托管中国象棋引擎子进程（UCI stdin/stdout 桥）
 const { app, BrowserWindow, ipcMain, dialog, protocol } = require('electron');
 const { spawn } = require('child_process');
 const fs = require('fs');

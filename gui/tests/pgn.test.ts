@@ -10,8 +10,8 @@ const ZH = movesToChinese(initialBoard(), SEQ);
 function samplePgn(): string {
   return exportPgn({
     startFen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
-    redName: '皮卡鱼·红',
-    blackName: '皮卡鱼·黑',
+    redName: '红方引擎',
+    blackName: '黑方引擎',
     result: '',
     moves: SEQ,
     movesZh: ZH,
@@ -22,8 +22,8 @@ function samplePgn(): string {
 describe('exportPgn', () => {
   it('生成标签与中文着法', () => {
     const pgn = samplePgn();
-    expect(pgn).toContain('[Red "皮卡鱼·红"]');
-    expect(pgn).toContain('[Black "皮卡鱼·黑"]');
+    expect(pgn).toContain('[Red "红方引擎"]');
+    expect(pgn).toContain('[Black "黑方引擎"]');
     expect(pgn).toContain('[Result "*"]');
     expect(pgn).toContain('1. 炮二平五 马8进7 2. 马二进三 车9平8 3. 车一平二');
   });
@@ -53,8 +53,8 @@ describe('parsePgn', () => {
   it('导出→导入 round-trip（中文记法）', () => {
     const meta = parsePgn(samplePgn());
     expect(meta.moves).toEqual(SEQ);
-    expect(meta.redName).toBe('皮卡鱼·红');
-    expect(meta.blackName).toBe('皮卡鱼·黑');
+    expect(meta.redName).toBe('红方引擎');
+    expect(meta.blackName).toBe('黑方引擎');
   });
 
   it('解析中文记法 PGN（外部软件风格，黑方数字可写汉字）', () => {

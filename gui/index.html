@@ -97,8 +97,9 @@
     <div class="note">进入编辑模式后：点选下方棋子，再点棋盘上的格子摆放或删除（✕ 删除）；也可以直接编辑 FEN 后载入，用于摆残局/自测局面</div>
   </div>
   <div class="menuPanel" id="menuAbout" style="display:none">
-    <div class="note">象棋 AI · 基于 Pikafish（皮卡鱼）NNUE 引擎（GPL-3.0，UCI 协议）</div>
-    <div class="note">满级 24 层参考 ELO 约 4000（皮卡鱼官方论坛天梯）；人机/机机对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏</div>
+    <div class="note">象棋 AI · 基于开源中国象棋引擎（UCI 协议）</div>
+    <div class="note">满级 24 层参考 ELO 约 4000（国际天梯基准）；人机/机机/人人对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏</div>
+    <div class="note">引擎基于开源项目（GPL-3.0），版权声明与源码说明见 engine/legal 目录</div>
     <div class="note">干预引擎着法：人机/机机通用——引擎思考完不直接落子，由你点击确认或替它改走别的棋</div>
   </div>
 <div class="wrap">
@@ -158,7 +159,7 @@
     <div id="eveRows" style="display:none">
       <div class="row">
         <span style="font-size:13px;align-self:center;width:34px">红方</span>
-        <input type="text" id="redName" value="皮卡鱼·红" title="红方引擎名字，可自定义" style="width:110px" />
+        <input type="text" id="redName" value="红方引擎" title="红方引擎名字，可自定义" style="width:110px" />
         <select id="redStrength" title="红方强度">
           <option value="1">入门（1层）</option>
           <option value="2">初级（2层）</option>
@@ -172,7 +173,7 @@
       </div>
       <div class="row">
         <span style="font-size:13px;align-self:center;width:34px">黑方</span>
-        <input type="text" id="blackName" value="皮卡鱼·黑" title="黑方引擎名字，可自定义" style="width:110px" />
+        <input type="text" id="blackName" value="黑方引擎" title="黑方引擎名字，可自定义" style="width:110px" />
         <select id="blackStrength" title="黑方强度">
           <option value="1">入门（1层）</option>
           <option value="2">初级（2层）</option>
@@ -266,9 +267,9 @@
     <div class="note" id="clock"></div>
     <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
 
-    <h3>引擎（皮卡鱼 · UCI）</h3>
+    <h3>引擎（UCI）</h3>
     <div class="row">
-      <input type="text" id="enginePath" value="../engine/Pikafish-Windows-x86-64-universal.exe" title="相对 gui 目录或绝对路径" />
+      <input type="text" id="enginePath" value="../engine/engine-x64.exe" title="相对 gui 目录或绝对路径" />
     </div>
     <div class="row">
       <button id="btnStartEngine">启动引擎</button>

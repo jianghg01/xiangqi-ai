@@ -138,7 +138,7 @@ let lastEvalRedCp: number | null = null;
 let lastEvalMate = false;                // 引擎最近一次评估是否处于绝杀线
 let lastInfoMap = new Map<number, EngineInfo>();
 
-// 强度分级 → 搜索深度（皮卡鱼新版无 Skill Level，用深度限强）
+// 强度分级 → 搜索深度（引擎新版无 Skill Level，用深度限强）
 const ANALYSIS_DEPTH = 14;
 
 const view = new BoardView(canvas, initialBoard());

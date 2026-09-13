@@ -14,7 +14,7 @@ describe('info 行解析', () => {
   });
 
   it('无 pv/depth 的行忽略', () => {
-    expect(parseInfo('info string NNUE evaluation using pikafish.nnue')).toBeNull();
+    expect(parseInfo('info string NNUE evaluation using engine.nnue')).toBeNull();
   });
 });
 

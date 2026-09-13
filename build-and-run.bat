@@ -14,7 +14,7 @@ if errorlevel 1 (
 )
 
 echo [2/3] Build OK. Killing stale engine process...
-taskkill /F /IM Pikafish-Windows-x86-64-universal.exe >nul 2>&1
+taskkill /F /IM engine-x64.exe >nul 2>&1
 
 echo [3/3] Launching Electron...
 start "" "node_modules\electron\dist\electron.exe" "electron\main.cjs"
