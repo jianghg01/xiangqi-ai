@@ -4,7 +4,7 @@ import { BoardData, cloneBoard, emptyBoard, initialBoard, parseFen, toFen } from
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
 import { moveToChinese, movesToChinese } from '../board/notation';
 import { exportPgn, parsePgn } from '../board/pgn';
-import { matchOpening, OPENINGS } from '../board/openings';
+import { matchOpening, matchOpeningByCategory, type OpeningCategory } from '../board/openings';
 import { CLASSICS, CLASSIC_CATEGORIES } from '../board/classics';
 import puzzlesJson from '../data/puzzles.json';
 import { applyMove, checkStatus, inCheck, isMaterialDraw, legalMoves, legalMovesFrom } from '../rules/rules';
@@ -36,7 +36,8 @@ const blackStrengthSel = $('blackStrength') as HTMLSelectElement;
 const timeLimitSel = $('timeLimit') as HTMLSelectElement;
 const avoidDrawSel = $('avoidDraw') as HTMLSelectElement;
 const useBookSel = $('useBook') as HTMLSelectElement;
-const openingStyleSel = $('openingStyle') as HTMLSelectElement;
+const openingCategorySel = $('openingCategory') as HTMLSelectElement;
+const sacrificeModeChk = $('sacrificeMode') as HTMLInputElement;
 const threadsSel = $('threadsSel') as HTMLSelectElement;
 const hashSel = $('hashSel') as HTMLSelectElement;
 const handicapSel = $('handicapSel') as HTMLSelectElement;
@@ -68,7 +69,8 @@ function saveCfg() {
   try {
     localStorage.setItem(CFG_KEY, JSON.stringify({
       avoidDraw: avoidDrawSel.value, useBook: useBookSel.value,
-      openingStyle: openingStyleSel.value,
+      openingCategory: openingCategorySel.value,
+      sacrifice: sacrificeModeChk.checked ? '1' : '0',
       threads: threadsSel.value, hash: hashSel.value,
       naturalLimit: naturalLimitSel.value,
     }));
@@ -79,13 +81,14 @@ function saveCfg() {
     const c = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
     if (c.avoidDraw === '0' || c.avoidDraw === '1') avoidDrawSel.value = c.avoidDraw;
     if (c.useBook === '0' || c.useBook === '1') useBookSel.value = c.useBook;
-    if (['standard', 'random', 'sacrifice'].includes(c.openingStyle)) openingStyleSel.value = c.openingStyle;
+    if (['any', 'zhongpao', 'shunpao', 'xianren', 'feixiang', 'guogong', 'qima', 'jiuweigu'].includes(c.openingCategory)) openingCategorySel.value = c.openingCategory;
+    if (c.sacrifice === '1' || c.sacrifice === '0') sacrificeModeChk.checked = c.sacrifice === '1';
     if (['auto', '2', '4', '6', '8'].includes(c.threads)) threadsSel.value = c.threads;
     if (['128', '256', '512', '1024'].includes(c.hash)) hashSel.value = c.hash;
     if (['40', '50', '60'].includes(c.naturalLimit)) naturalLimitSel.value = c.naturalLimit;
   } catch { /* 忽略读取失败 */ }
 })();
-[avoidDrawSel, useBookSel, openingStyleSel, threadsSel, hashSel, naturalLimitSel].forEach(s => s.addEventListener('change', saveCfg));
+[avoidDrawSel, useBookSel, openingCategorySel, sacrificeModeChk, threadsSel, hashSel, naturalLimitSel].forEach(s => s.addEventListener('change', saveCfg));
 threadsSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Threads', threadsValue()); });
 hashSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Hash', parseInt(hashSel.value, 10)); });
 
@@ -943,38 +946,29 @@ function engineMove() {
     stopEngineThen(() => engineMove());
     return;
   }
-  // 开局库直接落子（从初始局面开始且未偏离开局序列时；人机/机机均可用，受配置开关控制）
-  const openingStyle = openingStyleSel.value; // standard | random | sacrifice
-  if (useBookOn() && startFen.split(' ')[0] === INITIAL_FEN_PART && openingStyle !== 'sacrifice') {
-    // 标准 / 随机开局：开局库命中即走（随机模式随机选一条匹配的开局）
-    let m = matchOpening(movesHistory);
-    if (openingStyle === 'random' && m) {
-      // 从 OPENINGS 里随机挑一条与当前 movesHistory 兼容的开局（非默认首条）
-      const compatible = OPENINGS.filter(o =>
-        movesHistory.length <= o.moves.length &&
-        o.moves.slice(0, movesHistory.length).every((mm, i) => mm === movesHistory[i]),
-      );
-      if (compatible.length > 1) {
-        const pick = compatible[Math.floor(Math.random() * compatible.length)];
-        m = { name: pick.name, next: movesHistory.length < pick.moves.length ? pick.moves[movesHistory.length] : null };
-      }
-    }
+  // 开局库直接落子（从初始局面开始且未偏离开局序列时；人机/机机均可用）
+  // 弃子优先开启时禁用开局库，让引擎在开局阶段主动偏离最优着法
+  const sacrificeOn = sacrificeModeChk.checked;
+  const openingCategory = openingCategorySel.value as OpeningCategory;
+  if (useBookOn() && startFen.split(' ')[0] === INITIAL_FEN_PART && !sacrificeOn) {
+    // 按「开局类型」从开局库中随机选一条兼容开局（不限定时在全量兼容集合随机），打破固定走法
+    const m = matchOpeningByCategory(movesHistory, openingCategory);
     if (m && m.next) {
       const bookMv = parseIccs(m.next);
       if (bookMv) {
         const mover = gameMode === 'eve'
           ? (view.getBoard().sideToMove === 'red' ? redNameInput.value : blackNameInput.value)
           : '引擎';
-        setStatus(`${mover}（${openingStyle === 'random' ? '随机开局库' : '开局库'}·${m.name}）`);
+        setStatus(`${mover}（开局库·${m.name}）`);
         doMove(bookMv);
         return;
       }
     }
   }
   waitingFor = 'engine';
-  // 开局创新：弃子求攻模式强制 3 线搜索 + 开局阶段（前 10 手）概率性选次优着法（模拟弃子进攻风格）
+  // 弃子优先：开局阶段（前 10 手）强制 3 线搜索，供 onBestmove 用综合评分重选着法
   const isOpeningPhase = startFen.split(' ')[0] === INITIAL_FEN_PART && movesHistory.length < 10;
-  const sacrificeMode = openingStyle === 'sacrifice' && isOpeningPhase;
+  const sacrificeMode = sacrificeOn && isOpeningPhase;
   client.setOption('MultiPV', (avoidDrawOn() || blunderProfile(getDepth()) !== null || sacrificeMode) ? 3 : 1);
   // 清掉旧局面分析数据：防止扰动/避和捡到残留 PV（浅层搜索 info 来不及覆盖多线时曾导致非法着法卡死）
   lastInfoMap.clear();
@@ -1050,10 +1044,10 @@ function onBestmove(bm: string) {
       const pick = pickBlunder(cands, bestCp, prof.margin, Math.random());
       if (pick) mv = pick.mv;
     }
-    // 弃子求攻：开局阶段（前 10 手）主动偏离最高胜率着法，倾向「能吃子/换子/弃子进攻」的着法
-    // 思路：评分（cp）反映客观优势，弃子着法通常评分更低；综合分 = 评分加权 + 吃子/换子奖励 + 随机扰动
-    const openingStyle = openingStyleSel.value;
-    if (openingStyle === 'sacrifice' && startFen.split(' ')[0] === INITIAL_FEN_PART && movesHistory.length < 10) {
+    // 弃子优先：开局阶段（前 10 手）主动偏离最高胜率着法，倾向「吃子/将军/兑子」等精彩着法
+    // 思路：引擎评分 cp 反映客观优势；以「相对最佳线的代价 price」+「吃子价值」+「是否将军」+「随机扰动」综合排序，
+    //       让 AI 在评分代价可接受（≤6 兵）范围内优先选视觉冲击强的着法，棋局更精彩但棋力下降。
+    if (sacrificeModeChk.checked && startFen.split(' ')[0] === INITIAL_FEN_PART && movesHistory.length < 10) {
       const board = view.getBoard();
       const cands2: { mv: Move; cp: number }[] = [];
       for (const k of [1, 2, 3]) {
@@ -1065,30 +1059,32 @@ function onBestmove(bm: string) {
         }
       }
       if (cands2.length >= 2) {
-        const bestCp = cands2[0].cp;
+        const bestCp = Math.max(...cands2.map(c => c.cp));
         const PIECE_VAL: Record<string, number> = { P: 100, N: 400, R: 900, C: 450, B: 200, A: 200, K: 0 };
         const scored = cands2.map(({ mv: m, cp }) => {
           const tgt = board.pieces[m.to.rank][m.to.file];
-          const from = board.pieces[m.from.rank][m.from.file];
-          const capVal = tgt ? (PIECE_VAL[tgt.type] ?? 100) : 0;
-          const giveVal = from ? (PIECE_VAL[from.type] ?? 200) : 0;
-          // 吃子奖励 + 弃子/换子奖励（进攻性强）+ 少量随机扰动
-          const sacrificeBonus = capVal - giveVal * 0.3; // 吃掉高价值子得奖励，自身弃子小幅扣分但不至于排斥
-          const noise = Math.random() * 120; // 随机扰动打破"总走同一手"
-          return { mv: m, cp, score: cp * 0.6 + (sacrificeBonus || 0) + noise };
+          const capVal = tgt ? (PIECE_VAL[tgt.type] ?? 100) : 0;      // 吃掉的子价值
+          const price = Math.max(0, bestCp - cp);                        // 相对最佳线的评分代价（弃子信号）
+          const givesCheck = inCheck(applyMove(board, m), board.sideToMove === 'red' ? 'black' : 'red');
+          // 综合分：吃子奖励 + 将军奖励 − 代价惩罚 + 随机扰动（打破固定走法）
+          const score = capVal * 1.5 + (givesCheck ? 400 : 0) - price * 0.5 + Math.random() * 150;
+          return { mv: m, cp, price, score };
         });
         scored.sort((a, b) => b.score - a.score);
         const top = scored[0];
-        if (top && top.mv !== mv && top.cp > bestCp - 500) { // 评分损失不超过 5 兵才考虑（保留弃子空间）
+        // 代价护栏：评分损失超过 6 兵（600 cp）的弃子不选，避免无脑送死
+        if (top && top.mv !== mv && top.price <= 600) {
           mv = top.mv;
           const tgt = board.pieces[top.mv.to.rank][top.mv.to.file];
-          setStatus(tgt ? `弃子求攻：选择${moveToChinese(board, top.mv)}（评分偏低但进攻性更强）` : '弃子求攻：选择非常规着法');
+          setStatus(tgt
+            ? `弃子优先：${moveToChinese(board, top.mv)}（吃子，评分代价 ${Math.round(top.price / 100)} 兵）`
+            : `弃子优先：${moveToChinese(board, top.mv)}（非常规着法，代价 ${Math.round(top.price / 100)} 兵）`);
         }
       }
     }
     // 避和求胜：最佳着法将立即成和、且引擎不处败势时，改走评分可接受的替代着法
-    // 弃子求攻模式下跳过（避和会把着法往"常规求胜"拉，与创新弃子目标相悖）
-    if (avoidDrawOn() && openingStyleSel.value !== 'sacrifice' && wouldEndInDraw(mv)) {
+    // 弃子优先模式下跳过（避和会把着法往"常规求胜"拉，与创新弃子目标相悖）
+    if (avoidDrawOn() && !sacrificeModeChk.checked && wouldEndInDraw(mv)) {
       const best = lastInfoMap.get(1);
       const alt = lastInfoMap.get(2);
       const altMv = alt && alt.pv.length ? parseIccs(alt.pv[0]) : null;

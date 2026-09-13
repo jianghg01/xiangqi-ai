@@ -51,3 +51,58 @@ export function matchOpening(movesHistory: string[]): { name: string; next: stri
     next: movesHistory.length < best.moves.length ? best.moves[movesHistory.length] : null,
   };
 }
+
+// ---------- 按开局类别选择（人指定起手） ----------
+export type OpeningCategory = 'any' | 'zhongpao' | 'shunpao' | 'xianren' | 'feixiang' | 'guogong' | 'qima' | 'jiuweigu';
+
+/**
+ * 首着 → 类别映射（按红方首着确定性归类，避免名称含"中炮"导致误判）：
+ *   h7e7 炮二平五 → 中炮；b7e7 炮八平五 → 顺炮（对局中黑亦走炮2平5形成顺炮）
+ *   h7d7 炮二平六 → 过宫炮；c6c5 兵三进一 → 仙人指路
+ *   g9e7 相三进五 → 飞相局；h9g7 马二进三 → 起马局；a6a5 兵九进一 → 九尾龟
+ */
+export function categoryOf(name: string, firstMove: string): OpeningCategory {
+  if (firstMove === 'b7e7') return 'shunpao';
+  if (firstMove === 'h7d7') return 'guogong';
+  if (firstMove === 'c6c5') return 'xianren';
+  if (firstMove === 'g9e7') return 'feixiang';
+  if (firstMove === 'h9g7') return 'qima';
+  if (firstMove === 'a6a5') return 'jiuweigu';
+  if (firstMove === 'h7e7') return name.includes('顺炮') ? 'shunpao' : 'zhongpao';
+  return 'any';
+}
+
+export const OPENING_CATEGORY_LABELS: Record<OpeningCategory, string> = {
+  any: '不限定（开局库随机）',
+  zhongpao: '中炮（中炮系列）',
+  shunpao: '顺炮（顺炮系列）',
+  xianren: '仙人指路',
+  feixiang: '飞相局',
+  guogong: '过宫炮',
+  qima: '起马局',
+  jiuweigu: '九尾龟',
+};
+
+/**
+ * 按类别匹配开局（兼容当前已走着法），从匹配集合中随机选一条返回。
+ * category='any' 时在所有兼容开局中随机；指定类别时在类别内随机。
+ */
+export function matchOpeningByCategory(
+  movesHistory: string[],
+  category: OpeningCategory,
+): { name: string; next: string | null } | null {
+  const compatible = OPENINGS.filter(o =>
+    movesHistory.length <= o.moves.length &&
+    o.moves.slice(0, movesHistory.length).every((m, i) => m === movesHistory[i]),
+  );
+  if (!compatible.length) return null;
+  const pool = category === 'any'
+    ? compatible
+    : compatible.filter(o => categoryOf(o.name, o.moves[0]) === category);
+  const selected = pool.length ? pool : compatible; // 类别内无匹配则回退全量兼容集合
+  const pick = selected[Math.floor(Math.random() * selected.length)];
+  return {
+    name: pick.name,
+    next: movesHistory.length < pick.moves.length ? pick.moves[movesHistory.length] : null,
+  };
+}

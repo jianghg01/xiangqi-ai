@@ -196,14 +196,22 @@
       </select>
     </div>
     <div class="row">
-      <span style="font-size:13px;align-self:center">开局风格</span>
-      <select id="openingStyle" title="开局创新程度：标准=开局库固定走法；随机=开局库随机选条；弃子求攻=开局阶段禁用开局库，引擎主动偏离最高胜率着法，倾向子力交换/弃子进攻">
-        <option value="standard" selected>标准（开局库固定）</option>
-        <option value="random">随机开局</option>
-        <option value="sacrifice">弃子求攻（创新）</option>
+      <span style="font-size:13px;align-self:center">开局类型</span>
+      <select id="openingCategory" title="指定引擎起手（人机时你执红、机机时双方各自选）：中炮/顺炮/仙人指路/飞相局/过宫炮/起马局/九尾龟；不限定=开局库随机">
+        <option value="any" selected>不限定（开局库随机）</option>
+        <option value="zhongpao">中炮系列</option>
+        <option value="shunpao">顺炮系列</option>
+        <option value="xianren">仙人指路</option>
+        <option value="feixiang">飞相局</option>
+        <option value="guogong">过宫炮</option>
+        <option value="qima">起马局</option>
+        <option value="jiuweigu">九尾龟</option>
       </select>
-      <span style="font-size:12px;color:#a89a7d;align-self:center">弃子求攻需关「避和求胜」才生效</span>
+      <label style="font-size:13px;align-self:center;cursor:pointer" title="开启后开局阶段（前 10 手）禁用开局库，引擎主动偏离最高胜率着法，倾向子力交换/弃子进攻，棋局更精彩但棋力下降">
+        <input type="checkbox" id="sacrificeMode" /> 弃子优先
+      </label>
     </div>
+    <div class="note" style="margin-top:4px">开局类型：指定起手并随机选开局库中的一条；弃子优先：开局前 10 手主动偏离最优着法（评分损失 ≤5 兵），需关「避和求胜」才生效</div>
     <div class="row">
       <span style="font-size:13px;align-self:center">引擎线程</span>
       <select id="threadsSel" title="引擎计算线程数；自动 = CPU 核心数 - 2">

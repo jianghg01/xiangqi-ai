@@ -143,31 +143,38 @@ describe('天天象棋网络规则：局面重复 & 长将', () => {
   });
 });
 
-describe('开局创新：弃子求攻综合评分', () => {
-  // 复刻 main.ts 弃子求攻的评分公式：score = cp*0.6 + (capVal - giveVal*0.3) + noise
+describe('开局创新：弃子优先综合评分', () => {
+  // 复刻 main.ts 弃子优先的评分公式：
+  // score = capVal*1.5 + (givesCheck?400:0) - price*0.5 + noise(0..150)，代价护栏 price<=600
   const PIECE_VAL: Record<string, number> = { P: 100, N: 400, R: 900, C: 450, B: 200, A: 200, K: 0 };
-  function sacrificeScore(cp: number, capVal: number, giveVal: number, noise: number): number {
-    const bonus = capVal - giveVal * 0.3;
-    return cp * 0.6 + (bonus || 0) + noise;
+  function sacrificeScore(cp: number, bestCp: number, capVal: number, givesCheck: boolean, noise: number): number {
+    const price = Math.max(0, bestCp - cp);
+    return capVal * 1.5 + (givesCheck ? 400 : 0) - price * 0.5 + noise;
   }
 
-  it('吃掉高价值子（车）的着法综合分显著高于空着', () => {
-    const capRook = sacrificeScore(-200, PIECE_VAL.R, 0, 0);   // 评分-200但吃车
-    const quiet = sacrificeScore(-100, 0, 0, 0);               // 评分-100空着
-    expect(capRook).toBeGreaterThan(quiet); // 吃车奖励 900 覆盖评分损失
+  it('吃车 + 将军的着法综合分显著高于无吃子空着', () => {
+    const capCheck = sacrificeScore(-300, 100, PIECE_VAL.R, true, 0);  // 吃车并将军，代价 4 兵
+    const quiet = sacrificeScore(100, 100, 0, false, 0);                // 最佳线但无吃子无将军
+    expect(capCheck).toBeGreaterThan(quiet); // 吃车 1350 + 将军 400 覆盖代价惩罚
   });
 
-  it('随机扰动打破固定着法（噪声可达 120）', () => {
-    const a = sacrificeScore(0, 0, 0, 0.5 * 120);
-    const b = sacrificeScore(0, 0, 0, 0.9 * 120);
-    expect(b).toBeGreaterThan(a); // 不同 rand 产生不同排序
+  it('代价惩罚生效：代价越大综合分越低', () => {
+    const cheap = sacrificeScore(80, 100, PIECE_VAL.R, false, 0);   // 代价 20 cp
+    const dear = sacrificeScore(-500, 100, PIECE_VAL.R, false, 0);  // 代价 600 cp
+    expect(cheap).toBeGreaterThan(dear);
   });
 
-  it('评分损失阈值 500：超出则不选（防止无脑弃子送死）', () => {
+  it('代价护栏 600：超过则不选（防止无脑弃子送死）', () => {
+    const within = (cp: number, bestCp: number) => Math.max(0, bestCp - cp) <= 600;
     const bestCp = 100;
-    const within = (cp: number) => cp > bestCp - 500;
-    expect(within(-399)).toBe(true);   // 损失 499，允许
-    expect(within(-401)).toBe(false);  // 损失 501，排除
+    expect(within(-499, bestCp)).toBe(true);   // 代价 599，允许
+    expect(within(-501, bestCp)).toBe(false);  // 代价 601，排除
+  });
+
+  it('随机扰动上限 150，可打破并列着法', () => {
+    const a = sacrificeScore(0, 0, 0, false, 0.5 * 150);
+    const b = sacrificeScore(0, 0, 0, false, 0.9 * 150);
+    expect(b).toBeGreaterThan(a);
   });
 
   it('开局阶段判定：前 10 手（movesHistory < 10）生效', () => {
