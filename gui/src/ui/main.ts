@@ -1540,6 +1540,9 @@ $('btnStartEngine').addEventListener('click', async () => {
     const threads = threadsValue();
     client.setOption('Threads', threads);
     client.setOption('Hash', parseInt(hashSel.value, 10) || 512);
+    // 网文件已被重命名为 eval.nnue（去品牌化），而引擎默认找 pikafish.nnue，
+    // 不设置会在首次 go 时直接报错退出（The engine will be terminated now）
+    client.setOption('EvalFile', 'eval.nnue');
     client.isready();
     engineReady = true;
     engineState.textContent = `已启动（${threads} 线程 · 哈希 ${hashSel.value}MB）`;
