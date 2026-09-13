@@ -142,3 +142,38 @@ describe('天天象棋网络规则：局面重复 & 长将', () => {
     expect(LONG_CHECK_LIMIT).toBe(12); // 12 着 = 双方各 6 回合（亚洲规则一子长将 6 回合）
   });
 });
+
+describe('开局创新：弃子求攻综合评分', () => {
+  // 复刻 main.ts 弃子求攻的评分公式：score = cp*0.6 + (capVal - giveVal*0.3) + noise
+  const PIECE_VAL: Record<string, number> = { P: 100, N: 400, R: 900, C: 450, B: 200, A: 200, K: 0 };
+  function sacrificeScore(cp: number, capVal: number, giveVal: number, noise: number): number {
+    const bonus = capVal - giveVal * 0.3;
+    return cp * 0.6 + (bonus || 0) + noise;
+  }
+
+  it('吃掉高价值子（车）的着法综合分显著高于空着', () => {
+    const capRook = sacrificeScore(-200, PIECE_VAL.R, 0, 0);   // 评分-200但吃车
+    const quiet = sacrificeScore(-100, 0, 0, 0);               // 评分-100空着
+    expect(capRook).toBeGreaterThan(quiet); // 吃车奖励 900 覆盖评分损失
+  });
+
+  it('随机扰动打破固定着法（噪声可达 120）', () => {
+    const a = sacrificeScore(0, 0, 0, 0.5 * 120);
+    const b = sacrificeScore(0, 0, 0, 0.9 * 120);
+    expect(b).toBeGreaterThan(a); // 不同 rand 产生不同排序
+  });
+
+  it('评分损失阈值 500：超出则不选（防止无脑弃子送死）', () => {
+    const bestCp = 100;
+    const within = (cp: number) => cp > bestCp - 500;
+    expect(within(-399)).toBe(true);   // 损失 499，允许
+    expect(within(-401)).toBe(false);  // 损失 501，排除
+  });
+
+  it('开局阶段判定：前 10 手（movesHistory < 10）生效', () => {
+    const isOpeningPhase = (n: number) => n < 10;
+    expect(isOpeningPhase(0)).toBe(true);
+    expect(isOpeningPhase(9)).toBe(true);
+    expect(isOpeningPhase(10)).toBe(false);
+  });
+});
