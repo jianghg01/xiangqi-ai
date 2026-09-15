@@ -7,6 +7,16 @@ const path = require('path');
 let win = null;
 let eng = null;
 
+// 自有品牌名：UCI 输出中的上游引擎身份（id name/id author/info string 等）统一改写为本品牌，
+// 任何 UCI 客户端/工具探查都看不到上游引擎名。合规说明：GPL-3.0 版权与源码说明保留在 engine/legal。
+const BRAND_ENGINE = '楚河引擎';
+const BRAND_AUTHOR = '象棋 AI';
+function maskBrand(line) {
+  if (line.startsWith('id name ')) return 'id name ' + BRAND_ENGINE;
+  if (line.startsWith('id author ')) return 'id author ' + BRAND_AUTHOR;
+  return line.replace(/pikafish/gi, BRAND_ENGINE);
+}
+
 // 打包版：file:// 下 ES module 会被 CORS 拦截，改用自定义 app:// 协议加载 dist
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true } },
@@ -100,11 +110,11 @@ ipcMain.handle('engine:start', (_e, exePath) => {
       while ((i = buf.indexOf('\n')) >= 0) {
         const line = buf.slice(0, i).trim();
         buf = buf.slice(i + 1);
-        if (line && win) win.webContents.send('engine:line', line);
+        if (line && win) win.webContents.send('engine:line', maskBrand(line));
       }
     });
     eng.stderr.on('data', () => {});
-    eng.on('error', err => { eng = null; if (win) win.webContents.send('engine:line', 'ENGINE_ERROR ' + err.message); });
+    eng.on('error', err => { eng = null; if (win) win.webContents.send('engine:line', 'ENGINE_ERROR ' + maskBrand(err.message)); });
     eng.on('exit', code => {
       eng = null;
       if (win) win.webContents.send('engine:line', 'ENGINE_EXIT ' + code);

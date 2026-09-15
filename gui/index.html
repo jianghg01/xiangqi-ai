@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<title>象棋 AI · M3/M4 对弈与分析</title>
+<title>象棋 AI · 对弈与分析</title>
 <style>
   body { font-family: "Microsoft YaHei", sans-serif; background: #2b241c; color: #e8dcc8; margin: 0; display: flex; justify-content: center; overflow: hidden; }
   .wrap { display: flex; gap: 20px; padding: 20px; align-items: flex-start; flex-wrap: wrap; }
@@ -97,10 +97,14 @@
     <div class="note">进入编辑模式后：点选下方棋子，再点棋盘上的格子摆放或删除（✕ 删除）；也可以直接编辑 FEN 后载入，用于摆残局/自测局面</div>
   </div>
   <div class="menuPanel" id="menuAbout" style="display:none">
-    <div class="note">象棋 AI · 基于开源中国象棋引擎（UCI 协议）</div>
-    <div class="note">满级 24 层参考 ELO 约 4000（国际天梯基准）；人机/机机/人人对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏</div>
-    <div class="note">引擎基于开源项目（GPL-3.0），版权声明与源码说明见 engine/legal 目录</div>
+    <h3 style="margin:0 0 6px">象棋 AI v0.3.1</h3>
+    <div class="note">引擎：楚河引擎（UCI） · 满级 24 层参考 ELO 约 4000（国际天梯基准）</div>
+    <div class="note">人机 / 机机 / 人人对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏、复盘研习、多引擎对决</div>
     <div class="note">干预引擎着法：人机/机机通用——引擎思考完不直接落子，由你点击确认或替它改走别的棋</div>
+    <details style="margin-top:8px">
+      <summary style="font-size:12px;color:#a89a7d;cursor:pointer">许可与版权信息</summary>
+      <div class="note" style="margin-top:6px">本软件引擎组件基于开源中国象棋引擎项目（GPL-3.0 协议）构建；依据 GPL-3.0 要求，上游引擎的版权声明、许可证全文与源代码获取说明保留于安装目录 engine/legal 文件夹中。</div>
+    </details>
   </div>
 <div class="wrap">
   <div class="boardWrap">
@@ -159,7 +163,7 @@
     <div id="eveRows" style="display:none">
       <div class="row">
         <span style="font-size:13px;align-self:center;width:34px">红方</span>
-        <input type="text" id="redName" value="红方引擎" title="红方引擎名字，可自定义" style="width:110px" />
+        <input type="text" id="redName" value="红方·楚河" title="红方引擎名字，可自定义" style="width:110px" />
         <select id="redStrength" title="红方强度">
           <option value="1">入门（1层）</option>
           <option value="2">初级（2层）</option>
@@ -173,7 +177,7 @@
       </div>
       <div class="row">
         <span style="font-size:13px;align-self:center;width:34px">黑方</span>
-        <input type="text" id="blackName" value="黑方引擎" title="黑方引擎名字，可自定义" style="width:110px" />
+        <input type="text" id="blackName" value="黑方·楚河" title="黑方引擎名字，可自定义" style="width:110px" />
         <select id="blackStrength" title="黑方强度">
           <option value="1">入门（1层）</option>
           <option value="2">初级（2层）</option>
@@ -275,7 +279,7 @@
     <div class="note" id="clock"></div>
     <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
 
-    <h3>引擎（UCI）</h3>
+    <h3>楚河引擎（UCI）</h3>
     <div class="row">
       <input type="text" id="enginePath" value="../engine/engine-x64.exe" title="相对 gui 目录或绝对路径" />
     </div>

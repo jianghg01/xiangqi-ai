@@ -173,6 +173,8 @@ fitBoard();
 
 // ---------- UCI 客户端 ----------
 const engineApi = window.engine;
+// 自有品牌名：界面与棋谱中引擎选手的统一称呼（与主进程 UCI 伪装保持一致）
+const ENGINE_BRAND = '楚河引擎';
 const client = new UciClient(cmd => engineApi?.write(cmd));
 if (engineApi) {
   engineApi.onLine((line: string) => {
@@ -606,9 +608,9 @@ function onTimeout(loser: Side) {
     showEndBanner(`超时 · ${winner}胜`);
   } else {
     const humanLost = loser === humanSide;
-    gameResult = humanLost ? '超时，引擎胜' : '超时，玩家胜';
+    gameResult = humanLost ? `超时，${ENGINE_BRAND}胜` : '超时，玩家胜';
     setStatus('超时！' + (humanLost ? '你输了' : '你赢了'));
-    showEndBanner(humanLost ? '超时 · 引擎胜' : '超时 · 你赢了');
+    showEndBanner(humanLost ? `超时 · ${ENGINE_BRAND}胜` : '超时 · 你赢了');
   }
 }
 
@@ -781,9 +783,9 @@ function afterMove() {
       setStatus(`绝杀！${winner}胜`);
       showEndBanner(`绝杀 · ${winner}胜`);
     } else {
-      gameResult = board.sideToMove === humanSide ? '绝杀，引擎胜' : '绝杀，玩家胜';
+      gameResult = board.sideToMove === humanSide ? `绝杀，${ENGINE_BRAND}胜` : '绝杀，玩家胜';
       setStatus('绝杀！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
-      showEndBanner(board.sideToMove === humanSide ? '绝杀 · 引擎胜' : '绝杀 · 你赢了');
+      showEndBanner(board.sideToMove === humanSide ? `绝杀 · ${ENGINE_BRAND}胜` : '绝杀 · 你赢了');
     }
     return;
   }
@@ -796,9 +798,9 @@ function afterMove() {
       setStatus(`困毙！${winner}胜`);
       showEndBanner(`困毙 · ${winner}胜`);
     } else {
-      gameResult = board.sideToMove === humanSide ? '困毙，引擎胜' : '困毙，玩家胜';
+      gameResult = board.sideToMove === humanSide ? `困毙，${ENGINE_BRAND}胜` : '困毙，玩家胜';
       setStatus('困毙！' + (board.sideToMove === humanSide ? '你输了' : '你赢了'));
-      showEndBanner(board.sideToMove === humanSide ? '困毙 · 引擎胜' : '困毙 · 你赢了');
+      showEndBanner(board.sideToMove === humanSide ? `困毙 · ${ENGINE_BRAND}胜` : '困毙 · 你赢了');
     }
     return;
   }
@@ -977,11 +979,11 @@ function offerDraw() {
   if (accepts) {
     gameOver = true;
     recordGame('draw');
-    gameResult = '引擎接受提和 · 判和';
-    setStatus('引擎评估无胜机，接受你的提和 · 和棋');
+    gameResult = `${ENGINE_BRAND}接受提和 · 判和`;
+    setStatus(`${ENGINE_BRAND}评估无胜机，接受你的提和 · 和棋`);
     showEndBanner('引擎接受提和 · 和棋', true);
   } else {
-    setStatus('引擎评估仍有胜机，拒绝提和，请继续对弈');
+    setStatus(`${ENGINE_BRAND}评估仍有胜机，拒绝提和，请继续对弈`);
   }
 }
 $('btnDrawOffer').addEventListener('click', offerDraw);
@@ -1018,7 +1020,7 @@ function engineMove() {
       if (bookMv) {
         const mover = gameMode === 'eve'
           ? (view.getBoard().sideToMove === 'red' ? redNameInput.value : blackNameInput.value)
-          : '引擎';
+          : ENGINE_BRAND;
         setStatus(`${mover}（开局库·${m.name}）`);
         doMove(bookMv);
         return;
@@ -1041,7 +1043,7 @@ function engineMove() {
   } else {
     client.go({ depth: getDepth() });               // 深度模式：按当前行棋方强度
   }
-  const mover = gameMode === 'eve' ? (view.getBoard().sideToMove === 'red' ? redNameInput.value : blackNameInput.value) : '引擎';
+  const mover = gameMode === 'eve' ? (view.getBoard().sideToMove === 'red' ? redNameInput.value : blackNameInput.value) : ENGINE_BRAND;
   setStatus(`${mover}思考中…`);
 }
 
@@ -1217,9 +1219,9 @@ function onBestmove(bm: string) {
     const raw = parseIccs(bm);
     if (raw) {
       const mv = engineMoveToLocal(raw);
-      setStatus(`引擎提示：${moveToChinese(view.getBoard(), mv)} 较优`);
+      setStatus(`${ENGINE_BRAND}提示：${moveToChinese(view.getBoard(), mv)} 较优`);
     } else {
-      setStatus('引擎提示不可用');
+      setStatus(`${ENGINE_BRAND}提示不可用`);
     }
     // 恢复 MultiPV（分析3 / 避和2 / 普通1），避免影响后续对弈/分析
     try { client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1)); } catch { /* 引擎可能已退出 */ }
@@ -1352,8 +1354,8 @@ function statusTextFor(): string {
   if (mode === 'edit') return '编辑模式';
   const turn = view.getBoard().sideToMove === 'red' ? '红方' : '黑方';
   if (gameMode === 'eve') {
-    const red = redNameInput.value || '红方引擎';
-    const black = blackNameInput.value || '黑方引擎';
+    const red = redNameInput.value || '红方·楚河';
+    const black = blackNameInput.value || '黑方·楚河';
     if (gameOver) {
       const winner = view.getBoard().sideToMove === 'red' ? black : red;
       return `${red} vs ${black} · ${winner}胜`;
@@ -1365,7 +1367,7 @@ function statusTextFor(): string {
     return `人人对弈 · ${turn}行棋`;
   }
   if (gameOver) return '对局结束';
-  const who = turn === (humanSide === 'red' ? '红方' : '黑方') ? '你' : '引擎';
+  const who = turn === (humanSide === 'red' ? '红方' : '黑方') ? '你' : ENGINE_BRAND;
   return `对弈中 · ${turn}行棋（${who}）`;
 }
 
@@ -1677,9 +1679,9 @@ let replayTimer: number | null = null;
 let replayMovesZh: string[] = [];        // 每步中文记谱
 
 function sideName(side: Side): string {
-  if (gameMode === 'eve') return side === 'red' ? (redNameInput.value || '红方引擎') : (blackNameInput.value || '黑方引擎');
+  if (gameMode === 'eve') return side === 'red' ? (redNameInput.value || '红方·楚河') : (blackNameInput.value || '黑方·楚河');
   if (gameMode === 'pvp') return side === 'red' ? '红方玩家' : '黑方玩家';
-  return side === humanSide ? '玩家' : '引擎';
+  return side === humanSide ? '玩家' : ENGINE_BRAND;
 }
 
 function replayStartBoard(rec: GameRecord) {
