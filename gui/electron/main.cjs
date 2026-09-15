@@ -131,6 +131,8 @@ ipcMain.on('engine:write', (_e, cmd) => {
 const FILE_KINDS = {
   json: { name: '棋谱 JSON', extensions: ['json'] },
   pgn: { name: '象棋 PGN', extensions: ['pgn'] },
+  md: { name: 'Markdown 报告', extensions: ['md'] },
+  txt: { name: '文本文件', extensions: ['txt'] },
 };
 
 ipcMain.handle('file:save', async (_e, { defaultName, content, kind }) => {

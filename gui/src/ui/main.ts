@@ -143,7 +143,7 @@ let movesHistory: string[] = [];       // 当前对局 ICCS 着法（内部坐�
 let movesZhLive: string[] = [];        // 对应中文记谱（对弈实时显示）
 let selected: Square | null = null;
 let targets: Move[] = [];
-let waitingFor: null | 'engine' | 'analysis' | 'review' | 'hint' = null;
+let waitingFor: null | 'engine' | 'analysis' | 'review' | 'hint' | 'study' = null;
 let engineReady = false;
 let illegalRetry = 0;   // 引擎着法非法时的重发次数（防死循环）
 let analysisOn = false;
@@ -696,6 +696,7 @@ function newGame(startBoardOverride?: BoardData) {
   gameOver = false;
   gameResult = '';
   hideEndBanner();
+  clearAuto(); // 主动开新局：清掉旧对局快照
   selected = null;
   targets = [];
   cpHistory = [];
@@ -760,6 +761,98 @@ function doMove(mv: Move) {
     afterMove();
   });
 }
+
+// ---------- 对局自动保存 / 崩溃恢复（localStorage 快照，每步写入） ----------
+const AUTOSAVE_KEY = 'xz_autosave';
+function saveAuto() {
+  if (mode !== 'play' || !movesHistory.length || gameOver) return;
+  try {
+    let startBoard;
+    try { startBoard = parseFen(startFen).board; } catch { startBoard = initialBoard(); }
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
+      app: 'xiangqi-ai', version: 2,
+      date: new Date().toISOString(),
+      startFen, mode: gameMode, humanSide,
+      moves: [...movesHistory],
+      movesZh: movesToChinese(startBoard, movesHistory),
+      result: '对局未结束',
+      ts: Date.now(),
+    }));
+  } catch { /* 忽略 */ }
+}
+function clearAuto() {
+  try { localStorage.removeItem(AUTOSAVE_KEY); } catch { /* 忽略 */ }
+  const b = $('btnResume') as HTMLButtonElement;
+  b.style.display = 'none';
+}
+// 检测到未完成对局：显示恢复按钮
+function checkAutoResume() {
+  const b = $('btnResume') as HTMLButtonElement;
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if (!raw) { b.style.display = 'none'; return; }
+    const rec = JSON.parse(raw) as GameRecord;
+    if (rec && Array.isArray(rec.moves) && rec.moves.length && !rec.result?.includes('结束')) {
+      b.style.display = 'inline-block';
+      b.title = `恢复上次未完成对局（${new Date(rec.ts || Date.now()).toLocaleString()}，${rec.moves.length} 手）`;
+    } else { b.style.display = 'none'; }
+  } catch { b.style.display = 'none'; }
+}
+// 恢复对局：进入对弈模式并按快照重建棋盘继续
+$('btnResume').addEventListener('click', () => {
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if (!raw) { setStatus('没有可恢复的对局'); return; }
+    const rec = JSON.parse(raw) as GameRecord;
+    if (!rec || !Array.isArray(rec.moves)) { setStatus('自动保存数据无效'); return; }
+    // 离开复盘/编辑，进入对弈模式
+    if (mode === 'replay') exitReplay();
+    stopEngineThen(() => {
+      mode = 'play';
+      gameMode = rec.mode === 'eve' || rec.mode === 'pvp' || rec.mode === 'pve' ? rec.mode : 'pve';
+      gameModeSel.value = gameMode;
+      pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
+      eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
+      if (gameMode === 'pve' && rec.humanSide) {
+        humanSide = rec.humanSide;
+        sideSelect.value = humanSide;
+      }
+      let b;
+      try { b = parseFen(rec.startFen).board; } catch { b = initialBoard(); }
+      view.onSquare = playSquareClick;
+      view.replaceBoard(b);
+      movesHistory = [...rec.moves];
+      movesZhLive = Array.isArray(rec.movesZh) && rec.movesZh.length === rec.moves.length ? [...rec.movesZh] : movesToChinese(b, rec.moves);
+      gameOver = false;
+      gameResult = '';
+      hideEndBanner();
+      selected = null; targets = [];
+      cpHistory = [];
+      lastInfoMap.clear();
+      lastEvalRedCp = null; lastEvalMate = false;
+      view.setArrows([]);
+      reviewMarks = [];
+      renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
+      updateOpeningName();
+      startFen = rec.startFen;
+      rebuildPosSeen(b, movesHistory);
+      resetClock();
+      // 重建最后一手标记
+      if (movesHistory.length) {
+        const last = parseIccs(movesHistory[movesHistory.length - 1]);
+        if (last) view.setLastMove(last.from, last.to);
+      }
+      view.setCheck(null);
+      ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
+      clearAuto();
+      setStatus(`已恢复未完成对局（${movesHistory.length} 手），继续对弈`);
+      if (engineReady && engineTurnNow()) engineMove();
+      else if (analysisOn && !waitingFor) analyze();
+    });
+  } catch (err) {
+    setStatus('恢复对局失败: ' + (err as Error).message);
+  }
+});
 
 function afterMove() {
   const board = view.getBoard();
@@ -856,6 +949,7 @@ function afterMove() {
   if (puzzleActive && puzzleHumanMoves >= puzzleActive.movesToMate + 1) {
     gameOver = true;
     gameResult = '闯关失败，步数用尽';
+    clearAuto();
     setStatus('闯关失败：超出预算步数，可重新载入再试');
     showEndBanner('闯关失败 · 步数用尽', true);
     return;
@@ -864,6 +958,7 @@ function afterMove() {
     setStatus('将军！');
     playSound('check');
   } else setStatus('');
+  saveAuto(); // 未结束对局：每步落子后写入自动保存快照
   if (engineTurnNow()) engineMove();
   else if (analysisOn && !waitingFor) analyze();
 }
@@ -1225,8 +1320,95 @@ function onBestmove(bm: string) {
     }
     // 恢复 MultiPV（分析3 / 避和2 / 普通1），避免影响后续对弈/分析
     try { client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1)); } catch { /* 引擎可能已退出 */ }
+  } else if (waitingFor === 'study') {
+    // 变着研习：两段分析（走子前局面 → 实际着法后的局面），完成后汇总显示
+    studyPhase();
   }
 }
+
+// ---------- 变着研习（复盘时对任一手做引擎替代着法对比） ----------
+interface StudyState {
+  rec: GameRecord;
+  idx: number;        // 当前研究手（0..n，0=起始局面）
+  phase: 0 | 1;       // 0=分析走子前局面 1=分析实际着法后局面
+  beforeBest: { zh: string; cp: number | null } | null; // 走子前引擎最优
+}
+let study: StudyState | null = null;
+
+// phase 0 结束（bestmove 已回来）→ 发起 phase 1；phase 1 结束 → 汇总展示
+function studyPhase() {
+  if (!study) { waitingFor = null; return; }
+  const s = study;
+  const startBoard = replayStartBoard(s.rec);
+  const n = s.rec.moves.length;
+  if (s.phase === 0) {
+    // 记录走子前最优着法（multipv1 主变第一手 + 评分）
+    const best = lastInfoMap.get(1);
+    const bestMv = best && best.pv.length ? parseIccs(enginePvToLocal(best.pv)[0]) : null;
+    if (best && bestMv) {
+      s.beforeBest = {
+        zh: moveToChinese(startBoard, bestMv),
+        cp: best.scoreCp ?? null,
+      };
+    }
+    // phase 1：若本手有实际着法，分析其走完后的局面评分
+    if (s.idx < n) {
+      const afterFen = fenAt(s.rec.startFen, s.rec.moves, s.idx + 1);
+      s.phase = 1;
+      client.position(afterFen);
+      client.go({ depth: 12 });
+      setStatus(`变着研习：评估实际着法后的局面…`);
+      return;
+    }
+  }
+  // 汇总展示
+  const actualCp = lastInfoMap.get(1)?.scoreCp ?? null;
+  const sboard = replayStartBoard(s.rec);
+  const actualMvIccs = s.idx < n ? s.rec.moves[s.idx] : null;
+  const actualZh = actualMvIccs ? (replayMovesZh[s.idx] || actualMvIccs) : '—';
+  const L: string[] = [`变着研习 · 第 ${s.idx} 手（${actualZh}）`];
+  if (s.beforeBest && s.beforeBest.cp !== null) {
+    L.push(`引擎最优：${s.beforeBest.zh}（+${(s.beforeBest.cp / 100).toFixed(2)}）`);
+  }
+  if (actualMvIccs && actualCp !== null) {
+    // 实际着法损失 = 走子前最优分 + 走子后局面评分（走子方视角）
+    const loss = (s.beforeBest?.cp ?? 0) + (actualCp ?? 0);
+    const cls = loss > 100 ? `大亏（${(loss / 100).toFixed(2)} 兵）` : loss > 40 ? `稍亏（${(loss / 100).toFixed(2)} 兵）` : loss < -40 ? '优于引擎推荐' : '平稳';
+    L.push(`实际着法：${actualZh}（走子后评分 ${(actualCp / 100).toFixed(2)} → ${cls}）`);
+  } else {
+    L.push('（本手无实际着法——已是最后一手）');
+  }
+  // 列出引擎推荐的其它候选（multipv 2/3）
+  const cands: string[] = [];
+  for (const k of [2, 3]) {
+    const i = lastInfoMap.get(k);
+    if (i && i.pv.length) {
+      const m = parseIccs(enginePvToLocal(i.pv)[0]);
+      if (m) cands.push(`${moveToChinese(sboard, engineMoveToLocal(m))}（${i.scoreCp !== null ? (i.scoreCp / 100).toFixed(2) : '?'}）`);
+    }
+  }
+  if (cands.length) L.push(`替代着法：${cands.join(' / ')}`);
+  setStatus(L.join(' · '));
+  reviewReportEl.textContent = L.join('\n');
+  waitingFor = null;
+  study = null;
+  try { client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1)); } catch { /* 引擎可能已退出 */ }
+}
+
+$('btnRepStudy').addEventListener('click', () => {
+  if (mode !== 'replay' || !replayRecord) { setStatus('需先进入复盘（打开棋谱或载入名局）'); return; }
+  if (!engineReady) { setStatus('需先启动楚河引擎'); return; }
+  if (guessMode) { setStatus('请先退出打谱训练'); return; }
+  if (waitingFor) { setStatus('引擎正忙，请稍候'); return; }
+  if (reviewing) { setStatus('AI 点评进行中，请先等待完成或取消'); return; }
+  study = { rec: replayRecord, idx: replayIdx, phase: 0, beforeBest: null };
+  waitingFor = 'study';
+  client.setOption('MultiPV', 3);
+  lastInfoMap.clear();
+  client.position(fenAt(replayRecord.startFen, replayRecord.moves, replayIdx));
+  client.go({ depth: 12 });
+  setStatus(`变着研习：分析第 ${replayIdx} 手局面…`);
+});
 
 function onInfo(info: EngineInfo) {
   if (!info.pv.length) return;
@@ -1453,9 +1635,67 @@ $('btnFlip').addEventListener('click', () => {
 });
 refreshFlipBtn(); // 初始化翻转按钮文字（默认/上下/左右循环切换）
 
+// ---------- 悔棋分叉：撤销前把当前对局保存为变着分支（localStorage，最多 20 条） ----------
+const BRANCH_KEY = 'xz_branches';
+function saveBranch() {
+  if (mode !== 'play' || movesHistory.length < 2) return; // 至少两手才值得记分支
+  try {
+    let startBoard;
+    try { startBoard = parseFen(startFen).board; } catch { startBoard = initialBoard(); }
+    const arr = JSON.parse(localStorage.getItem(BRANCH_KEY) || '[]') as (GameRecord & { ts: number })[];
+    arr.unshift({
+      app: 'xiangqi-ai', version: 2,
+      date: new Date().toISOString(),
+      startFen, mode: gameMode,
+      redName: sideName('red'), blackName: sideName('black'),
+      moves: [...movesHistory],
+      movesZh: movesToChinese(startBoard, movesHistory),
+      result: '悔棋分支（未结束）',
+      ts: Date.now(),
+    });
+    while (arr.length > 20) arr.pop();
+    localStorage.setItem(BRANCH_KEY, JSON.stringify(arr));
+    setStatus('已记录悔棋前的变着分支（可在「变着记录」中载入复盘）');
+  } catch { /* 忽略 */ }
+}
+// 渲染变着分支列表：时间 / 手数 / 红黑名，可载入复盘或删除
+$('btnBranches').addEventListener('click', () => {
+  const el = $('branchesList') as HTMLDivElement;
+  let arr: (GameRecord & { ts: number })[] = [];
+  try { arr = JSON.parse(localStorage.getItem(BRANCH_KEY) || '[]'); } catch { /* 忽略 */ }
+  if (!arr.length) { el.textContent = '暂无变着分支（悔棋时自动记录原对局）'; return; }
+  el.innerHTML = '';
+  arr.forEach((rec, i) => {
+    const d = new Date(rec.ts || Date.now());
+    const line = document.createElement('div');
+    const info = document.createElement('span');
+    info.textContent = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} · ${rec.redName} vs ${rec.blackName} · ${rec.moves.length}手`;
+    const btnLoad = document.createElement('button');
+    btnLoad.textContent = '载入复盘';
+    btnLoad.style.marginLeft = '6px';
+    btnLoad.addEventListener('click', () => {
+      enterReplay({ ...rec, result: rec.result || '对局结束' });
+      setStatus('已载入变着分支复盘');
+    });
+    const btnDel = document.createElement('button');
+    btnDel.textContent = '删除';
+    btnDel.style.marginLeft = '6px';
+    btnDel.addEventListener('click', () => {
+      arr.splice(i, 1);
+      localStorage.setItem(BRANCH_KEY, JSON.stringify(arr));
+      ($('btnBranches') as HTMLButtonElement).click();
+    });
+    line.appendChild(info);
+    line.appendChild(btnLoad);
+    line.appendChild(btnDel);
+    el.appendChild(line);
+  });
+});
+
 $('btnUndo').addEventListener('click', () => {
   // 悔棋：人机撤销人机各一步（回退到人类行棋局面）；人人对弈撤销双方各一步；机机对弈不支持悔棋
   if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor || reviewing) return;
+  saveBranch(); // 悔棋分叉：先记录当前对局快照
   // 干预挂起的建议着法随局面作废
   if (engineProposal) { engineProposal = null; view.setArrows([]); }
   const undoCount = gameMode === 'pvp' ? 2 : (view.getBoard().sideToMove === humanSide ? 2 : 1);
@@ -1488,6 +1728,7 @@ $('btnUndo').addEventListener('click', () => {
 // 帮机悔棋：撤销引擎刚走的一步（回到人行棋局面），不自动重走，等人确认后点「帮机重走」
 $('btnUndoEngine').addEventListener('click', () => {
   if (mode !== 'play' || gameMode === 'pvp' || movesHistory.length === 0 || waitingFor || reviewing) return;
+  saveBranch(); // 悔棋分叉：先记录当前对局快照
   // 干预挂起（引擎已想好但未落子）：直接作废建议即可
   if (engineProposal) {
     engineProposal = null;
@@ -1668,6 +1909,8 @@ interface GameRecord {
   result: string;
   marks?: (string | null)[]; // AI 点评标记（与 moves 对齐，v3 起保存）
   review?: string;           // AI 点评 ACPL 汇总文本
+  humanSide?: Side;          // 人机模式玩家执方（自动保存快照用）
+  ts?: number;               // 快照/分支时间戳
 }
 
 const replayRow = $('replayRow') as HTMLDivElement;
@@ -1858,6 +2101,7 @@ const statsReportEl = $('statsReport') as HTMLDivElement;
 
 function recordGame(winner: Side | 'draw') {
   if (!movesHistory.length) return;
+  clearAuto(); // 终局：移除自动保存快照
   try {
     const arr = JSON.parse(localStorage.getItem(REC_KEY) || '[]') as StatRecord[];
     arr.push({
@@ -2239,10 +2483,21 @@ $('btnRepPrev').addEventListener('click', () => repGoTo(replayIdx - 1));
 $('btnRepNext').addEventListener('click', () => repGoTo(replayIdx + 1));
 $('btnRepLast').addEventListener('click', () => { if (replayRecord) repGoTo(replayRecord.moves.length); });
 
-$('btnRepPlay').addEventListener('click', () => {
+// 自动播放速度档（0.5x / 1x / 2x），900ms 基准间隔 ÷ 倍率
+let repSpeed = 1;
+const repSpeedBtn = $('btnRepSpeed') as HTMLButtonElement;
+repSpeedBtn.addEventListener('click', () => {
+  repSpeed = repSpeed === 0.5 ? 1 : repSpeed === 1 ? 2 : 0.5;
+  repSpeedBtn.textContent = `速度${repSpeed}x`;
+  // 播放中切换速度即时生效
+  if (replayTimer !== null) {
+    stopReplayTimer();
+    startReplayTimer();
+  }
+});
+function startReplayTimer() {
   if (!replayRecord) return;
-  if (replayTimer !== null) { stopReplayTimer(); ($('btnRepPlay') as HTMLButtonElement).textContent = '自动'; return; }
-  if (replayIdx >= replayRecord.moves.length) repGoTo(0);
+  if (replayTimer !== null) stopReplayTimer();
   ($('btnRepPlay') as HTMLButtonElement).textContent = '暂停';
   replayTimer = window.setInterval(() => {
     if (!replayRecord || replayIdx >= replayRecord.moves.length) {
@@ -2251,7 +2506,13 @@ $('btnRepPlay').addEventListener('click', () => {
       return;
     }
     repGoTo(replayIdx + 1);
-  }, 900);
+  }, Math.round(900 / repSpeed));
+}
+$('btnRepPlay').addEventListener('click', () => {
+  if (!replayRecord) return;
+  if (replayTimer !== null) { stopReplayTimer(); ($('btnRepPlay') as HTMLButtonElement).textContent = '自动'; return; }
+  if (replayIdx >= replayRecord.moves.length) repGoTo(0);
+  startReplayTimer();
 });
 
 $('btnRepExit').addEventListener('click', () => exitReplay());
@@ -2259,6 +2520,57 @@ $('btnRepExit').addEventListener('click', () => exitReplay());
 // ---------- AI 点评按钮 ----------
 const reviewRow = $('reviewRow') as HTMLDivElement;
 $('btnReview').addEventListener('click', () => startReview());
+
+// ---------- 点评报告导出（AI 点评 + LLM 解说 + 逐手标记 → Markdown 文件） ----------
+$('btnReviewExport').addEventListener('click', async () => {
+  if (!engineApi) { setStatus('浏览器模式不支持导出（需 Electron）'); return; }
+  if (!reviewRec || !reviewRec.moves.length) { setStatus('当前没有可导出的复盘对局'); return; }
+  const L: string[] = [];
+  L.push(`# 象棋 AI · 对局点评报告`);
+  L.push('');
+  L.push(`- 对局：${reviewRec.redName || '红方'} vs ${reviewRec.blackName || '黑方'}`);
+  L.push(`- 结果：${reviewRec.result || '对局结束'}`);
+  L.push(`- 手数：${reviewRec.moves.length}`);
+  if (reviewRec.date) L.push(`- 时间：${reviewRec.date}`);
+  L.push('');
+  // 逐手标记表
+  const rec = reviewRec;
+  if (reviewMarks.length === rec.moves.length) {
+    L.push('## 逐手评分');
+    L.push('');
+    L.push('| # | 着法 | 标记 |');
+    L.push('|---|------|------|');
+    rec.moves.forEach((mv, i) => {
+      const zh = (rec.movesZh && rec.movesZh[i]) || mv;
+      L.push(`| ${i + 1} | ${zh} | ${reviewMarks[i] ?? '—'} |`);
+    });
+    L.push('');
+  }
+  // AI 点评 ACPL 汇总
+  const rt = reviewReportEl.textContent;
+  if (rt && rt !== 'AI点评中…' && rt !== '已取消点评') {
+    L.push('## AI 点评（引擎 ACPL）');
+    L.push('');
+    L.push(rt);
+    L.push('');
+  }
+  // LLM 解说
+  const llm = llmReport.textContent;
+  if (llm && llm !== 'LLM 解说生成中…' && !llm.startsWith('LLM ')) {
+    L.push('## LLM 复盘解说');
+    L.push('');
+    L.push(llm);
+    L.push('');
+  }
+  if (L.length <= 3) { setStatus('暂无点评数据（先点「AI 点评」或「LLM 复盘解说」）'); return; }
+  const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+  try {
+    const savedPath = await engineApi.saveText(`点评报告_${ts}.md`, L.join('\n'), 'md');
+    setStatus(savedPath ? '点评报告已导出' : '已取消导出');
+  } catch (err) {
+    setStatus('导出失败: ' + (err as Error).message);
+  }
+});
 
 // ---------- 残局闯关（古谱杀局题库） ----------
 interface Puzzle {
@@ -2575,3 +2887,6 @@ $('btnLoadClassic').addEventListener('click', () => {
   });
   setStatus(`名局欣赏：${g.category}·${g.name}（${g.opening}）`);
 });
+
+// 启动时检测未完成的自动保存对局（异常退出后可恢复）
+checkAutoResume();

@@ -117,6 +117,7 @@
     <div class="row">
       <button id="btnMode" class="primary">进入对弈</button>
       <button id="btnNew">新对局</button>
+      <button id="btnResume" title="恢复上次异常退出时未完成的自动保存对局（如有）" style="display:none">恢复对局</button>
       <button id="btnUndo" title="悔棋：人机撤销人机各一步；人人对弈撤销双方各一步">悔棋</button>
       <button id="btnUndoEngine" title="帮机悔棋：撤销引擎刚走的一步，再点「帮机重走」让引擎重新思考">帮机悔棋</button>
       <button id="btnRedoEngine" title="帮机重走：让引擎（重新）思考当前局面并走一步">帮机重走</button>
@@ -302,18 +303,23 @@
       <button id="btnSavePgn">导出 PGN</button>
       <button id="btnSnap">导出局面图</button>
       <button id="btnLoadGame">打开棋谱复盘</button>
+      <button id="btnBranches" title="悔棋时自动保存的变着分支（原对局快照），可载入复盘对比">变着记录</button>
     </div>
+    <div class="note" id="branchesList" style="line-height:2.1"></div>
     <div class="row" id="replayRow" style="display:none">
       <button id="btnRepFirst">|◀</button>
       <button id="btnRepPrev">◀</button>
       <button id="btnRepNext">▶</button>
       <button id="btnRepLast">▶|</button>
       <button id="btnRepPlay">自动</button>
+      <button id="btnRepSpeed" title="切换自动播放速度">速度1x</button>
       <button id="btnGuess">打谱训练</button>
       <button id="btnRepExit">退出复盘</button>
     </div>
     <div class="row" id="reviewRow" style="display:none">
       <button id="btnReview" class="primary">AI 点评</button>
+      <button id="btnRepStudy" title="对当前手做变着研习：引擎推荐替代着法并对比实际着法的优劣">变着研习</button>
+      <button id="btnReviewExport" title="把 AI 点评与 LLM 解说导出为报告文件">导出报告</button>
       <span style="font-size:12px;color:#a89a7d;align-self:center">逐手评分标记 ◎/?!/?/??</span>
     </div>
     <div class="row" id="llmRow" style="display:none">
