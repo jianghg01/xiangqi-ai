@@ -49,7 +49,7 @@ const handicapSel = $('handicapSel') as HTMLSelectElement;
 const clockModeSel = $('clockModeSel') as HTMLSelectElement;
 const endBanner = $('endBanner') as HTMLDivElement;
 const interveneChk = $('interveneChk') as HTMLInputElement;
-const naturalLimitSel = $('naturalLimitSel') as HTMLSelectElement;
+// 自然限着回合数：国规固定 50 回合（2020 版专业标准，控件已随界面简洁化移除）
 const ruleSetSel = $('ruleSet') as HTMLSelectElement;
 const btnLLM = $('btnLLM') as HTMLButtonElement;
 const llmRow = $('llmRow') as HTMLDivElement;
@@ -97,7 +97,6 @@ function saveCfg() {
       openingCategory: openingCategorySel.value,
       sacrifice: sacrificeModeChk.checked ? '1' : '0',
       threads: threadsSel.value, hash: hashSel.value,
-      naturalLimit: naturalLimitSel.value,
       ruleSet: ruleSetSel.value,
       redEnginePath: redEnginePathInp.value,
       blackEnginePath: blackEnginePathInp.value,
@@ -113,7 +112,6 @@ function saveCfg() {
     if (c.sacrifice === '1' || c.sacrifice === '0') sacrificeModeChk.checked = c.sacrifice === '1';
     if (['auto', '2', '4', '6', '8'].includes(c.threads)) threadsSel.value = c.threads;
     if (['128', '256', '512', '1024'].includes(c.hash)) hashSel.value = c.hash;
-    if (['40', '50', '60'].includes(c.naturalLimit)) naturalLimitSel.value = c.naturalLimit;
     if (['guogui', 'net', 'casual'].includes(c.ruleSet)) ruleSetSel.value = c.ruleSet;
     // 引擎选择持久化：打开软件直接沿用上次设置（留空=内置引擎）
     if (typeof c.redEnginePath === 'string') redEnginePathInp.value = c.redEnginePath;
@@ -121,7 +119,7 @@ function saveCfg() {
   } catch { /* 忽略读取失败 */ }
   ruleSet = ruleSetSel.value as RuleSet; // loadCfg 直接设值不触发 change，手动同步运行时变量
 })();
-[avoidDrawSel, useBookSel, openingCategorySel, sacrificeModeChk, threadsSel, hashSel, naturalLimitSel, ruleSetSel, redEnginePathInp, blackEnginePathInp].forEach(s => s.addEventListener('change', saveCfg));
+[avoidDrawSel, useBookSel, openingCategorySel, sacrificeModeChk, threadsSel, hashSel, ruleSetSel, redEnginePathInp, blackEnginePathInp].forEach(s => s.addEventListener('change', saveCfg));
 ruleSetSel.addEventListener('change', () => {
   ruleSet = ruleSetSel.value as RuleSet;
   setStatus(ruleSet === 'guogui'
@@ -1039,9 +1037,9 @@ function afterMove() {
 // 若 N 回合内未吃子 → 自然限着成立，「提和」按钮可直接判和。
 // 同时 4.3 条：前 25 回合（含）内双方不得提和。
 // 从 startFen 重放 movesHistory：统计末段「未吃子」着法数，将军着法按上述规则封顶。
-// 自然限着回合数：网络规则固定 60（天天自然限招 120 步，60 回合）；国规用下拉（40/50/60）
+// 自然限着回合数：网络规则固定 60（天天自然限招 120 步，60 回合）；国规固定 50（2020 版专业标准，原下拉控件已随界面简洁化移除）
 function naturalLimitTurns(): number {
-  return ruleSet === 'net' ? 60 : (parseInt(naturalLimitSel.value, 10) || 50);
+  return ruleSet === 'net' ? 60 : 50;
 }
 function naturalLimitReached(): boolean {
   const limitTurns = naturalLimitTurns();
