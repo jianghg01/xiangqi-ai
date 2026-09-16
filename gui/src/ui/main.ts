@@ -23,16 +23,21 @@ const statusEl = $('gameStatus') as HTMLDivElement;
 const paletteEl = $('palette') as HTMLDivElement;
 const analysisEl = $('analysis') as HTMLDivElement;
 const curveEl = $('curve') as HTMLCanvasElement;
-const engineState = $('engineState') as HTMLSpanElement;
 const sideSelect = $('humanSide') as HTMLSelectElement;
-const strengthSel = $('strength') as HTMLSelectElement;
 const gameModeSel = $('gameMode') as HTMLSelectElement;
-const pveRow = $('pveRow') as HTMLDivElement;
-const eveRows = $('eveRows') as HTMLDivElement;
 const redNameInput = $('redName') as HTMLInputElement;
 const blackNameInput = $('blackName') as HTMLInputElement;
 const redStrengthSel = $('redStrength') as HTMLSelectElement;
 const blackStrengthSel = $('blackStrength') as HTMLSelectElement;
+// 红/黑行 UI（固定布局：角色标签 / 引擎折叠 / 侧计时）
+const redRoleEl = $('redRole') as HTMLSpanElement;
+const blackRoleEl = $('blackRole') as HTMLSpanElement;
+const redEngToggle = $('redEngToggle') as HTMLButtonElement;
+const blackEngToggle = $('blackEngToggle') as HTMLButtonElement;
+const redEngBox = $('redEngBox') as HTMLDivElement;
+const blackEngBox = $('blackEngBox') as HTMLDivElement;
+const redEnginePathInp = $('redEnginePath') as HTMLInputElement;
+const blackEnginePathInp = $('blackEnginePath') as HTMLInputElement;
 const timeLimitSel = $('timeLimit') as HTMLSelectElement;
 const avoidDrawSel = $('avoidDraw') as HTMLSelectElement;
 const useBookSel = $('useBook') as HTMLSelectElement;
@@ -78,6 +83,8 @@ function saveCfg() {
       threads: threadsSel.value, hash: hashSel.value,
       naturalLimit: naturalLimitSel.value,
       ruleSet: ruleSetSel.value,
+      redEnginePath: redEnginePathInp.value,
+      blackEnginePath: blackEnginePathInp.value,
     }));
   } catch { /* 忽略存储失败 */ }
 }
@@ -92,10 +99,13 @@ function saveCfg() {
     if (['128', '256', '512', '1024'].includes(c.hash)) hashSel.value = c.hash;
     if (['40', '50', '60'].includes(c.naturalLimit)) naturalLimitSel.value = c.naturalLimit;
     if (['guogui', 'net', 'casual'].includes(c.ruleSet)) ruleSetSel.value = c.ruleSet;
+    // 引擎选择持久化：打开软件直接沿用上次设置（留空=内置引擎）
+    if (typeof c.redEnginePath === 'string') redEnginePathInp.value = c.redEnginePath;
+    if (typeof c.blackEnginePath === 'string') blackEnginePathInp.value = c.blackEnginePath;
   } catch { /* 忽略读取失败 */ }
   ruleSet = ruleSetSel.value as RuleSet; // loadCfg 直接设值不触发 change，手动同步运行时变量
 })();
-[avoidDrawSel, useBookSel, openingCategorySel, sacrificeModeChk, threadsSel, hashSel, naturalLimitSel, ruleSetSel].forEach(s => s.addEventListener('change', saveCfg));
+[avoidDrawSel, useBookSel, openingCategorySel, sacrificeModeChk, threadsSel, hashSel, naturalLimitSel, ruleSetSel, redEnginePathInp, blackEnginePathInp].forEach(s => s.addEventListener('change', saveCfg));
 ruleSetSel.addEventListener('change', () => {
   ruleSet = ruleSetSel.value as RuleSet;
   setStatus(ruleSet === 'guogui'
@@ -120,7 +130,7 @@ function hideEndBanner() {
 // ---------- 状态 ----------
 let mode: 'edit' | 'play' | 'replay' = 'edit';
 let humanSide: Side = 'red';
-let gameMode: 'pve' | 'pvp' | 'eve' = 'pve';   // pve=人机 pvp=人人同屏 eve=机机对弈（强软对强软）
+let gameMode: 'pve' | 'pvp' | 'eve' = 'eve';   // 默认机机对弈；pve=人机 pvp=人人同屏 eve=机机对弈
 // 棋盘视角：null=跟随默认（人执黑自动上下翻转），'ud'=上下翻转（红上黑下），'lr'=左右翻转（水平镜像）
 let flipManual: FlipMode | null = null;
 const autoFlipped = (): FlipMode => (gameMode === 'pve' && humanSide === 'black' ? 'ud' : 'none');
@@ -198,16 +208,15 @@ if (engineApi) {
         clearPending();
         waitingFor = null;
         engineReady = false;
-        engineState.textContent = isExit ? `引擎已退出（${reason}）` : '引擎错误';
-        setStatus('引擎已停止，请重新启动引擎');
+        setStatus(isExit ? `引擎已退出（${reason}）—— 点「开始」重新启动` : '引擎错误');
       } else {
         // 独立引擎（红/黑）退出：该侧回退共用主引擎，局可继续
         if (slot === 'red' && clientRed !== clientMain) {
           clientRed = clientMain;
-          engineState.textContent = isExit ? `红方独立引擎已退出（${reason}），回退共用主引擎` : '红方独立引擎错误，回退共用主引擎';
+          setStatus(isExit ? `红方独立引擎已退出（${reason}），已回退内置引擎` : '红方独立引擎错误，已回退内置引擎');
         } else if (slot === 'black' && clientBlack !== clientMain) {
           clientBlack = clientMain;
-          engineState.textContent = isExit ? `黑方独立引擎已退出（${reason}），回退共用主引擎` : '黑方独立引擎错误，回退共用主引擎';
+          setStatus(isExit ? `黑方独立引擎已退出（${reason}），已回退内置引擎` : '黑方独立引擎错误，已回退内置引擎');
         }
         setStatus('独立引擎已停用，该侧改用主引擎继续');
         // 若独立引擎恰好在搜索中（waitingFor 指向它），解除等待避免卡死
@@ -606,8 +615,9 @@ function rebuildPosSeen(start: BoardData, seq: string[]) {
   }
 }
 
-// ---------- 对局用时统计 / 赛制计时 ----------
-const clockEl = $('clock') as HTMLDivElement;
+// ---------- 对局用时统计 / 赛制计时（显示在红/黑方行内各自时钟） ----------
+const redClockEl = $('redClock') as HTMLSpanElement;
+const blackClockEl = $('blackClock') as HTMLSpanElement;
 let turnStart: number | null = null;   // 当前手开始思考的时刻
 let redMs = 0;
 let blackMs = 0;
@@ -659,13 +669,15 @@ setInterval(() => {
     if (stm === 'red') redLeftMs -= dt; else blackLeftMs -= dt;
     if (redLeftMs <= 0) { onTimeout('red'); return; }
     if (blackLeftMs <= 0) { onTimeout('black'); return; }
-    clockEl.textContent = `剩余  红 ${fmtClock(Math.max(0, redLeftMs))} · 黑 ${fmtClock(Math.max(0, blackLeftMs))}`;
+    redClockEl.textContent = fmtClock(Math.max(0, redLeftMs));
+    blackClockEl.textContent = fmtClock(Math.max(0, blackLeftMs));
   } else {
     // 不限时：累计用时展示
     const cur = now - turnStart;
     const red = redMs + (stm === 'red' ? cur : 0);
     const black = blackMs + (stm === 'black' ? cur : 0);
-    clockEl.textContent = `用时  红 ${fmtClock(red)} · 黑 ${fmtClock(black)}`;
+    redClockEl.textContent = fmtClock(red);
+    blackClockEl.textContent = fmtClock(black);
   }
 }, 200);
 
@@ -676,9 +688,8 @@ function resetClock() {
   redLeftMs = clockBaseMs;
   blackLeftMs = clockBaseMs;
   turnStart = Date.now();
-  clockEl.textContent = clockBaseMs > 0
-    ? `剩余  红 ${fmtClock(redLeftMs)} · 黑 ${fmtClock(blackLeftMs)}`
-    : '用时  红 00:00 · 黑 00:00';
+  redClockEl.textContent = fmtClock(Math.max(0, redLeftMs));
+  blackClockEl.textContent = fmtClock(Math.max(0, blackLeftMs));
 }
 
 // ---------- 让子（引擎侧移除子力，人机模式） ----------
@@ -845,8 +856,7 @@ $('btnResume').addEventListener('click', () => {
       mode = 'play';
       gameMode = rec.mode === 'eve' || rec.mode === 'pvp' || rec.mode === 'pve' ? rec.mode : 'pve';
       gameModeSel.value = gameMode;
-      pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
-      eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
+      updateSideRows();
       if (gameMode === 'pve' && rec.humanSide) {
         humanSide = rec.humanSide;
         sideSelect.value = humanSide;
@@ -857,6 +867,7 @@ $('btnResume').addEventListener('click', () => {
       view.replaceBoard(b);
       movesHistory = [...rec.moves];
       movesZhLive = Array.isArray(rec.movesZh) && rec.movesZh.length === rec.moves.length ? [...rec.movesZh] : movesToChinese(b, rec.moves);
+      ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
       gameOver = false;
       gameResult = '';
       hideEndBanner();
@@ -1599,10 +1610,13 @@ function statusTextFor(): string {
   return `对弈中 · ${turn}行棋（${who}）`;
 }
 
-$('btnMode').addEventListener('click', () => {
+$('btnMode').addEventListener('click', async () => {
   if (mode === 'replay') return; // 复盘中：先退出复盘再切换模式
   if (reviewing) cancelReview();
   if (mode === 'edit') {
+    // 「开始」：先确保引擎就绪（自动启动内置主引擎 + 红/黑配置的独立引擎），失败则不进入对弈
+    const ok = await ensureEngines();
+    if (!ok) return;
     mode = 'play';
     ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
     view.onSquare = playSquareClick; // 复盘/打谱后恢复棋盘落子
@@ -1612,21 +1626,26 @@ $('btnMode').addEventListener('click', () => {
     gameResult = '';
     movesHistory = [];
     movesZhLive = [];
-    startFen = view.getFen();          // 记住起始局面（保存棋谱用）
+    startFen = view.getFen();          // 保留当前棋盘局面（初始或编辑模式摆好）开始对弈
     engineProposal = null;
     view.setArrows([]);
     flipManual = null; applyFlip(); // 恢复默认视角（人执黑自动翻转）
     resetClock();
+    updateSideRows();
     moveListEl.style.display = 'block';
     reviewRow.style.display = 'flex';
     llmRow.style.display = 'flex';
     renderMoveList(movesHistory, movesZhLive, 0, false);
     updateOpeningName();
     setStatus('');
+    // 按当前模式直接开下
+    if (gameMode === 'eve') { setStatus('机机对弈开始：红方先行'); }
+    if (engineTurnNow()) engineMove();
+    else if (analysisOn) analyze();
   } else {
     mode = 'edit';
     loopActive = false;
-    ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
+    ($('btnMode') as HTMLButtonElement).textContent = '开始';
     view.onSquare = null;
     if (waitingFor) stopEngineThen(() => {}); // 停掉残留搜索（analysis/engine/review 一律作废旧结果）
     waitingFor = null;
@@ -1820,6 +1839,9 @@ $('btnRedoEngine').addEventListener('click', () => {
   engineMove(); // engineMove 内部自行处理搜索中串行化（stopEngineThen）
 });
 
+// 内置引擎（相对 gui 目录；主进程 resolveEnginePath 兼容 dev/打包两种布局）
+const DEFAULT_ENGINE = '../engine/engine-x64.exe';
+
 // 机机对弈独立引擎：按槽位启动独立 UciClient + 引擎进程（失败回退主引擎，不影响整体可用）
 async function startSlotEngine(slot: 'red' | 'black', exePath: string): Promise<UciClient | null> {
   if (!engineApi || !exePath) return null;
@@ -1837,15 +1859,17 @@ async function startSlotEngine(slot: 'red' | 'black', exePath: string): Promise<
     c.isready();
     return c;
   } catch (err) {
-    engineState.textContent = `${slot === 'red' ? '红方' : '黑方'}独立引擎启动失败：${(err as Error).message}（该侧回退共用主引擎）`;
+    setStatus(`${slot === 'red' ? '红方' : '黑方'}独立引擎启动失败：${(err as Error).message}（该侧回退内置引擎）`);
     return null;
   }
 }
 
-$('btnStartEngine').addEventListener('click', async () => {
-  if (!engineApi) { engineState.textContent = '浏览器模式不支持引擎（需 Electron）'; return; }
+// 确保引擎就绪：主引擎（分析/点评用）+ 红/黑配置的独立引擎；幂等，可重复调用
+async function ensureEngines(): Promise<boolean> {
+  if (engineReady) return true;
+  if (!engineApi) { setStatus('浏览器模式不支持引擎（需 Electron）'); return false; }
   try {
-    await engineApi.start('main', ($('enginePath') as HTMLInputElement).value.trim());
+    await engineApi.start('main', DEFAULT_ENGINE);
     clientMain.uci();
     // 引擎参数按配置面板应用：线程（自动 = 核心数-2）、哈希（MB）
     const threads = threadsValue();
@@ -1856,24 +1880,22 @@ $('btnStartEngine').addEventListener('click', async () => {
     clientMain.setOption('EvalFile', 'eval.nnue');
     clientMain.isready();
     engineReady = true;
-    // 机机对弈可指定红/黑独立引擎（留空则共用主引擎）
-    const redPath = ($('redEnginePath') as HTMLInputElement).value.trim();
-    const blackPath = ($('blackEnginePath') as HTMLInputElement).value.trim();
+    // 红/黑独立引擎：留空则各该侧共用主引擎
+    const redPath = redEnginePathInp.value.trim();
+    const blackPath = blackEnginePathInp.value.trim();
     const cRed = await startSlotEngine('red', redPath);
     if (cRed) clientRed = cRed;
     const cBlack = await startSlotEngine('black', blackPath);
     if (cBlack) clientBlack = cBlack;
     client = clientMain;
     searchingClient = clientMain;
-    const extra = (cRed ? ' · 红独立' : '') + (cBlack ? ' · 黑独立' : '');
-    engineState.textContent = `已启动（${threads} 线程 · 哈希 ${hashSel.value}MB${extra}）`;
     setStatus('');
-    if (engineTurnNow()) engineMove();
-    else if (analysisOn) analyze();
+    return true;
   } catch (err) {
-    engineState.textContent = '启动失败: ' + (err as Error).message;
+    setStatus('引擎启动失败: ' + ((err as Error).message || String(err)));
+    return false;
   }
-});
+}
 
 $('btnAnalysis').addEventListener('click', () => {
   analysisOn = !analysisOn;
@@ -1885,9 +1907,11 @@ $('btnAnalysis').addEventListener('click', () => {
 });
 
 function getDepth(): number {
-  // 机机对弈：按行棋方各自的强度档；人机：用全局强度档
+  // 机机对弈：按行棋方各自的强度档；人机：用引擎侧（非你执方）的强度档
   const side = view.getBoard().sideToMove;
-  const sel = gameMode === 'eve' ? (side === 'red' ? redStrengthSel : blackStrengthSel) : strengthSel;
+  const sel = gameMode === 'eve'
+    ? (side === 'red' ? redStrengthSel : blackStrengthSel)
+    : (humanSide === 'red' ? blackStrengthSel : redStrengthSel);
   return Math.max(1, Math.min(40, parseInt(sel.value, 10) || 24));
 }
 
@@ -1906,14 +1930,39 @@ sideSelect.addEventListener('change', () => {
   }
 });
 
+// 红/黑行角色与可用性：布局固定不变，仅按模式调整「引擎/你/玩家」与强度/引擎设置可用性
+function updateSideRows() {
+  const gm = gameModeSel.value as 'pve' | 'pvp' | 'eve';
+  const hs = sideSelect.value as Side;
+  const redIsHuman = gm === 'pve' && hs === 'red';
+  const blackIsHuman = gm === 'pve' && hs === 'black';
+  const pvp = gm === 'pvp';
+  redRoleEl.textContent = pvp ? '玩家' : redIsHuman ? '你' : '引擎';
+  blackRoleEl.textContent = pvp ? '玩家' : blackIsHuman ? '你' : '引擎';
+  redStrengthSel.disabled = pvp || redIsHuman;
+  blackStrengthSel.disabled = pvp || blackIsHuman;
+  redEngToggle.disabled = pvp || redIsHuman;
+  blackEngToggle.disabled = pvp || blackIsHuman;
+}
+// 引擎设置折叠（默认收起；仅该侧为引擎时可展开）
+const engBoxOpen = { red: false, black: false };
+redEngToggle.addEventListener('click', () => {
+  engBoxOpen.red = !engBoxOpen.red;
+  redEngBox.style.display = engBoxOpen.red ? 'flex' : 'none';
+});
+blackEngToggle.addEventListener('click', () => {
+  engBoxOpen.black = !engBoxOpen.black;
+  blackEngBox.style.display = engBoxOpen.black ? 'flex' : 'none';
+});
+updateSideRows();
+sideSelect.addEventListener('change', updateSideRows);
+
 gameModeSel.addEventListener('change', () => {
   gameMode = gameModeSel.value as 'pve' | 'pvp' | 'eve';
   loopActive = false; // 切换模式取消循环赛
   // 切换模式保留棋局：旧引擎评估作废（提和判定基于最新评估）
   lastEvalRedCp = null; lastEvalMate = false;
-  // 切换模式时显示对应配置行
-  pveRow.style.display = gameMode === 'pve' ? 'flex' : 'none';
-  eveRows.style.display = gameMode === 'eve' ? 'block' : 'none';
+  updateSideRows(); // 侧行角色/可用性随模式刷新（布局不变）
   if (gameMode === 'eve') { flipManual = null; applyFlip(); } // 机机对弈固定红下视角
   else if (gameMode === 'pvp') { flipManual = null; applyFlip(); } // 人人对弈默认红下视角
   // 切换模式保留当前棋局（不重置）：按新模式继续对弈
@@ -2186,7 +2235,7 @@ function recordGame(winner: Side | 'draw') {
       mode: gameMode,
       humanSide: gameMode === 'pve' ? humanSide : null,
       winner,
-      strength: gameMode === 'pve' ? strengthSel.value : null,
+      strength: gameMode === 'pve' ? (humanSide === 'red' ? blackStrengthSel.value : redStrengthSel.value) : null,
     });
     while (arr.length > 500) arr.shift();
     localStorage.setItem(REC_KEY, JSON.stringify(arr));
@@ -2611,7 +2660,7 @@ function enterReplay(rec: GameRecord) {
   view.onSquare = null;
   view.replaceBoard(startBoard);
   view.setLastMove(null, null);
-  ($('btnMode') as HTMLButtonElement).textContent = '进入对弈';
+  ($('btnMode') as HTMLButtonElement).textContent = '开始';
   replayRow.style.display = 'flex';
   reviewRow.style.display = 'flex';
     llmRow.style.display = 'flex';
@@ -2903,8 +2952,7 @@ function loadPuzzle() {
   mode = 'play';
   gameMode = 'pve';
   gameModeSel.value = 'pve';
-  pveRow.style.display = 'flex';
-  eveRows.style.display = 'none';
+  updateSideRows();
   humanSide = p.side;
   sideSelect.value = p.side;
   ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
@@ -3046,8 +3094,7 @@ function loadCustomPuzzle() {
   mode = 'play';
   gameMode = 'pve';
   gameModeSel.value = 'pve';
-  pveRow.style.display = 'flex';
-  eveRows.style.display = 'none';
+  updateSideRows();
   humanSide = p.side;
   sideSelect.value = p.side;
   ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';

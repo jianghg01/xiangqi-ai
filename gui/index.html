@@ -72,6 +72,14 @@
   .moveList .mk-m0 { color: #57c77a; }   /* ◎ 好棋 */
   .moveList .mk-unk { color: var(--move-no); }  /* ？无标记 */
   canvas.curve { background: var(--curve-bg); border-radius: 6px; margin-top: 8px; }
+  /* 对弈双行（红/黑）：布局固定，任何模式一致 */
+  .sideRow { margin-bottom: 10px; }
+  .sideTop { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .sideTag { font-size: 13px; font-weight: bold; width: 32px; flex-shrink: 0; }
+  .sideRole { font-size: 11px; color: var(--note); border: 1px solid var(--panel-line); border-radius: 8px; padding: 1px 6px; flex-shrink: 0; }
+  .sideClock { font-size: 13px; color: var(--status); font-weight: bold; margin-left: auto; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+  .sideEngBtn { padding: 3px 8px; font-size: 12px; }
+  .sideEng { display: none; margin-top: 6px; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--note); }
   .app { display: flex; flex-direction: column; align-items: center; height: 100vh; position: relative; }
   .menubar { display: flex; gap: 6px; padding: 8px 12px; background: var(--menu-bg); border-radius: 10px; margin: 10px 0 0; }
   .menuitem { background: var(--menu-item); font-size: 13px; }
@@ -139,9 +147,9 @@
   <div class="panel">
     <h3>对弈</h3>
     <div class="row">
-      <button id="btnMode" class="primary">进入对弈</button>
-      <button id="btnNew">新对局</button>
+      <button id="btnMode" class="primary" title="按当前设置直接开始对弈：自动启动引擎，从当前棋盘局面（初始或编辑模式摆好）开下">开始</button>
       <button id="btnResume" title="恢复上次异常退出时未完成的自动保存对局（如有）" style="display:none">恢复对局</button>
+      <button id="btnNew" title="重新从初始局面开始新对局">新对局</button>
       <button id="btnUndo" title="悔棋：人机撤销人机各一步；人人对弈撤销双方各一步">悔棋</button>
       <button id="btnUndoEngine" title="帮机悔棋：撤销引擎刚走的一步，再点「帮机重走」让引擎重新思考">帮机悔棋</button>
       <button id="btnRedoEngine" title="帮机重走：让引擎（重新）思考当前局面并走一步">帮机重走</button>
@@ -149,29 +157,15 @@
       <button id="btnFlip" title="切换棋盘视角：上下翻转（红上黑下）↔ 左右翻转（水平镜像）↔ 恢复默认">↕上下翻转</button>
     </div>
     <div class="row">
-      <select id="gameMode" title="对局模式">
+      <select id="gameMode" title="对局模式；默认机机对弈">
+        <option value="eve" selected>机机对弈（默认）</option>
         <option value="pve">人机对弈</option>
         <option value="pvp">人人对弈（双人同屏）</option>
-        <option value="eve">机机对弈（强软对强软）</option>
       </select>
-    </div>
-    <div class="row" id="pveRow">
-      <select id="humanSide" title="人机模式下你的执方">
-        <option value="red">人执红（先行）</option>
-        <option value="black">人执黑（后行）</option>
+      <select id="humanSide" title="人机模式下你的执方（机机/人人不生效）">
+        <option value="red">人执红</option>
+        <option value="black">人执黑</option>
       </select>
-      <span style="font-size:13px;align-self:center">引擎强度</span>
-      <select id="strength" title="搜索深度分级；低档位叠加概率性次优着法模拟 ELO 分段棋力">
-        <option value="1">入门（1层·约1400）</option>
-        <option value="2">初级（2层·约1600）</option>
-        <option value="3">业余（3层·约1800）</option>
-        <option value="5">中级（5层·约2100）</option>
-        <option value="8">高级（8层·约2400）</option>
-        <option value="12">大师（12层·约2700）</option>
-        <option value="18">特大师（18层·约3200）</option>
-        <option value="24" selected>满级（24层·约4000）</option>
-      </select>
-      <span style="font-size:13px;align-self:center">让子</span>
       <select id="handicapSel" title="让子：引擎侧移除相应子力，只从初始局面开局时生效">
         <option value="0" selected>不让子</option>
         <option value="n1">让单马</option>
@@ -185,12 +179,13 @@
         <input type="checkbox" id="interveneChk" />干预引擎着法
       </label>
     </div>
-    <div id="eveRows" style="display:none">
-      <div class="row">
-        <span style="font-size:13px;align-self:center;width:34px">红方</span>
-        <input type="text" id="redName" value="红方·楚河" title="红方引擎名字，可自定义" style="width:110px" />
-        <input type="text" id="redEnginePath" placeholder="独立引擎，留空=共用" title="红方独立引擎 exe 路径（相对 gui 目录或绝对路径）；留空则共用下方主引擎" style="width:150px" />
-        <select id="redStrength" title="红方强度">
+    <!-- 红方行：任何对弈模式布局一致（名称/强度/引擎设置/计时） -->
+    <div class="sideRow" id="rowRed">
+      <div class="sideTop">
+        <span class="sideTag" style="color:#b02a1e">红方</span>
+        <span class="sideRole" id="redRole">引擎</span>
+        <input type="text" id="redName" value="红方·楚河" title="红方名字，可自定义" style="width:96px;padding:3px 6px" />
+        <select id="redStrength" title="红方行棋强度（机机=红方引擎；你执红的人机局中本侧是你，不生效）" style="padding:3px 6px">
           <option value="1">入门（1层）</option>
           <option value="2">初级（2层）</option>
           <option value="3">业余（3层）</option>
@@ -200,24 +195,41 @@
           <option value="18">特大师（18层）</option>
           <option value="24" selected>满级（24层）</option>
         </select>
+        <button class="sideEngBtn" id="redEngToggle" title="红方引擎设置：点击展开/收起（默认收起）">⚙引擎</button>
+        <span class="sideClock" id="redClock" title="红方用时/剩余时间">00:00</span>
       </div>
-      <div class="row">
-        <span style="font-size:13px;align-self:center;width:34px">黑方</span>
-        <input type="text" id="blackName" value="黑方·楚河" title="黑方引擎名字，可自定义" style="width:110px" />
-        <input type="text" id="blackEnginePath" placeholder="独立引擎，留空=共用" title="黑方独立引擎 exe 路径（相对 gui 目录或绝对路径）；留空则共用下方主引擎" style="width:150px" />
-        <select id="blackStrength" title="黑方强度">
-          <option value="1">入门（1层）</option>
-          <option value="2">初级（2层）</option>
-          <option value="3">业余（3层）</option>
-          <option value="5">中级（5层）</option>
-          <option value="8">高级（8层）</option>
-          <option value="12">大师（12层）</option>
-          <option value="18">特大师（18层）</option>
-          <option value="24" selected>满级（24层）</option>
-        </select>
+      <div class="sideEng" id="redEngBox">
+        <label for="redEnginePath">引擎路径</label>
+        <input type="text" id="redEnginePath" placeholder="留空=内置楚河引擎；可填其它 UCI 引擎 exe" title="红方引擎 exe 路径（相对 gui 目录或绝对路径）；留空=内置引擎；设置自动保存" style="flex:1;min-width:140px" />
+        <span style="font-size:11px">留空=内置，自动保存</span>
       </div>
-      <div class="note">不限时限时按各自强度分深度对打；红/黑填了「独立引擎」路径则各用各的引擎进程（可不同棋力引擎对决），留空共用主引擎；循环赛见顶部菜单</div>
     </div>
+    <!-- 黑方行 -->
+    <div class="sideRow" id="rowBlack">
+      <div class="sideTop">
+        <span class="sideTag" style="color:#1e3e6e">黑方</span>
+        <span class="sideRole" id="blackRole">引擎</span>
+        <input type="text" id="blackName" value="黑方·楚河" title="黑方名字，可自定义" style="width:96px;padding:3px 6px" />
+        <select id="blackStrength" title="黑方行棋强度（机机=黑方引擎；你执黑的人机局中本侧是你，不生效）" style="padding:3px 6px">
+          <option value="1">入门（1层）</option>
+          <option value="2">初级（2层）</option>
+          <option value="3">业余（3层）</option>
+          <option value="5">中级（5层）</option>
+          <option value="8">高级（8层）</option>
+          <option value="12">大师（12层）</option>
+          <option value="18">特大师（18层）</option>
+          <option value="24" selected>满级（24层）</option>
+        </select>
+        <button class="sideEngBtn" id="blackEngToggle" title="黑方引擎设置：点击展开/收起（默认收起）">⚙引擎</button>
+        <span class="sideClock" id="blackClock" title="黑方用时/剩余时间">00:00</span>
+      </div>
+      <div class="sideEng" id="blackEngBox">
+        <label for="blackEnginePath">引擎路径</label>
+        <input type="text" id="blackEnginePath" placeholder="留空=内置楚河引擎；可填其它 UCI 引擎 exe" title="黑方引擎 exe 路径（相对 gui 目录或绝对路径）；留空=内置引擎；设置自动保存" style="flex:1;min-width:140px" />
+        <span style="font-size:11px">留空=内置，自动保存</span>
+      </div>
+    </div>
+    <div class="note">红黑两行布局固定不变：名称/强度/引擎各自独立设置（⚙展开），引擎选择自动保存；点「开始」按当前设置开下，引擎自动启动</div>
     <div class="row">
       <span style="font-size:13px;align-self:center">规则体系</span>
       <select id="ruleSet" title="判和规则体系：国规2020（自然限着+前25回合不提和）/ 网络规则（天天象棋：400步上限+重复5次+长将6回合判和）/ 休闲简化（点提和即判和）">
@@ -333,17 +345,7 @@
       <button id="btnSound" title="落子/吃子/将军音效开关">🔇音效:关</button>
     </div>
     <div class="note" id="openingName"></div>
-    <div class="note" id="clock"></div>
     <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
-
-    <h3>楚河引擎（UCI）</h3>
-    <div class="row">
-      <input type="text" id="enginePath" value="../engine/engine-x64.exe" title="相对 gui 目录或绝对路径" />
-    </div>
-    <div class="row">
-      <button id="btnStartEngine">启动引擎</button>
-      <span id="engineState" style="font-size:12px;color:var(--note);align-self:center">未启动</span>
-    </div>
 
     <h3>实时分析（MultiPV 3）</h3>
     <div class="row">
