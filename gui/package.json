@@ -1,6 +1,6 @@
 {
   "name": "xiangqi-gui",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "象棋 AI——基于楚河引擎（UCI）的中国象棋对弈与分析工具：人机/机机/人人对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏、多引擎对决、自定义主题/快捷键/开局库",
   "author": "象棋 AI",
   "private": true,
