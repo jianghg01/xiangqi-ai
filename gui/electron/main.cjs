@@ -228,11 +228,27 @@ ipcMain.handle('lib:list', () => {
   } catch (e) { return { error: String(e) }; }
 });
 
+// 同名文件落盘：已存在时在扩展名前追加序号（_2、_3…），避免同一分钟内多次保存互相覆盖
+function writeUniqueFile(dir, name, content) {
+  const base = path.basename(String(name));
+  const dot = base.lastIndexOf('.');
+  const stem = dot > 0 ? base.slice(0, dot) : base;
+  const ext = dot > 0 ? base.slice(dot) : '';
+  let target = path.join(dir, base);
+  let n = 2;
+  while (fs.existsSync(target)) {
+    target = path.join(dir, `${stem}_${n}${ext}`);
+    n++;
+  }
+  fs.writeFileSync(target, String(content), 'utf8');
+  return path.basename(target);
+}
+
 // 自动备份：对局结束由渲染层调用，写入 games/自动备份/（不显示在棋谱库列表中）
 ipcMain.handle('lib:backup', (_e, { name, content }) => {
   try {
     if (!name) name = '棋谱_' + Date.now() + '.json';
-    fs.writeFileSync(path.join(libBackupDir(), path.basename(String(name))), String(content), 'utf8');
+    writeUniqueFile(libBackupDir(), String(name), content);
     return true;
   } catch (e) { return { error: String(e) }; }
 });
@@ -249,7 +265,7 @@ ipcMain.handle('lib:save', (_e, { name, content }) => {
   try {
     const dir = libDir();
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, path.basename(String(name))), String(content), 'utf8');
+    writeUniqueFile(dir, String(name), content);
     return true;
   } catch (e) { return { error: String(e) }; }
 });
