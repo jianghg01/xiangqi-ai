@@ -169,14 +169,16 @@ const ANALYSIS_DEPTH = 14;
 const view = new BoardView(canvas, initialBoard());
 view.setOnChange(() => { fenBox.value = view.getFen(); });
 
-// ---------- 棋盘自适应缩放（窗口/分屏等比缩小，Canvas 缓冲不变、CSS 拉伸显示） ----------
+// ---------- 棋盘自适应缩放（窗口/分屏等比缩放，缓冲随显示尺寸重设、始终 2x 清晰） ----------
 function fitBoard() {
-  const scale = Math.max(0.35, Math.min(1,
-    (window.innerHeight - 240) / BOARD_H, // 扣掉菜单/按钮/状态栏高度
-    (window.innerWidth - 420) / BOARD_W,  // 扣掉右侧面板宽度与边距
-  ));
-  canvas.style.width = Math.round(BOARD_W * scale) + 'px';
-  canvas.style.height = Math.round(BOARD_H * scale) + 'px';
+  // 顶栏（菜单行）实际高度 + 上边距 10 + wrap 上下内边距 2×20；动态测量避免固定扣减残留留白
+  const menubar = document.querySelector('.menubar') as HTMLElement | null;
+  const topUsed = (menubar ? menubar.offsetHeight : 56) + 10 + 40;
+  const availW = Math.max(360, window.innerWidth - 420);   // 扣右侧面板宽度与边距
+  const availH = Math.max(360, window.innerHeight - topUsed);
+  // 上限 4：大屏/高分屏允许放大铺满；缓冲随尺寸重设（2x）不糊
+  const scale = Math.max(0.35, Math.min(4, availH / BOARD_H, availW / BOARD_W));
+  view.resize(BOARD_W * scale, BOARD_H * scale);
 }
 window.addEventListener('resize', fitBoard);
 fitBoard();

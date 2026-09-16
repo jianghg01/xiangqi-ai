@@ -28,7 +28,7 @@
     --curve-bg: #fffdf8; --shadow: rgba(0,0,0,.25);
   }
   body { font-family: "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--input-text); margin: 0; display: flex; justify-content: center; overflow: hidden; }
-  .wrap { display: flex; gap: 20px; padding: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .wrap { display: flex; gap: 20px; padding: 20px; align-items: center; align-content: center; flex: 1; min-height: 0; width: 100%; box-sizing: border-box; justify-content: center; flex-wrap: wrap; }
   .panel { background: var(--panel); border-radius: 12px; padding: 14px; width: 320px; max-height: calc(100vh - 40px); overflow-y: auto; flex-shrink: 0; }
   .panel::-webkit-scrollbar { width: 8px; }
   .panel::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 4px; }

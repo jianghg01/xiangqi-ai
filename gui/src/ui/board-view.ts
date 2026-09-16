@@ -72,15 +72,11 @@ export class BoardView {
 
   constructor(canvas: HTMLCanvasElement, board: BoardData) {
     this.canvas = canvas;
-    this.canvas.width = W * 2;   // 2x 抗锯齿
-    this.canvas.height = H * 2;
-    this.canvas.style.width = W + 'px';
-    this.canvas.style.height = H + 'px';
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('无法获取 canvas 上下文');
     this.ctx = ctx;
-    this.ctx.scale(2, 2);
     this.board = board;
+    this.resize(W, H);   // 初始尺寸=逻辑尺寸，缓冲 2x 抗锯齿
 
     canvas.addEventListener('click', e => this.onClick(e));
     canvas.addEventListener('mousedown', e => this.onMouseDown(e));
@@ -129,10 +125,23 @@ export class BoardView {
     this.draw();
   }
 
-  // 事件坐标 → 画布逻辑坐标（CSS 像素 = 逻辑像素）
+  // 按目标 CSS 尺寸等比缩放棋盘：缓冲始终为显示尺寸的 2x（高 DPI 清晰），重绘
+  // 逻辑坐标恒为 W×H，通过 setTransform 映射到缓冲像素
+  resize(cssW: number, cssH: number) {
+    const s = cssW / W;   // 显示缩放比（s>1 放大、s<1 缩小）
+    this.canvas.width = Math.max(2, Math.round(cssW * 2));
+    this.canvas.height = Math.max(2, Math.round(cssH * 2));
+    this.canvas.style.width = Math.round(cssW) + 'px';
+    this.canvas.style.height = Math.round(cssH) + 'px';
+    this.ctx.setTransform(2 * s, 0, 0, 2 * s, 0, 0);
+    this.draw();
+  }
+
+  // 事件坐标（CSS 像素）→ 画布逻辑坐标（除以显示缩放比，保证拖拽绘制与点击换算一致）
   private eventPos(e: MouseEvent): [number, number] {
     const rect = this.canvas.getBoundingClientRect();
-    return [e.clientX - rect.left, e.clientY - rect.top];
+    const k = rect.width / W;
+    return [(e.clientX - rect.left) / k, (e.clientY - rect.top) / k];
   }
 
   setOnChange(cb: () => void) { this.onChange = cb; }
@@ -190,7 +199,7 @@ export class BoardView {
   }
 
   // 屏幕像素 -> 棋盘坐标（按翻转模式镜像；ud=180° 旋转，lr=水平镜像）
-  // k 为显示缩放比例：Canvas 缓冲尺寸固定（W×H），CSS 拉伸到 k 倍显示，事件坐标需同步换算
+  // k 为显示缩放比例：Canvas 缓冲随显示尺寸重设，事件坐标除以 k 换算回逻辑坐标
   private toSquare(e: MouseEvent): Square | null {
     const rect = this.canvas.getBoundingClientRect();
     const k = rect.width / W;
