@@ -119,13 +119,15 @@ hashSel.addEventListener('change', () => { if (engineReady && !waitingFor) clien
 
 // ---------- 终局横幅 ----------
 function showEndBanner(text: string, draw = false) {
-  endBanner.textContent = text;
+  (document.getElementById('endBannerText') as HTMLSpanElement).textContent = text;
   endBanner.classList.toggle('draw', draw);
   endBanner.classList.add('show');
 }
 function hideEndBanner() {
   endBanner.classList.remove('show');
 }
+// 终局横幅：点击任意处（含 ×）关闭；横幅为绝对定位浮层，不影响下层棋盘交互
+endBanner.addEventListener('click', hideEndBanner);
 
 // ---------- 状态 ----------
 let mode: 'edit' | 'play' | 'replay' = 'edit';
