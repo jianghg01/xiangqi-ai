@@ -74,6 +74,22 @@ function threadsValue(): number {
     ? Math.max(1, (navigator.hardwareConcurrency || 4) - 2)
     : Math.max(1, parseInt(threadsSel.value, 10) || 2);
 }
+// 内存感知哈希：机机对弈/循环赛双引擎同时常驻，可用内存紧张时自动降哈希避免系统卡顿
+// 规则：可用 <2.4GB → 128MB；<3.6GB → 256MB；正常 → 用户设置值
+let memSafeNotified = false;
+async function safeHashMB(): Promise<number> {
+  const want = parseInt(hashSel.value, 10) || 512;
+  if (gameMode !== 'eve' || !engineApi?.getMem) return want; // 仅机机对弈降载；浏览器模式无桥
+  try {
+    const { freeMB } = await engineApi.getMem();
+    const auto = freeMB < 2400 ? 128 : freeMB < 3600 ? 256 : want;
+    if (auto < want && !memSafeNotified) {
+      memSafeNotified = true;
+      setStatus(`本机可用内存 ${(freeMB / 1024).toFixed(1)}GB 偏紧，引擎哈希自动降至 ${auto}MB（可到「设置」手动调回）`);
+    }
+    return Math.min(want, auto);
+  } catch { return want; }
+}
 function saveCfg() {
   try {
     localStorage.setItem(CFG_KEY, JSON.stringify({
@@ -912,9 +928,11 @@ function afterMove() {
     gameOver = true;
     if (puzzleActive) {
       gameResult = `闯关成功（${puzzleActive.movesToMate}步杀）`;
-      setStatus(`闯关成功！${puzzleActive.name}`);
-      showEndBanner(`闯关成功 · ${puzzleActive.name}`);
-      markPuzzleDone(puzzleActive.id);
+      // 星级：预算内(N步)且未用提示=3星；超1步(N+1手)才成杀=2星；用过提示=1星
+      const stars = puzzleHintUsed ? 1 : puzzleHumanMoves <= puzzleActive.movesToMate ? 3 : 2;
+      setStatus(`闯关成功！${puzzleActive.name}（${'★'.repeat(stars)} 第${puzzleHumanMoves}手成杀）`);
+      showEndBanner(`闯关成功 · ${puzzleActive.name} ${'★'.repeat(stars)}`);
+      markPuzzleDone(puzzleActive.id, stars);
       puzzleActive = null;
       return;
     }
@@ -1884,7 +1902,7 @@ async function startSlotEngine(slot: 'red' | 'black', exePath: string): Promise<
     c.uci();
     const threads = threadsValue();
     c.setOption('Threads', threads);
-    c.setOption('Hash', parseInt(hashSel.value, 10) || 512);
+    c.setOption('Hash', await safeHashMB());
     // 网文件已重命名为 eval.nnue（去品牌化），独立引擎同样必须设置，否则首次 go 即崩溃退出
     c.setOption('EvalFile', 'eval.nnue');
     c.isready();
@@ -1902,10 +1920,10 @@ async function ensureEngines(): Promise<boolean> {
   try {
     await engineApi.start('main', DEFAULT_ENGINE);
     clientMain.uci();
-    // 引擎参数按配置面板应用：线程（自动 = 核心数-2）、哈希（MB）
+    // 引擎参数按配置面板应用：线程（自动 = 核心数-2）、哈希（MB，内存紧张自动降载）
     const threads = threadsValue();
     clientMain.setOption('Threads', threads);
-    clientMain.setOption('Hash', parseInt(hashSel.value, 10) || 512);
+    clientMain.setOption('Hash', await safeHashMB());
     // 网文件已被重命名为 eval.nnue（去品牌化），而引擎默认找 pikafish.nnue，
     // 不设置会在首次 go 时直接报错退出（The engine will be terminated now）
     clientMain.setOption('EvalFile', 'eval.nnue');
@@ -2265,6 +2283,16 @@ const statsReportEl = $('statsReport') as HTMLDivElement;
 function recordGame(winner: Side | 'draw') {
   if (!movesHistory.length) return;
   clearAuto(); // 终局：移除自动保存快照
+  // 自动备份：对局结束复制一份到 games/自动备份/（防误删；浏览器模式无桥则跳过）
+  if (engineApi?.libBackup) {
+    try {
+      const rec = buildGameRecord();
+      if (rec) {
+        const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+        engineApi.libBackup(`棋谱_${ts}.json`, JSON.stringify(rec, null, 2)).catch(() => {});
+      }
+    } catch { /* 备份失败不影响对局 */ }
+  }
   try {
     const arr = JSON.parse(localStorage.getItem(REC_KEY) || '[]') as StatRecord[];
     arr.push({
@@ -2609,18 +2637,37 @@ updateBookCount(loadCustomBook());
 
 // ---------- 棋谱库（Electron games/ 目录） ----------
 const libListEl = $('libList') as HTMLDivElement;
+const libSearchEl = $('libSearch') as HTMLInputElement;
+let libFilter = '';
+libSearchEl.addEventListener('input', () => {
+  libFilter = libSearchEl.value.trim().toLowerCase();
+  refreshLib();
+});
 
 async function refreshLib() {
   if (!engineApi?.libList) { libListEl.textContent = '（需 Electron）'; return; }
   const r = await engineApi.libList();
   if (!Array.isArray(r)) { libListEl.textContent = '读取失败：' + (('error' in r && r.error) || ''); return; }
-  if (!r.length) { libListEl.textContent = '库为空，对局后可存入'; return; }
+  // 关键词过滤：文件名 / 红黑方名 / 日期（大小写不敏感）
+  let list = r;
+  if (libFilter) {
+    list = r.filter(it => {
+      const hay = [it.name, it.redName, it.blackName, it.date, it.result].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(libFilter);
+    });
+  }
+  if (!list.length) { libListEl.textContent = libFilter ? `无匹配「${libFilter}」的棋谱` : '库为空，对局后可存入'; return; }
   libListEl.innerHTML = '';
-  for (const it of r) {
+  for (const it of list) {
     const row = document.createElement('div');
     const d = new Date(it.mtime);
+    const jd = it.date ? new Date(it.date) : null;
+    const dateTxt = jd && !isNaN(jd.getTime())
+      ? `${jd.getFullYear()}/${jd.getMonth() + 1}/${jd.getDate()}`
+      : `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    const who = [it.redName, it.blackName].filter(Boolean).join(' vs ') || '';
     const span = document.createElement('span');
-    span.textContent = `${it.name}（${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}）`;
+    span.textContent = `${it.name}${who ? '（' + who + '）' : ''}·${dateTxt}${it.result ? '·' + it.result : ''}`;
     const btnLoad = document.createElement('button');
     btnLoad.textContent = '载入';
     btnLoad.addEventListener('click', async () => {
@@ -2646,12 +2693,11 @@ async function refreshLib() {
 }
 $('btnLibRefresh').addEventListener('click', refreshLib);
 
-$('btnLibSave').addEventListener('click', async () => {
-  if (!engineApi?.libSave) { setStatus('浏览器模式不支持（需 Electron）'); return; }
-  if (mode !== 'play' || !movesHistory.length) { setStatus('当前没有可保存的对局'); return; }
+// 构造完整棋谱记录（保存棋谱库 / 自动备份共用）
+function buildGameRecord(): GameRecord | null {
+  if (mode !== 'play' || !movesHistory.length) return null;
   let startBoard;
   try { startBoard = parseFen(startFen).board; } catch { startBoard = initialBoard(); }
-  const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
   const rec: GameRecord = {
     app: 'xiangqi-ai',
     version: 2,
@@ -2669,6 +2715,14 @@ $('btnLibSave').addEventListener('click', async () => {
     const rt = reviewReportEl.textContent;
     if (rt && rt !== 'AI点评中…' && rt !== '已取消点评') rec.review = rt;
   }
+  return rec;
+}
+
+$('btnLibSave').addEventListener('click', async () => {
+  if (!engineApi?.libSave) { setStatus('浏览器模式不支持（需 Electron）'); return; }
+  const rec = buildGameRecord();
+  if (!rec) { setStatus('当前没有可保存的对局'); return; }
+  const ts = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
   const res = await engineApi.libSave(`棋谱_${ts}.json`, JSON.stringify(rec, null, 2));
   setStatus(res === true ? '已存入棋谱库' : '保存失败');
   refreshLib();
@@ -2956,32 +3010,48 @@ const puzzleSel = $('puzzleSel') as HTMLSelectElement;
 const puzzleInfoEl = $('puzzleInfo') as HTMLSpanElement;
 let puzzleActive: Puzzle | null = null;
 let puzzleHumanMoves = 0;
+let puzzleHintUsed = false;   // 本局闯关是否用过提示（星级评定用）
 
-// 闯关进度记忆（localStorage）
+// 闯关进度记忆（localStorage）：done=已过关 id 集合；stars=每关最高星级
 const PUZZLE_DONE_KEY = 'xz_puzzle_done';
+const PUZZLE_STARS_KEY = 'xz_puzzle_stars';
 function getPuzzleDone(): Set<string> {
   try { return new Set(JSON.parse(localStorage.getItem(PUZZLE_DONE_KEY) || '[]') as string[]); }
   catch { return new Set(); }
 }
-function markPuzzleDone(id: string) {
+function getPuzzleStars(): Record<string, number> {
+  try { return JSON.parse(localStorage.getItem(PUZZLE_STARS_KEY) || '{}') as Record<string, number>; }
+  catch { return {}; }
+}
+// 过关记星：3星=N步内且未用提示；2星=超1步(N+1手)才成杀；1星=用过提示后过关；自动保存历史最高
+function markPuzzleDone(id: string, stars: number) {
   const s = getPuzzleDone();
   s.add(id);
   try { localStorage.setItem(PUZZLE_DONE_KEY, JSON.stringify([...s])); } catch { /* 忽略 */ }
+  const st = getPuzzleStars();
+  if (!(id in st) || stars > (st[id] || 0)) st[id] = stars;
+  try { localStorage.setItem(PUZZLE_STARS_KEY, JSON.stringify(st)); } catch { /* 忽略 */ }
   refreshPuzzleLabels();
 }
 function refreshPuzzleLabels() {
   const done = getPuzzleDone();
+  const stars = getPuzzleStars();
   puzzleSel.innerHTML = '';
   for (const p of PUZZLES) {
-    puzzleSel.add(new Option(`${done.has(p.id) ? '✓ ' : ''}${p.name}（${p.movesToMate}步杀）`, p.id));
+    const mark = done.has(p.id) ? (stars[p.id] ? '★'.repeat(stars[p.id]) : '✓ ') : '';
+    puzzleSel.add(new Option(`${mark}${p.name}（${p.movesToMate}步杀）`, p.id));
   }
-  puzzleInfoEl.textContent = `共 ${PUZZLES.length} 关 · 已过 ${done.size} 关`;
+  const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
+  puzzleInfoEl.textContent = done.size
+    ? `共 ${PUZZLES.length} 关 · 已过 ${done.size} 关 · ⭐${totalStars}/${PUZZLES.length * 3}`
+    : `共 ${PUZZLES.length} 关 · 已过 0 关`;
 }
 refreshPuzzleLabels();
 
 function loadPuzzle() {
   const p = PUZZLES.find(x => x.id === puzzleSel.value);
   if (!p) return;
+  puzzleHintUsed = false;   // 重新闯关：重置提示标记
   stopReplayTimer();
   if (waitingFor) { try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; pendingAfterAnalysis = null; }
   puzzleActive = p;
@@ -3010,6 +3080,8 @@ $('btnPuzzleLoad').addEventListener('click', loadPuzzle);
 $('btnPuzzleHint').addEventListener('click', () => {
   const p = puzzleActive ?? PUZZLES.find(x => x.id === puzzleSel.value);
   if (!p) { setStatus('请先选择残局'); return; }
+  if (!puzzleActive) { setStatus('请先载入残局再使用提示'); return; }
+  puzzleHintUsed = true; // 用过提示：该关星级上限降为 1 星
   // 优先引擎实时求解当前局面最佳着法（内置/自定义残局通用）；引擎未启动或正忙则回退原谱答案
   if (engineReady && !waitingFor && !gameOver) {
     waitingFor = 'hint';
@@ -3117,6 +3189,7 @@ $('btnCpzSave').addEventListener('click', async () => {
 function loadCustomPuzzle() {
   const p = loadCustomPuzzles().find(x => x.id === cpzSel.value);
   if (!p) { setStatus('请先选择要载入的自定义残局'); return; }
+  puzzleHintUsed = false;   // 重新闯关：重置提示标记
   stopReplayTimer();
   if (waitingFor) { try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; pendingAfterAnalysis = null; }
   puzzleActive = {

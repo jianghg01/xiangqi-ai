@@ -10,9 +10,10 @@ declare global {
       saveText(defaultName: string, content: string, kind?: 'json' | 'pgn' | 'md' | 'txt'): Promise<string | null>;
       saveImage(defaultName: string, dataUrl: string): Promise<string | null>;
       openText(): Promise<{ path: string; content: string } | null>;
-      libList(): Promise<{ name: string; size: number; mtime: number }[] | { error: string }>;
+      libList(): Promise<{ name: string; size: number; mtime: number; redName?: string | null; blackName?: string | null; date?: string | null; result?: string | null }[] | { error: string }>;
       libRead(name: string): Promise<{ content: string } | { error: string }>;
       libSave(name: string, content: string): Promise<boolean | { error: string }>;
+      libBackup(name: string, content: string): Promise<boolean | { error: string }>;
       libDelete(name: string): Promise<boolean | { error: string }>;
       llmChat(payload: {
         baseUrl: string;
@@ -22,6 +23,7 @@ declare global {
         maxTokens?: number;
         temperature?: number;
       }): Promise<{ content: string } | { error: string }>;
+      getMem(): Promise<{ totalMB: number; freeMB: number }>;
     };
   }
 }

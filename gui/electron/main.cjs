@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain, dialog, protocol } = require('electron');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 let win = null;
 let eng = null;
@@ -180,6 +181,12 @@ ipcMain.handle('file:save-image', async (_e, { defaultName, dataUrl }) => {
 
 ipcMain.handle('engine:alive', (_e, slot) => !!engs[slot || 'main']);
 
+// 系统内存查询（机机对弈/循环赛 Hash 自适应降载用）
+ipcMain.handle('sys:mem', () => ({
+  totalMB: Math.round(os.totalmem() / (1024 * 1024)),
+  freeMB: Math.round(os.freemem() / (1024 * 1024)),
+}));
+
 // ---------- 棋谱库（dev: gui/games/；打包版: 用户数据目录/games，app.asar 内只读） ----------
 function libDir() {
   if (app.isPackaged) {
@@ -189,18 +196,44 @@ function libDir() {
   }
   return path.join(__dirname, '..', 'games');
 }
+// 自动备份子目录（防误删）：与常规棋谱并存，不参与列表展示
+function libBackupDir() {
+  const dir = path.join(libDir(), '自动备份');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
 
 ipcMain.handle('lib:list', () => {
   try {
     const dir = libDir();
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    return fs.readdirSync(dir)
-      .filter(f => f.endsWith('.json') || f.endsWith('.pgn'))
-      .map(f => {
-        const st = fs.statSync(path.join(dir, f));
-        return { name: f, size: st.size, mtime: st.mtimeMs };
+    return fs.readdirSync(dir, { withFileTypes: true })
+      .filter(d => (d.name.endsWith('.json') || d.name.endsWith('.pgn')) && d.isFile())
+      .map(d => {
+        const full = path.join(dir, d.name);
+        const st = fs.statSync(full);
+        const meta = { redName: null, blackName: null, date: null, result: null };
+        if (d.name.endsWith('.json')) { // 顺带解析 JSON 元数据，供搜索（开局名/红黑名/日期）
+          try {
+            const obj = JSON.parse(fs.readFileSync(full, 'utf8'));
+            meta.redName = obj && obj.redName ? String(obj.redName) : null;
+            meta.blackName = obj && obj.blackName ? String(obj.blackName) : null;
+            meta.date = obj && obj.date ? String(obj.date) : null;
+            meta.result = obj && obj.result ? String(obj.result) : null;
+          } catch (_) { /* 非 JSON 棋谱忽略元数据 */ }
+        }
+        return { name: d.name, size: st.size, mtime: st.mtimeMs, ...meta };
       })
       .sort((a, b) => b.mtime - a.mtime);
+  } catch (e) { return { error: String(e) }; }
+});
+
+// 自动备份：对局结束由渲染层调用，写入 games/自动备份/（不显示在棋谱库列表中）
+ipcMain.handle('lib:backup', (_e, { name, content }) => {
+  try {
+    if (!name) name = '棋谱_' + Date.now() + '.json';
+    fs.writeFileSync(path.join(libBackupDir(), path.basename(String(name))), String(content), 'utf8');
+    return true;
   } catch (e) { return { error: String(e) }; }
 });
 
