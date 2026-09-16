@@ -768,6 +768,7 @@ function newGame(startBoardOverride?: BoardData) {
   lastInfoMap.clear();
   lastEvalRedCp = null;
   lastEvalMate = false;
+  updateWinBar(null); // 新局：隐藏胜率条
   view.setArrows([]);
   reviewMarks = [];
   reviewReportEl.textContent = '';
@@ -895,6 +896,7 @@ $('btnResume').addEventListener('click', () => {
       cpHistory = [];
       lastInfoMap.clear();
       lastEvalRedCp = null; lastEvalMate = false;
+      updateWinBar(null); // 载入复盘：隐藏胜率条
       view.setArrows([]);
       reviewMarks = [];
       renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
@@ -1517,6 +1519,22 @@ function pushCp(cpMoveSide: number) {
   const red = toRedPersp(cpMoveSide, view.getBoard().sideToMove);
   cpHistory.push(red);
   drawCurve();
+  updateWinBar(red);
+}
+
+// 实时胜率条：红色填充宽度 = 红方胜率%（cp 红方视角换算）；无评估时隐藏
+function updateWinBar(redCp: number | null) {
+  const row = document.getElementById('winbarRow');
+  if (!row) return;
+  const redTag = document.getElementById('winbarRedTag');
+  const blackTag = document.getElementById('winbarBlackTag');
+  const fill = document.getElementById('winbarFill') as HTMLDivElement | null;
+  if (redCp === null) { row.style.display = 'none'; return; }
+  row.style.display = '';
+  const wr = Math.max(3, Math.min(97, cpToWinrate(redCp)));
+  if (fill) fill.style.width = wr.toFixed(0) + '%';
+  if (redTag) redTag.textContent = `红 ${wr.toFixed(0)}%`;
+  if (blackTag) blackTag.textContent = `黑 ${(100 - wr).toFixed(0)}%`;
 }
 
 function drawCurve() {

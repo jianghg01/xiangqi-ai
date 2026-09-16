@@ -72,6 +72,13 @@
   .moveList .mk-m0 { color: #57c77a; }   /* ◎ 好棋 */
   .moveList .mk-unk { color: var(--move-no); }  /* ？无标记 */
   canvas.curve { background: var(--curve-bg); border-radius: 6px; margin-top: 8px; }
+  /* 实时胜率条：红色填充宽度 = 红方胜率%，右侧空余 = 黑方胜率% */
+  .winbarRow { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .winbarTag { font-size: 12px; font-weight: bold; width: 52px; flex-shrink: 0; }
+  #winbarRedTag { color: #b02a1e; text-align: right; }
+  #winbarBlackTag { color: #1e3e6e; }
+  .winbarTrack { flex: 1; height: 10px; border-radius: 5px; background: var(--menu-item); border: 1px solid var(--border); overflow: hidden; position: relative; }
+  .winbarFill { height: 100%; width: 50%; border-radius: 5px 0 0 5px; background: linear-gradient(90deg, #b02a1e, #e2574a); transition: width .4s ease; }
   /* 对弈双行（红/黑）：布局固定，任何模式一致 */
   .sideRow { margin-bottom: 10px; }
   .sideTop { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
@@ -239,6 +246,12 @@
         <label style="font-size:13px;align-self:center;display:flex;align-items:center;gap:4px" title="开启后：引擎思考完不直接落子，会高亮推荐着法，由你点击确认或替它改走别的棋">
           <input type="checkbox" id="interveneChk" />干预引擎着法
         </label>
+      </div>
+      <!-- 实时胜率条（红方视角，随引擎评估刷新） -->
+      <div class="winbarRow" id="winbarRow" style="display:none" title="引擎评估换算的红方胜率（随思考实时刷新）">
+        <span class="winbarTag" id="winbarRedTag">红 50%</span>
+        <div class="winbarTrack"><div class="winbarFill" id="winbarFill"></div></div>
+        <span class="winbarTag" id="winbarBlackTag">黑 50%</span>
       </div>
       <!-- 红方行：任何对弈模式布局一致（名称/强度/引擎设置/计时） -->
       <div class="sideRow" id="rowRed">
