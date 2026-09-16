@@ -90,18 +90,23 @@ function resolveEnginePath(p) {
   return null;
 }
 
-ipcMain.handle('engine:start', (_e, exePath) => {
+// 多引擎支持：按 slot 管理独立引擎进程（main=主引擎；red/black=机机对弈独立引擎）
+const engs = { main: null, red: null, black: null };
+
+function spawnEngine(slot, exePath) {
   return new Promise((resolve, reject) => {
-    if (eng) return resolve(true);
+    if (engs[slot]) return resolve(true);
     if (!exePath) return reject(new Error('未指定引擎路径'));
     const resolved = resolveEnginePath(exePath);
     if (!resolved) return reject(new Error('找不到引擎程序: ' + exePath));
     exePath = resolved;
+    let eng;
     try {
       eng = spawn(exePath, [], { cwd: path.dirname(exePath) });
     } catch (err) {
       return reject(err);
     }
+    engs[slot] = eng;
     let buf = '';
     eng.stdout.setEncoding('utf8');
     eng.stdout.on('data', d => {
@@ -110,20 +115,23 @@ ipcMain.handle('engine:start', (_e, exePath) => {
       while ((i = buf.indexOf('\n')) >= 0) {
         const line = buf.slice(0, i).trim();
         buf = buf.slice(i + 1);
-        if (line && win) win.webContents.send('engine:line', maskBrand(line));
+        if (line && win) win.webContents.send('engine:line', { slot, line: maskBrand(line) });
       }
     });
     eng.stderr.on('data', () => {});
-    eng.on('error', err => { eng = null; if (win) win.webContents.send('engine:line', 'ENGINE_ERROR ' + maskBrand(err.message)); });
+    eng.on('error', err => { engs[slot] = null; if (win) win.webContents.send('engine:line', { slot, line: 'ENGINE_ERROR ' + maskBrand(err.message) }); });
     eng.on('exit', code => {
-      eng = null;
-      if (win) win.webContents.send('engine:line', 'ENGINE_EXIT ' + code);
+      engs[slot] = null;
+      if (win) win.webContents.send('engine:line', { slot, line: 'ENGINE_EXIT ' + code });
     });
     resolve(true);
   });
-});
+}
 
-ipcMain.on('engine:write', (_e, cmd) => {
+ipcMain.handle('engine:start', (_e, slot, exePath) => spawnEngine(slot || 'main', exePath));
+
+ipcMain.on('engine:write', (_e, slot, cmd) => {
+  const eng = engs[slot || 'main'];
   if (eng && eng.stdin && eng.stdin.writable) eng.stdin.write(cmd + '\n');
 });
 
@@ -170,7 +178,7 @@ ipcMain.handle('file:save-image', async (_e, { defaultName, dataUrl }) => {
   return r.filePath;
 });
 
-ipcMain.handle('engine:alive', () => !!eng);
+ipcMain.handle('engine:alive', (_e, slot) => !!engs[slot || 'main']);
 
 // ---------- 棋谱库（dev: gui/games/；打包版: 用户数据目录/games，app.asar 内只读） ----------
 function libDir() {
@@ -254,6 +262,8 @@ app.whenReady().then(() => {
   createWindow();
 });
 app.on('window-all-closed', () => {
-  if (eng) { try { eng.stdin.write('quit\n'); eng.kill(); } catch (_) {} }
+  for (const s of Object.keys(engs)) {
+    if (engs[s]) { try { engs[s].stdin.write('quit\n'); engs[s].kill(); } catch (_) {} }
+  }
   app.quit();
 });

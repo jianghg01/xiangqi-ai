@@ -2,10 +2,10 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('engine', {
-  start: exePath => ipcRenderer.invoke('engine:start', exePath),
-  write: cmd => ipcRenderer.send('engine:write', cmd),
-  alive: () => ipcRenderer.invoke('engine:alive'),
-  onLine: cb => ipcRenderer.on('engine:line', (_e, line) => cb(line)),
+  start: (slot, exePath) => ipcRenderer.invoke('engine:start', slot, exePath),
+  write: (slot, cmd) => ipcRenderer.send('engine:write', slot, cmd),
+  alive: slot => ipcRenderer.invoke('engine:alive', slot),
+  onLine: cb => ipcRenderer.on('engine:line', (_e, msg) => cb(msg)),
   saveText: (defaultName, content, kind) => ipcRenderer.invoke('file:save', { defaultName, content, kind }),
   saveImage: (defaultName, dataUrl) => ipcRenderer.invoke('file:save-image', { defaultName, dataUrl }),
   openText: () => ipcRenderer.invoke('file:open'),

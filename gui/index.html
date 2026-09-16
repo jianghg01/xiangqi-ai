@@ -165,6 +165,7 @@
       <div class="row">
         <span style="font-size:13px;align-self:center;width:34px">红方</span>
         <input type="text" id="redName" value="红方·楚河" title="红方引擎名字，可自定义" style="width:110px" />
+        <input type="text" id="redEnginePath" placeholder="独立引擎，留空=共用" title="红方独立引擎 exe 路径（相对 gui 目录或绝对路径）；留空则共用下方主引擎" style="width:150px" />
         <select id="redStrength" title="红方强度">
           <option value="1">入门（1层）</option>
           <option value="2">初级（2层）</option>
@@ -179,6 +180,7 @@
       <div class="row">
         <span style="font-size:13px;align-self:center;width:34px">黑方</span>
         <input type="text" id="blackName" value="黑方·楚河" title="黑方引擎名字，可自定义" style="width:110px" />
+        <input type="text" id="blackEnginePath" placeholder="独立引擎，留空=共用" title="黑方独立引擎 exe 路径（相对 gui 目录或绝对路径）；留空则共用下方主引擎" style="width:150px" />
         <select id="blackStrength" title="黑方强度">
           <option value="1">入门（1层）</option>
           <option value="2">初级（2层）</option>
@@ -190,7 +192,7 @@
           <option value="24" selected>满级（24层）</option>
         </select>
       </div>
-      <div class="note">不限时限时按各自强度分深度对打；循环赛见顶部菜单</div>
+      <div class="note">不限时限时按各自强度分深度对打；红/黑填了「独立引擎」路径则各用各的引擎进程（可不同棋力引擎对决），留空共用主引擎；循环赛见顶部菜单</div>
     </div>
     <div class="row">
       <span style="font-size:13px;align-self:center">规则体系</span>

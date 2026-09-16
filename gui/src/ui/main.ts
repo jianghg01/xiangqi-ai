@@ -104,8 +104,8 @@ ruleSetSel.addEventListener('change', () => {
       ? '规则体系：网络规则（400步·重复5次·长将6回合判和）'
       : '规则体系：休闲简化（点击提和即判和）');
 });
-threadsSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Threads', threadsValue()); });
-hashSel.addEventListener('change', () => { if (engineReady && !waitingFor) client.setOption('Hash', parseInt(hashSel.value, 10)); });
+threadsSel.addEventListener('change', () => { if (engineReady && !waitingFor) clientMain.setOption('Threads', threadsValue()); });
+hashSel.addEventListener('change', () => { if (engineReady && !waitingFor) clientMain.setOption('Hash', parseInt(hashSel.value, 10)); });
 
 // ---------- 终局横幅 ----------
 function showEndBanner(text: string, draw = false) {
@@ -171,27 +171,60 @@ function fitBoard() {
 window.addEventListener('resize', fitBoard);
 fitBoard();
 
-// ---------- UCI 客户端 ----------
+// ---------- UCI 客户端（多引擎：主引擎 + 机机对弈可选红/黑独立引擎） ----------
 const engineApi = window.engine;
 // 自有品牌名：界面与棋谱中引擎选手的统一称呼（与主进程 UCI 伪装保持一致）
 const ENGINE_BRAND = '楚河引擎';
-const client = new UciClient(cmd => engineApi?.write(cmd));
+// 三个槽位的 UciClient：默认全部指向主引擎；eve 模式配置了独立引擎路径后，clientRed/clientBlack 换成独立实例
+const clientMain = new UciClient(cmd => engineApi?.write('main', cmd));
+let clientRed: UciClient = clientMain;
+let clientBlack: UciClient = clientMain;
+// 当前活跃客户端（发起搜索/停止搜索都用它；同一时刻只有一侧在搜索）
+let client: UciClient = clientMain;
+// 最近一次发起搜索的客户端：stop 只发给它（机机对弈两侧独立引擎时，避免误停另一侧空闲引擎）
+let searchingClient: UciClient = clientMain;
+const onBestmoveH = (bm: string) => onBestmove(bm);
+const onInfoH = (info: EngineInfo) => onInfo(info);
+clientMain.onBestmove = onBestmoveH;
+clientMain.onInfo = onInfoH;
 if (engineApi) {
-  engineApi.onLine((line: string) => {
+  engineApi.onLine((msg: { slot: 'main' | 'red' | 'black'; line: string }) => {
+    const { slot, line } = msg;
     if (line.startsWith('ENGINE_')) {
-      //引擎退出/出错：解除等待状态，避免界面卡死
-      clearPending();
-      waitingFor = null;
-      engineReady = false;
-      engineState.textContent = line.startsWith('ENGINE_EXIT') ? `引擎已退出（${line.slice(12)}）` : '引擎错误';
-      setStatus('引擎已停止，请重新启动引擎');
+      const isExit = line.startsWith('ENGINE_EXIT');
+      const reason = isExit ? line.slice(12) : '错误';
+      if (slot === 'main') {
+        // 主引擎退出/出错：全局停摆，解除等待状态避免界面卡死
+        clearPending();
+        waitingFor = null;
+        engineReady = false;
+        engineState.textContent = isExit ? `引擎已退出（${reason}）` : '引擎错误';
+        setStatus('引擎已停止，请重新启动引擎');
+      } else {
+        // 独立引擎（红/黑）退出：该侧回退共用主引擎，局可继续
+        if (slot === 'red' && clientRed !== clientMain) {
+          clientRed = clientMain;
+          engineState.textContent = isExit ? `红方独立引擎已退出（${reason}），回退共用主引擎` : '红方独立引擎错误，回退共用主引擎';
+        } else if (slot === 'black' && clientBlack !== clientMain) {
+          clientBlack = clientMain;
+          engineState.textContent = isExit ? `黑方独立引擎已退出（${reason}），回退共用主引擎` : '黑方独立引擎错误，回退共用主引擎';
+        }
+        setStatus('独立引擎已停用，该侧改用主引擎继续');
+        // 若独立引擎恰好在搜索中（waitingFor 指向它），解除等待避免卡死
+        if (waitingFor) {
+          clearPending();
+          waitingFor = null;
+          if (engineReady && mode === 'play' && gameMode === 'eve' && !gameOver) engineMove();
+        }
+      }
       return;
     }
-    client.handleLine(line);
+    const c = slot === 'red' && clientRed !== clientMain ? clientRed
+      : slot === 'black' && clientBlack !== clientMain ? clientBlack
+      : clientMain;
+    c.handleLine(line);
   });
 }
-client.onBestmove = bm => onBestmove(bm);
-client.onInfo = info => onInfo(info);
 
 function engineTurnNow(): boolean {
   if (mode !== 'play' || gameOver || !engineReady) return false;
@@ -230,7 +263,7 @@ function stopEngineThen(action: () => void) {
         if (a) a();
       }
     }, 15000); // 安全网：引擎异常未回 bestmove 时强制执行，避免界面卡死
-    try { client.stop(); } catch { /* 引擎可能已退出 */ }
+    try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ }
     return;
   }
   action();
@@ -383,7 +416,8 @@ function startReview() {
   reviewEvals = []; // 重置 LLM 复盘评估数据
   llmReport.textContent = '';
   reviewReportEl.textContent = 'AI点评中…';
-  client.setOption('MultiPV', 1);
+  searchingClient = clientMain;
+  clientMain.setOption('MultiPV', 1);
   reviewStep();
 }
 
@@ -391,7 +425,7 @@ function cancelReview() {
   if (!reviewing) return;
   reviewing = false;
   if (waitingFor === 'review') {
-    try { client.stop(); } catch { /* 引擎可能已退出 */ }
+    try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ }
     waitingFor = null;
   }
   reviewReportEl.textContent = '已取消点评';
@@ -405,8 +439,8 @@ function reviewStep() {
   if (reviewIdx > n) { finishReview(); return; }
   setStatus(`AI点评中 ${reviewIdx}/${n}…`);
   waitingFor = 'review';
-  client.position(fenAt(reviewRec.startFen, reviewRec.moves, reviewIdx));
-  client.go({ depth: REVIEW_DEPTH });
+  clientMain.position(fenAt(reviewRec.startFen, reviewRec.moves, reviewIdx));
+  clientMain.go({ depth: REVIEW_DEPTH });
 }
 
 function finishReview() {
@@ -435,7 +469,7 @@ function finishReview() {
   reviewing = false;
   setStatus('点评完成');
   // 恢复 MultiPV（分析 3 / 避和 2 / 普通 1）
-  client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1));
+  clientMain.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1));
   // LLM 解说挂起：点评数据就绪后自动续跑
   if (llmPending) { llmPending = false; runLLMReview(); }
 }
@@ -600,7 +634,7 @@ function onTimeout(loser: Side) {
   turnStart = null;
   lastTick = null;
   recordGame(loser === 'red' ? 'black' : 'red');
-  if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; }
+  if (waitingFor) { try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; }
   if (gameMode === 'eve') {
     const winner = loser === 'red' ? (blackNameInput.value || '黑方') : (redNameInput.value || '红方');
     gameResult = `超时，${winner}胜`;
@@ -1030,7 +1064,7 @@ function offerDraw() {
     setStatus(`按 2020 规则 4.3，前 ${MIN_DRAW_TURNS} 回合内不得提和（当前已 ${Math.floor(movesHistory.length / 2)} 回合）`);
     return;
   }
-  if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; clearPending(); }
+  if (waitingFor) { try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; clearPending(); }
   const limitTurns = naturalLimitTurns();
   if (naturalLimitReached()) {
     // 已走满 N 回合未吃子（将军着法只计 8 着）→ 自然限着成立，直接判和
@@ -1123,6 +1157,15 @@ function engineMove() {
     }
   }
   waitingFor = 'engine';
+  // 机机对弈：按行棋方切换独立引擎（该侧配置了独立引擎路径时用独立实例，否则回退主引擎）；
+  // 人机/人人对弈一律用主引擎
+  const side = view.getBoard().sideToMove;
+  client = gameMode === 'eve'
+    ? (side === 'red' && clientRed !== clientMain ? clientRed
+      : side === 'black' && clientBlack !== clientMain ? clientBlack
+      : clientMain)
+    : clientMain;
+  searchingClient = client;
   // 弃子优先：开局阶段（前 10 手）强制 3 线搜索，供 onBestmove 用综合评分重选着法
   const isOpeningPhase = startFen.split(' ')[0] === INITIAL_FEN_PART && movesHistory.length < 10;
   const sacrificeMode = sacrificeOn && isOpeningPhase;
@@ -1146,10 +1189,11 @@ function analyze() {
   if (!engineReady || gameOver || engineProposal) return;
   waitingFor = 'analysis';
   // 分析固定 MultiPV 3（多线参考；引擎空闲时设置才生效，此处必然空闲）
-  client.setOption('MultiPV', 3);
+  searchingClient = clientMain;
+  clientMain.setOption('MultiPV', 3);
   lastInfoMap.clear();
-  client.position(view.getFen());
-  client.go({ depth: ANALYSIS_DEPTH });
+  clientMain.position(view.getFen());
+  clientMain.go({ depth: ANALYSIS_DEPTH });
 }
 
 // 该着法走完后是否立即形成和棋（三次重复 / 双方无进攻子力）
@@ -1266,8 +1310,8 @@ function onBestmove(bm: string) {
         illegalRetry++;
         setStatus('引擎着法校验失败，正在重新思考…');
         waitingFor = 'engine';
-        client.position(view.getFen());
-        client.go({ depth: getDepth() });
+        searchingClient.position(view.getFen());
+        searchingClient.go({ depth: getDepth() });
       } else {
         setStatus('引擎着法校验多次失败：请重启引擎或检查当前局面');
         engineProposal = null;
@@ -1319,7 +1363,7 @@ function onBestmove(bm: string) {
       setStatus(`${ENGINE_BRAND}提示不可用`);
     }
     // 恢复 MultiPV（分析3 / 避和2 / 普通1），避免影响后续对弈/分析
-    try { client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1)); } catch { /* 引擎可能已退出 */ }
+    try { clientMain.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1)); } catch { /* 引擎可能已退出 */ }
   } else if (waitingFor === 'study') {
     // 变着研习：两段分析（走子前局面 → 实际着法后的局面），完成后汇总显示
     studyPhase();
@@ -1355,8 +1399,9 @@ function studyPhase() {
     if (s.idx < n) {
       const afterFen = fenAt(s.rec.startFen, s.rec.moves, s.idx + 1);
       s.phase = 1;
-      client.position(afterFen);
-      client.go({ depth: 12 });
+      searchingClient = clientMain;
+      clientMain.position(afterFen);
+      clientMain.go({ depth: 12 });
       setStatus(`变着研习：评估实际着法后的局面…`);
       return;
     }
@@ -1392,7 +1437,7 @@ function studyPhase() {
   reviewReportEl.textContent = L.join('\n');
   waitingFor = null;
   study = null;
-  try { client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1)); } catch { /* 引擎可能已退出 */ }
+  try { clientMain.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1)); } catch { /* 引擎可能已退出 */ }
 }
 
 $('btnRepStudy').addEventListener('click', () => {
@@ -1403,10 +1448,11 @@ $('btnRepStudy').addEventListener('click', () => {
   if (reviewing) { setStatus('AI 点评进行中，请先等待完成或取消'); return; }
   study = { rec: replayRecord, idx: replayIdx, phase: 0, beforeBest: null };
   waitingFor = 'study';
-  client.setOption('MultiPV', 3);
+  searchingClient = clientMain;
+  clientMain.setOption('MultiPV', 3);
   lastInfoMap.clear();
-  client.position(fenAt(replayRecord.startFen, replayRecord.moves, replayIdx));
-  client.go({ depth: 12 });
+  clientMain.position(fenAt(replayRecord.startFen, replayRecord.moves, replayIdx));
+  clientMain.go({ depth: 12 });
   setStatus(`变着研习：分析第 ${replayIdx} 手局面…`);
 });
 
@@ -1774,21 +1820,53 @@ $('btnRedoEngine').addEventListener('click', () => {
   engineMove(); // engineMove 内部自行处理搜索中串行化（stopEngineThen）
 });
 
+// 机机对弈独立引擎：按槽位启动独立 UciClient + 引擎进程（失败回退主引擎，不影响整体可用）
+async function startSlotEngine(slot: 'red' | 'black', exePath: string): Promise<UciClient | null> {
+  if (!engineApi || !exePath) return null;
+  const c = new UciClient(cmd => engineApi.write(slot, cmd));
+  c.onBestmove = onBestmoveH;
+  c.onInfo = onInfoH;
+  try {
+    await engineApi.start(slot, exePath);
+    c.uci();
+    const threads = threadsValue();
+    c.setOption('Threads', threads);
+    c.setOption('Hash', parseInt(hashSel.value, 10) || 512);
+    // 网文件已重命名为 eval.nnue（去品牌化），独立引擎同样必须设置，否则首次 go 即崩溃退出
+    c.setOption('EvalFile', 'eval.nnue');
+    c.isready();
+    return c;
+  } catch (err) {
+    engineState.textContent = `${slot === 'red' ? '红方' : '黑方'}独立引擎启动失败：${(err as Error).message}（该侧回退共用主引擎）`;
+    return null;
+  }
+}
+
 $('btnStartEngine').addEventListener('click', async () => {
   if (!engineApi) { engineState.textContent = '浏览器模式不支持引擎（需 Electron）'; return; }
   try {
-    await engineApi.start(($('enginePath') as HTMLInputElement).value.trim());
-    client.uci();
+    await engineApi.start('main', ($('enginePath') as HTMLInputElement).value.trim());
+    clientMain.uci();
     // 引擎参数按配置面板应用：线程（自动 = 核心数-2）、哈希（MB）
     const threads = threadsValue();
-    client.setOption('Threads', threads);
-    client.setOption('Hash', parseInt(hashSel.value, 10) || 512);
+    clientMain.setOption('Threads', threads);
+    clientMain.setOption('Hash', parseInt(hashSel.value, 10) || 512);
     // 网文件已被重命名为 eval.nnue（去品牌化），而引擎默认找 pikafish.nnue，
     // 不设置会在首次 go 时直接报错退出（The engine will be terminated now）
-    client.setOption('EvalFile', 'eval.nnue');
-    client.isready();
+    clientMain.setOption('EvalFile', 'eval.nnue');
+    clientMain.isready();
     engineReady = true;
-    engineState.textContent = `已启动（${threads} 线程 · 哈希 ${hashSel.value}MB）`;
+    // 机机对弈可指定红/黑独立引擎（留空则共用主引擎）
+    const redPath = ($('redEnginePath') as HTMLInputElement).value.trim();
+    const blackPath = ($('blackEnginePath') as HTMLInputElement).value.trim();
+    const cRed = await startSlotEngine('red', redPath);
+    if (cRed) clientRed = cRed;
+    const cBlack = await startSlotEngine('black', blackPath);
+    if (cBlack) clientBlack = cBlack;
+    client = clientMain;
+    searchingClient = clientMain;
+    const extra = (cRed ? ' · 红独立' : '') + (cBlack ? ' · 黑独立' : '');
+    engineState.textContent = `已启动（${threads} 线程 · 哈希 ${hashSel.value}MB${extra}）`;
     setStatus('');
     if (engineTurnNow()) engineMove();
     else if (analysisOn) analyze();
@@ -1802,7 +1880,7 @@ $('btnAnalysis').addEventListener('click', () => {
   ($('btnAnalysis') as HTMLButtonElement).textContent = analysisOn ? '关闭分析' : '开启分析';
   if (!analysisOn) view.setArrows([]); // 关分析清掉推荐箭头
   // 分析用 MultiPV 3（多线参考）；对弈避和开启时用 2，关闭时 1（单线全速）
-  if (engineReady) client.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1));
+  if (engineReady) clientMain.setOption('MultiPV', analysisOn ? 3 : (avoidDrawOn() ? 2 : 1));
   if (analysisOn && !waitingFor && mode === 'play' && gameMode === 'pve' && !gameOver) analyze();
 });
 
@@ -2308,7 +2386,7 @@ function enterReplay(rec: GameRecord) {
   // 停止自动播放 / 引擎思考，离开对局界面
   stopReplayTimer();
   if (waitingFor) {
-    try { client.stop(); } catch { /* 引擎可能已退出 */ }
+    try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ }
     waitingFor = null;
     clearPending(); // 避免旧挂起动作/看门狗在复盘期间误触发
   }
@@ -2613,7 +2691,7 @@ function loadPuzzle() {
   const p = PUZZLES.find(x => x.id === puzzleSel.value);
   if (!p) return;
   stopReplayTimer();
-  if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; pendingAfterAnalysis = null; }
+  if (waitingFor) { try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; pendingAfterAnalysis = null; }
   puzzleActive = p;
   mode = 'play';
   gameMode = 'pve';
@@ -2645,9 +2723,10 @@ $('btnPuzzleHint').addEventListener('click', () => {
   if (engineReady && !waitingFor && !gameOver) {
     waitingFor = 'hint';
     lastInfoMap.clear();
-    client.setOption('MultiPV', 1); // 提示只要一条线，搜索更快
-    client.position(view.getFen());
-    client.go({ depth: 12 });
+    searchingClient = clientMain;
+    clientMain.setOption('MultiPV', 1); // 提示只要一条线，搜索更快
+    clientMain.position(view.getFen());
+    clientMain.go({ depth: 12 });
     setStatus('引擎求解提示中…');
     return;
   }
@@ -2748,7 +2827,7 @@ function loadCustomPuzzle() {
   const p = loadCustomPuzzles().find(x => x.id === cpzSel.value);
   if (!p) { setStatus('请先选择要载入的自定义残局'); return; }
   stopReplayTimer();
-  if (waitingFor) { try { client.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; pendingAfterAnalysis = null; }
+  if (waitingFor) { try { searchingClient.stop(); } catch { /* 引擎可能已退出 */ } waitingFor = null; pendingAfterAnalysis = null; }
   puzzleActive = {
     id: p.id,
     name: p.name,
