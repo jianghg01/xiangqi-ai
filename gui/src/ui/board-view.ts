@@ -61,6 +61,8 @@ export class BoardView {
   private checkSquare: Square | null = null;   // 被将军一方的将/帅位置（红圈标记）
   private arrows: Arrow[] = [];                // 分析提示箭头
   private theme: BoardTheme = BOARD_THEMES.classic.theme;
+  private customBg: HTMLImageElement | null = null;   // 自定义底纹图（dataURL 导入，拉伸铺满）
+  private customBgUrl = '';
   private dragFrom: Square | null = null;      // 拖拽中的棋子起点
   private dragPos: [number, number] | null = null; // 拖拽当前像素位置
   private swallowClick = false;                // 拖拽后吞掉紧随的 click
@@ -168,6 +170,19 @@ export class BoardView {
     this.draw();
   }
 
+  // 自定义棋盘底纹：dataURL 图片拉伸铺满；null 清除恢复木色
+  setCustomBg(dataUrl: string | null) {
+    if (!dataUrl) { this.customBg = null; this.customBgUrl = ''; this.draw(); return; }
+    if (dataUrl === this.customBgUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      this.customBg = img;
+      this.customBgUrl = dataUrl;
+      this.draw();
+    };
+    img.src = dataUrl;
+  }
+
   clearOverlay() {
     this.highlights = [];
     this.selected = null;
@@ -260,6 +275,14 @@ export class BoardView {
     c.clearRect(0, 0, W, H);
     c.fillStyle = this.theme.bg;
     c.fillRect(0, 0, W, H);
+    // 自定义底纹：拉伸铺满后叠一层木色半透明，保证线条/文字/棋子可读
+    if (this.customBg) {
+      c.drawImage(this.customBg, 0, 0, W, H);
+      c.globalAlpha = 0.45;
+      c.fillStyle = this.theme.bg;
+      c.fillRect(0, 0, W, H);
+      c.globalAlpha = 1;
+    }
 
     // 横线 10 条
     c.strokeStyle = this.theme.line;

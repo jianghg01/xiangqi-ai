@@ -15,6 +15,14 @@ export interface Opening {
 
 export const OPENINGS: Opening[] = bookData;
 
+// 自定义开局（运行时注入，来自 PGN 导入，localStorage 持久化；测试环境不受影响）
+let customOpenings: Opening[] = [];
+export function setCustomOpenings(list: Opening[]) { customOpenings = list; }
+export function getCustomOpenings(): Opening[] { return [...customOpenings]; }
+function allOpenings(): Opening[] {
+  return customOpenings.length ? [...OPENINGS, ...customOpenings] : OPENINGS;
+}
+
 // 校验一条开局序列每步都合法（从初始局面重放）
 export function isOpeningValid(o: Opening): boolean {
   const b = cloneBoard(initialBoard());
@@ -39,7 +47,7 @@ export function isOpeningValid(o: Opening): boolean {
  */
 export function matchOpening(movesHistory: string[]): { name: string; next: string | null } | null {
   let best: Opening | null = null;
-  for (const o of OPENINGS) {
+  for (const o of allOpenings()) {
     if (movesHistory.length <= o.moves.length &&
         o.moves.slice(0, movesHistory.length).every((m, i) => m === movesHistory[i])) {
       if (!best || o.moves.length > best.moves.length) best = o;
@@ -91,7 +99,7 @@ export function matchOpeningByCategory(
   movesHistory: string[],
   category: OpeningCategory,
 ): { name: string; next: string | null } | null {
-  const compatible = OPENINGS.filter(o =>
+  const compatible = allOpenings().filter(o =>
     movesHistory.length <= o.moves.length &&
     o.moves.slice(0, movesHistory.length).every((m, i) => m === movesHistory[i]),
   );

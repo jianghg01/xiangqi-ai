@@ -4,7 +4,7 @@ import { BoardData, cloneBoard, emptyBoard, initialBoard, parseFen, toFen } from
 import { Move, PieceType, Side, Square, parseIccs, toIccs } from '../board/types';
 import { moveToChinese, movesToChinese } from '../board/notation';
 import { exportPgn, parsePgn } from '../board/pgn';
-import { matchOpening, matchOpeningByCategory, type OpeningCategory } from '../board/openings';
+import { matchOpening, matchOpeningByCategory, setCustomOpenings, type Opening, type OpeningCategory } from '../board/openings';
 import { CLASSICS, CLASSIC_CATEGORIES } from '../board/classics';
 import puzzlesJson from '../data/puzzles.json';
 import { applyMove, checkStatus, inCheck, isMaterialDraw, legalMoves, legalMovesFrom } from '../rules/rules';
@@ -2314,6 +2314,213 @@ themeSel.addEventListener('change', () => {
   view.setThemeByName(themeSel.value);
   try { localStorage.setItem('xz_theme', themeSel.value); } catch { /* 忽略 */ }
 });
+
+// ---------- 界面主题（深色默认 / 浅色 / 跟随系统，localStorage 持久化） ----------
+const uiThemeSel = $('uiTheme') as HTMLSelectElement;
+const UI_THEME_KEY = 'xz_ui_theme';
+function applyUiTheme(mode: string) {
+  let actual: string;
+  if (mode === 'light') actual = 'light';
+  else if (mode === 'auto') actual = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  else actual = 'dark';
+  document.documentElement.dataset.theme = actual;
+}
+(function initUiTheme() {
+  let saved = 'auto';
+  try { saved = localStorage.getItem(UI_THEME_KEY) || 'auto'; } catch { /* 忽略 */ }
+  if (!['auto', 'dark', 'light'].includes(saved)) saved = 'auto';
+  uiThemeSel.value = saved;
+  applyUiTheme(saved);
+})();
+uiThemeSel.addEventListener('change', () => {
+  applyUiTheme(uiThemeSel.value);
+  try { localStorage.setItem(UI_THEME_KEY, uiThemeSel.value); } catch { /* 忽略 */ }
+});
+// 跟随系统：系统主题变化时实时切换
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if (uiThemeSel.value === 'auto') applyUiTheme('auto');
+});
+
+// ---------- 自定义棋盘底纹（本地图片 → dataURL，localStorage 持久化） ----------
+const BG_KEY = 'xz_board_bg';
+const bgFileInput = $('bgFile') as HTMLInputElement;
+const btnBgPick = $('btnBgPick') as HTMLButtonElement;
+const btnBgClear = $('btnBgClear') as HTMLButtonElement;
+function applyBoardBg() {
+  let url = '';
+  try { url = localStorage.getItem(BG_KEY) || ''; } catch { /* 忽略 */ }
+  view.setCustomBg(url || null);
+  btnBgClear.style.display = url ? '' : 'none';
+}
+bgFileInput.addEventListener('change', () => {
+  const f = bgFileInput.files?.[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    const url = String(rd.result || '');
+    try { localStorage.setItem(BG_KEY, url); } catch { setStatus('图片过大，无法保存底纹（建议 <2MB）'); return; }
+    applyBoardBg();
+    setStatus('已应用自定义棋盘底纹');
+  };
+  rd.readAsDataURL(f);
+  bgFileInput.value = '';
+});
+btnBgPick.addEventListener('click', () => bgFileInput.click());
+btnBgClear.addEventListener('click', () => {
+  try { localStorage.removeItem(BG_KEY); } catch { /* 忽略 */ }
+  applyBoardBg();
+  setStatus('已恢复默认棋盘');
+});
+applyBoardBg();
+
+// ---------- 快捷键（可自定义键位绑定，localStorage 持久化） ----------
+const KEYS_KEY = 'xz_hotkeys';
+const DEFAULT_KEYS = {
+  undo: 'ctrl+z', flip: 'f', snap: 's', new: 'n',
+  repPrev: 'left', repNext: 'right', repPlay: 'space', repStudy: 'k',
+} as const;
+const KEY_LABELS: Record<string, string> = {
+  undo: '悔棋', flip: '翻转棋盘', snap: '导出局面图', new: '新对局',
+  repPrev: '复盘上一手', repNext: '复盘下一手', repPlay: '复盘播放/停', repStudy: '变着研习',
+};
+const KEY_BUTTONS: Record<string, string> = {
+  undo: 'btnUndo', flip: 'btnFlip', snap: 'btnSnap', new: 'btnNew',
+  repPrev: 'btnRepPrev', repNext: 'btnRepNext', repPlay: 'btnRepPlay', repStudy: 'btnRepStudy',
+};
+const KEY_MAP: Record<string, string> = {
+  ' ': 'space', 'arrowleft': 'left', 'arrowright': 'right', 'arrowup': 'up', 'arrowdown': 'down',
+  'escape': 'esc', 'enter': 'enter', 'backspace': 'backspace', 'delete': 'del',
+};
+// 按键事件 → 规范化键位串（小写，修饰键 + 主键）
+function keyToStr(e: KeyboardEvent): string {
+  const mods = (e.ctrlKey ? 'ctrl+' : '') + (e.metaKey ? 'meta+' : '') + (e.altKey ? 'alt+' : '') + (e.shiftKey ? 'shift+' : '');
+  const k = e.key.toLowerCase();
+  if (k === 'control' || k === 'meta' || k === 'alt' || k === 'shift') return '';
+  const key = KEY_MAP[k] || k;
+  return mods + key;
+}
+function loadKeys(): Record<string, string> {
+  try {
+    const v = JSON.parse(localStorage.getItem(KEYS_KEY) || '{}');
+    return { ...DEFAULT_KEYS, ...(typeof v === 'object' && v ? v : {}) };
+  } catch { return { ...DEFAULT_KEYS }; }
+}
+let keys = loadKeys();
+function saveKeys() { try { localStorage.setItem(KEYS_KEY, JSON.stringify(keys)); } catch { /* 忽略 */ } }
+const shortcutRows = $('shortcutRows') as HTMLDivElement;
+function renderShortcutRows() {
+  shortcutRows.innerHTML = '';
+  const ids = Object.keys(DEFAULT_KEYS) as (keyof typeof DEFAULT_KEYS)[];
+  for (const id of ids) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:6px';
+    const lab = document.createElement('span');
+    lab.textContent = KEY_LABELS[id] || id;
+    lab.style.cssText = 'font-size:12px;color:var(--note);width:88px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.readOnly = true;
+    inp.value = keys[id] || '（禁用）';
+    inp.title = '点击后按组合键重新绑定；按 Esc 或 Del 清除（禁用该快捷键）';
+    inp.style.cssText = 'flex:1;min-width:0;cursor:pointer;font-size:12px';
+    inp.addEventListener('focus', () => { inp.value = '按下组合键…'; });
+    inp.addEventListener('keydown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.key === 'Escape' || e.key === 'Delete') keys[id] = '';
+      else {
+        const s = keyToStr(e);
+        if (s) keys[id] = s;
+      }
+      inp.value = keys[id] || '（禁用）';
+      inp.blur();
+      saveKeys();
+    });
+    inp.addEventListener('blur', () => { inp.value = keys[id] || '（禁用）'; });
+    row.append(lab, inp);
+    shortcutRows.append(row);
+  }
+}
+renderShortcutRows();
+$('btnKeysReset').addEventListener('click', () => {
+  keys = { ...DEFAULT_KEYS };
+  saveKeys();
+  renderShortcutRows();
+  setStatus('快捷键已恢复默认');
+});
+// 全局快捷键分发：输入框聚焦时让位（编辑 FEN / 名称 / 键位录入）
+window.addEventListener('keydown', (e) => {
+  const tag = (e.target as HTMLElement | null)?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  const id = (Object.keys(keys) as (keyof typeof DEFAULT_KEYS)[]).find(k => keys[k] && keyToStr(e) === keys[k]);
+  if (!id) return;
+  e.preventDefault();
+  const btn = $(KEY_BUTTONS[id]);
+  if (btn) (btn as HTMLButtonElement).click();
+});
+
+// ---------- 开局库：PGN 导入（本地自定义开局，localStorage 持久化） ----------
+const BOOK_KEY = 'xz_custom_book';
+function loadCustomBook(): Opening[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(BOOK_KEY) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch { return []; }
+}
+function saveCustomBook(list: Opening[]) {
+  try { localStorage.setItem(BOOK_KEY, JSON.stringify(list)); } catch { /* 忽略 */ }
+  setCustomOpenings(list);
+  updateBookCount(list);
+}
+const bookFileInput = $('bookFile') as HTMLInputElement;
+const btnBookImport = $('btnBookImport') as HTMLButtonElement;
+const btnBookClear = $('btnBookClear') as HTMLButtonElement;
+const bookCountEl = $('bookCount') as HTMLSpanElement;
+function updateBookCount(list: Opening[]) {
+  const n = list.length;
+  bookCountEl.textContent = n ? `已导入 ${n} 条` : '';
+  btnBookClear.style.display = n ? '' : 'none';
+}
+bookFileInput.addEventListener('change', () => {
+  const f = bookFileInput.files?.[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const meta = parsePgn(String(rd.result || ''));
+      // 只收录从初始局面开始的对局；着法不足 2 手无法作为开局
+      if (meta.startFen.trim().split(/\s+/)[0] !== INITIAL_FEN_PART) {
+        setStatus('仅支持从初始局面开始的对局 PGN（未用 FEN 变例开局）');
+        return;
+      }
+      if (meta.moves.length < 2) { setStatus('PGN 着法太少（至少 2 手），无法作为开局'); return; }
+      const moves = meta.moves.slice(0, Math.min(12, meta.moves.length)); // 最多 12 半手，保证后续可复用
+      const base = f.name.replace(/\.(pgn|txt)$/i, '');
+      const name = base || (meta.redName && meta.blackName ? `${meta.redName}对${meta.blackName}` : '自定义开局');
+      const list = loadCustomBook();
+      const dup = list.some(o =>
+        o.name === name ||
+        (o.moves.length === moves.length && o.moves.every((m, i) => m === moves[i])),
+      );
+      if (dup) { setStatus('该开局已存在（同名或相同序列），未重复导入'); return; }
+      list.push({ name, moves });
+      saveCustomBook(list);
+      setStatus(`已导入开局「${name}」（前 ${moves.length} 手）`);
+    } catch (e) {
+      setStatus('PGN 解析失败: ' + ((e as Error).message || String(e)));
+    }
+  };
+  rd.readAsText(f, 'utf-8');
+  bookFileInput.value = '';
+});
+btnBookImport.addEventListener('click', () => bookFileInput.click());
+btnBookClear.addEventListener('click', () => {
+  saveCustomBook([]);
+  setStatus('已清空自定义开局库');
+});
+// 启动时载入自定义开局，并显示数量
+setCustomOpenings(loadCustomBook());
+updateBookCount(loadCustomBook());
 
 // ---------- 棋谱库（Electron games/ 目录） ----------
 const libListEl = $('libList') as HTMLDivElement;

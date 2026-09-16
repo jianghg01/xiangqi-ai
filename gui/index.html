@@ -4,18 +4,41 @@
 <meta charset="UTF-8" />
 <title>象棋 AI · 对弈与分析</title>
 <style>
-  body { font-family: "Microsoft YaHei", sans-serif; background: #2b241c; color: #e8dcc8; margin: 0; display: flex; justify-content: center; overflow: hidden; }
+  /* 界面主题：深色（默认）/ 浅色，由 JS 设置 html[data-theme] */
+  :root {
+    --bg: #2b241c; --panel: #3a3227; --panel-line: #5a4c38;
+    --h3: #f0e2c0; --input-bg: #241f18; --input-text: #d8c9a8;
+    --border: #555; --btn: #7a5c33; --btn-hover: #8d6d3f;
+    --status: #ffd479; --note: #a89a7d; --note-strong: #c8b896;
+    --analysis-bg: #241f18; --anal-top: #9fe1cb;
+    --menu-bg: #3a3227; --menu-item: #4a3f2e; --menu-item-active: #8d6d3f;
+    --menu-border: #5a4c38; --scroll-thumb: #5a4c38;
+    --move-bg: #241f18; --move-text: #d8c9a8; --move-hover: #fff; --move-no: #7d7060;
+    --curve-bg: #241f18; --shadow: rgba(0,0,0,.5);
+  }
+  html[data-theme="light"] {
+    --bg: #ede6d8; --panel: #faf6ee; --panel-line: #d8cdb8;
+    --h3: #5b4632; --input-bg: #fffdf8; --input-text: #4a3f2e;
+    --border: #b8a889; --btn: #8a6b3f; --btn-hover: #9a7c4d;
+    --status: #b3761a; --note: #8a7a5f; --note-strong: #6f6248;
+    --analysis-bg: #fffdf8; --anal-top: #1f7a5c;
+    --menu-bg: #faf6ee; --menu-item: #e8dfcc; --menu-item-active: #d6c4a0;
+    --menu-border: #d8cdb8; --scroll-thumb: #c9bb9f;
+    --move-bg: #fffdf8; --move-text: #4a3f2e; --move-hover: #111; --move-no: #a0947e;
+    --curve-bg: #fffdf8; --shadow: rgba(0,0,0,.25);
+  }
+  body { font-family: "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--input-text); margin: 0; display: flex; justify-content: center; overflow: hidden; }
   .wrap { display: flex; gap: 20px; padding: 20px; align-items: flex-start; flex-wrap: wrap; }
-  .panel { background: #3a3227; border-radius: 12px; padding: 14px; width: 320px; max-height: calc(100vh - 40px); overflow-y: auto; flex-shrink: 0; }
+  .panel { background: var(--panel); border-radius: 12px; padding: 14px; width: 320px; max-height: calc(100vh - 40px); overflow-y: auto; flex-shrink: 0; }
   .panel::-webkit-scrollbar { width: 8px; }
-  .panel::-webkit-scrollbar-thumb { background: #5a4c38; border-radius: 4px; }
+  .panel::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 4px; }
   .panel::-webkit-scrollbar-track { background: transparent; }
-  .panel h3 { margin: 0 0 8px; font-size: 14px; color: #f0e2c0; }
+  .panel h3 { margin: 0 0 8px; font-size: 14px; color: var(--h3); }
   .row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  select, input[type=text], input[type=number] { background: #241f18; color: #d8c9a8; border: 1px solid #555; border-radius: 6px; padding: 5px 8px; font-size: 13px; }
+  select, input[type=text], input[type=number] { background: var(--input-bg); color: var(--input-text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 13px; }
   input[type=text] { width: 100%; box-sizing: border-box; }
-  button { background: #7a5c33; color: #fff; border: 0; border-radius: 6px; padding: 7px 12px; cursor: pointer; font-size: 13px; }
-  button:hover { background: #8d6d3f; }
+  button { background: var(--btn); color: #fff; border: 0; border-radius: 6px; padding: 7px 12px; cursor: pointer; font-size: 13px; }
+  button:hover { background: var(--btn-hover); }
   button.primary { background: #2e7d43; }
   button.primary:hover { background: #37954f; }
   button:disabled { opacity: .45; cursor: not-allowed; }
@@ -25,35 +48,35 @@
   .pcell.black { color: #1e3e6e; border-color: #1e3e6e; }
   .pcell.active { outline: 3px solid #f0a30a; }
   .pcell.del { background: #6b5d4a; color: #fff; border-color: #444; }
-  textarea { width: 100%; box-sizing: border-box; height: 46px; background: #241f18; color: #d8c9a8; border: 1px solid #555; border-radius: 6px; font-size: 12px; padding: 6px; }
-  .status { font-size: 14px; color: #ffd479; min-height: 20px; margin: 6px 0; font-weight: bold; }
-  .analysis { font-size: 12.5px; line-height: 1.9; height: 96px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; white-space: pre-wrap; }
-  .analysis .top { color: #9fe1cb; }
-  .note { font-size: 12px; color: #a89a7d; margin-top: 6px; }
+  textarea { width: 100%; box-sizing: border-box; height: 46px; background: var(--input-bg); color: var(--input-text); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; padding: 6px; }
+  .status { font-size: 14px; color: var(--status); min-height: 20px; margin: 6px 0; font-weight: bold; }
+  .analysis { font-size: 12.5px; line-height: 1.9; height: 96px; overflow-y: auto; background: var(--analysis-bg); border-radius: 6px; padding: 8px; white-space: pre-wrap; }
+  .analysis .top { color: var(--anal-top); }
+  .note { font-size: 12px; color: var(--note); margin-top: 6px; }
   .boardWrap { position: relative; }
-  .endBanner { display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); background: rgba(178,34,22,.94); color: #fff; font-size: 30px; font-weight: bold; padding: 20px 44px; border-radius: 16px; box-shadow: 0 8px 28px rgba(0,0,0,.55); z-index: 10; letter-spacing: 3px; white-space: nowrap; }
+  .endBanner { display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); background: rgba(178,34,22,.94); color: #fff; font-size: 30px; font-weight: bold; padding: 20px 44px; border-radius: 16px; box-shadow: 0 8px 28px var(--shadow); z-index: 10; letter-spacing: 3px; white-space: nowrap; }
   .endBanner.draw { background: rgba(58,110,66,.94); }
   .endBanner.show { display: block; animation: bannerPop .45s cubic-bezier(.2,1.4,.4,1); }
   @keyframes bannerPop { 0% { transform: translate(-50%,-50%) scale(.3); opacity: 0; } 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
-  .moveList { position: relative; display: none; max-height: 220px; overflow-y: auto; background: #241f18; border-radius: 6px; padding: 8px; font-size: 13px; line-height: 1.9; margin-top: 8px; }
+  .moveList { position: relative; display: none; max-height: 220px; overflow-y: auto; background: var(--move-bg); border-radius: 6px; padding: 8px; font-size: 13px; line-height: 1.9; margin-top: 8px; }
   .moveList::-webkit-scrollbar { width: 8px; }
-  .moveList::-webkit-scrollbar-thumb { background: #5a4c38; border-radius: 4px; }
-  .moveList span { margin-right: 12px; white-space: nowrap; cursor: pointer; color: #d8c9a8; }
-  .moveList span:hover { color: #fff; }
+  .moveList::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 4px; }
+  .moveList span { margin-right: 12px; white-space: nowrap; cursor: pointer; color: var(--move-text); }
+  .moveList span:hover { color: var(--move-hover); }
   .moveList span.cur { color: #f0a30a; font-weight: bold; }
-  .moveList span .no { color: #7d7060; margin-right: 2px; font-size: 11px; }
+  .moveList span .no { color: var(--move-no); margin-right: 2px; font-size: 11px; }
   .moveList .mk { font-weight: bold; margin-left: 1px; }
   .moveList .mk-m1 { color: #f0a30a; }   /* ?! 缓着 */
   .moveList .mk-m2 { color: #ff7a59; }   /* ?  失误 */
   .moveList .mk-m3 { color: #ff3b30; }   /* ?? 大败 */
   .moveList .mk-m0 { color: #57c77a; }   /* ◎ 好棋 */
-  .moveList .mk-unk { color: #7d7060; }  /* ？无标记 */
-  canvas.curve { background: #241f18; border-radius: 6px; margin-top: 8px; }
+  .moveList .mk-unk { color: var(--move-no); }  /* ？无标记 */
+  canvas.curve { background: var(--curve-bg); border-radius: 6px; margin-top: 8px; }
   .app { display: flex; flex-direction: column; align-items: center; height: 100vh; position: relative; }
-  .menubar { display: flex; gap: 6px; padding: 8px 12px; background: #3a3227; border-radius: 10px; margin: 10px 0 0; }
-  .menuitem { background: #4a3f2e; font-size: 13px; }
-  .menuitem.active { background: #8d6d3f; }
-  .menuPanel { position: absolute; top: 46px; left: 12px; background: #3a3227; border: 1px solid #5a4c38; border-radius: 10px; padding: 12px; min-width: 340px; z-index: 60; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  .menubar { display: flex; gap: 6px; padding: 8px 12px; background: var(--menu-bg); border-radius: 10px; margin: 10px 0 0; }
+  .menuitem { background: var(--menu-item); font-size: 13px; }
+  .menuitem.active { background: var(--menu-item-active); }
+  .menuPanel { position: absolute; top: 46px; left: 12px; background: var(--menu-bg); border: 1px solid var(--menu-border); border-radius: 10px; padding: 12px; min-width: 340px; z-index: 60; box-shadow: 0 10px 30px var(--shadow); }
 </style>
 </head>
 <body>
@@ -79,7 +102,7 @@
         <option value="60">60回合（规则上限）</option>
       </select>
       </label>
-      <span style="font-size:12px;color:#a89a7d;align-self:center">将军只计8着 · 前25回合不得提和（2020版4.3）</span>
+      <span style="font-size:12px;color:var(--note);align-self:center">将军只计8着 · 前25回合不得提和（2020版4.3）</span>
     </div>
     <div class="note" id="loopReport"></div>
     <div class="note">需机机对弈模式并已启动引擎；只有人为填写局数并点「开始循环」才会自动连赛，单局结束不会自己续局</div>
@@ -97,12 +120,13 @@
     <div class="note">进入编辑模式后：点选下方棋子，再点棋盘上的格子摆放或删除（✕ 删除）；也可以直接编辑 FEN 后载入，用于摆残局/自测局面</div>
   </div>
   <div class="menuPanel" id="menuAbout" style="display:none">
-    <h3 style="margin:0 0 6px">象棋 AI v0.3.1</h3>
+    <h3 style="margin:0 0 6px">象棋 AI v0.4.0</h3>
     <div class="note">引擎：楚河引擎（UCI） · 满级 24 层参考 ELO 约 4000（国际天梯基准）</div>
-    <div class="note">人机 / 机机 / 人人对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏、复盘研习、多引擎对决</div>
+    <div class="note">人机 / 机机 / 人人对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏、复盘研习、变着记录、多引擎对决</div>
+    <div class="note">个性化：深色/浅色/跟随系统主题、自定义棋盘底纹、自定义快捷键、PGN 自定义开局库、自动保存崩溃恢复</div>
     <div class="note">干预引擎着法：人机/机机通用——引擎思考完不直接落子，由你点击确认或替它改走别的棋</div>
     <details style="margin-top:8px">
-      <summary style="font-size:12px;color:#a89a7d;cursor:pointer">许可与版权信息</summary>
+      <summary style="font-size:12px;color:var(--note);cursor:pointer">许可与版权信息</summary>
       <div class="note" style="margin-top:6px">本软件引擎组件基于开源中国象棋引擎项目（GPL-3.0 协议）构建；依据 GPL-3.0 要求，上游引擎的版权声明、许可证全文与源代码获取说明保留于安装目录 engine/legal 文件夹中。</div>
     </details>
   </div>
@@ -231,6 +255,21 @@
       </label>
     </div>
     <div class="note" style="margin-top:4px">开局类型：指定起手并随机选开局库中的一条；弃子优先：开局前 10 手主动偏离最优着法（评分损失 ≤5 兵），需关「避和求胜」才生效</div>
+    <div class="row" style="align-items:center">
+      <span style="font-size:13px;align-self:center">导入开局</span>
+      <input type="file" id="bookFile" accept=".pgn,.txt,text/plain" style="display:none" />
+      <button id="btnBookImport" title="从 PGN 文件导入对局前若干回合作为开局序列，加入本地自定义开局库（人机/机机引擎起手可选到）">导入PGN</button>
+      <button id="btnBookClear" title="清空本地导入的自定义开局库" style="display:none">清库</button>
+      <span style="font-size:12px;color:var(--note);align-self:center" id="bookCount"></span>
+    </div>
+    <details id="shortcutPanel" style="margin-bottom:8px">
+      <summary style="font-size:13px;color:var(--note);cursor:pointer;margin-bottom:6px">快捷键设置（点击输入框后按组合键录入）</summary>
+      <div id="shortcutRows" style="display:flex;flex-direction:column;gap:5px"></div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button id="btnKeysReset" style="padding:4px 10px;font-size:12px">恢复默认</button>
+        <span style="font-size:12px;color:var(--note);align-self:center">恢复默认</span>
+      </div>
+    </details>
     <div class="row">
       <span style="font-size:13px;align-self:center">引擎线程</span>
       <select id="threadsSel" title="引擎计算线程数；自动 = CPU 核心数 - 2">
@@ -264,6 +303,21 @@
       <span style="font-size:13px;align-self:center">棋盘皮肤</span>
       <select id="themeSel" title="棋盘配色主题"></select>
     </div>
+    <div class="row" style="align-items:center">
+      <span style="font-size:13px;align-self:center">棋盘底纹</span>
+      <input type="file" id="bgFile" accept="image/*" style="display:none" />
+      <button id="btnBgPick" title="选择本地图片作为棋盘背景（拉伸铺满；线条与棋子保持清晰）">选图</button>
+      <button id="btnBgClear" title="恢复默认木色棋盘" style="display:none">清除</button>
+      <span style="font-size:12px;color:var(--note);align-self:center">自定义底纹</span>
+    </div>
+    <div class="row">
+      <span style="font-size:13px;align-self:center">界面主题</span>
+      <select id="uiTheme" title="界面颜色主题（跟随系统 / 深色 / 浅色）">
+        <option value="auto" selected>跟随系统</option>
+        <option value="dark">深色（默认）</option>
+        <option value="light">浅色</option>
+      </select>
+    </div>
     <div class="row">
       <span style="font-size:13px;align-self:center">每步时限</span>
       <select id="timeLimit" title="每步思考时间限制（人机/机机通用）；不限则按强度深度">
@@ -275,7 +329,7 @@
         <option value="5000">5秒</option>
         <option value="10000">10秒</option>
       </select>
-      <span style="font-size:12px;color:#a89a7d;align-self:center">时限越短走得越快</span>
+      <span style="font-size:12px;color:var(--note);align-self:center">时限越短走得越快</span>
       <button id="btnSound" title="落子/吃子/将军音效开关">🔇音效:关</button>
     </div>
     <div class="note" id="openingName"></div>
@@ -288,7 +342,7 @@
     </div>
     <div class="row">
       <button id="btnStartEngine">启动引擎</button>
-      <span id="engineState" style="font-size:12px;color:#a89a7d;align-self:center">未启动</span>
+      <span id="engineState" style="font-size:12px;color:var(--note);align-self:center">未启动</span>
     </div>
 
     <h3>实时分析（MultiPV 3）</h3>
@@ -322,7 +376,7 @@
       <button id="btnReview" class="primary">AI 点评</button>
       <button id="btnRepStudy" title="对当前手做变着研习：引擎推荐替代着法并对比实际着法的优劣">变着研习</button>
       <button id="btnReviewExport" title="把 AI 点评与 LLM 解说导出为报告文件">导出报告</button>
-      <span style="font-size:12px;color:#a89a7d;align-self:center">逐手评分标记 ◎/?!/?/??</span>
+      <span style="font-size:12px;color:var(--note);align-self:center">逐手评分标记 ◎/?!/?/??</span>
     </div>
     <div class="row" id="llmRow" style="display:none">
       <button id="btnLLM" class="primary" title="用大模型生成复盘解说（需先配置 LLM）">🤖 LLM 复盘解说</button>
@@ -331,7 +385,7 @@
         <option value="deep">深度复盘版</option>
       </select>
       <button id="btnLlmCfgToggle" title="填写大模型接口配置">⚙配置</button>
-      <span style="font-size:12px;color:#a89a7d;align-self:center">对局结束后调用，不干预引擎思考</span>
+      <span style="font-size:12px;color:var(--note);align-self:center">对局结束后调用，不干预引擎思考</span>
     </div>
     <div class="row" id="llmCfgRow" style="display:none;flex-wrap:wrap;gap:4px">
       <input type="text" id="llmBaseUrl" placeholder="Base URL（OpenAI兼容）" style="width:190px" title="如 https://api.siliconflow.cn/v1" />
@@ -365,7 +419,7 @@
     <div class="row">
       <button id="btnPuzzleLoad" class="primary">载入闯关</button>
       <button id="btnPuzzleHint">提示</button>
-      <span style="font-size:12px;color:#a89a7d;align-self:center" id="puzzleInfo"></span>
+      <span style="font-size:12px;color:var(--note);align-self:center" id="puzzleInfo"></span>
     </div>
     <div class="note">攻方在预算步数（N步杀+1）内完成绝杀即过关，引擎全力防守</div>
 
@@ -404,7 +458,7 @@
     </div>
     <div class="row">
       <button id="btnLoadClassic" class="primary">载入复盘</button>
-      <span style="font-size:12px;color:#a89a7d;align-self:center" id="classicInfo"></span>
+      <span style="font-size:12px;color:var(--note);align-self:center" id="classicInfo"></span>
     </div>
     <div class="note">纯阳道人古谱 · 七类三十五局 · 全部得先胜 · 载入后可自动播放/逐步研习</div>
   </div>
