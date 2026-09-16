@@ -1668,6 +1668,33 @@ $('btnMode').addEventListener('click', async () => {
   }
 });
 
+// ---------- 右侧面板 Tab 分区（对弈/设置/阅览/闯关欣赏） ----------
+const tabBodies = ['playTab', 'settingsTab', 'reviewTab', 'puzzleTab'];
+function setTab(which: string) {
+  for (const id of tabBodies) {
+    const body = document.getElementById(id);
+    if (body) body.classList.toggle('active', id === which);
+  }
+  const tabKey = (['playTab', 'settingsTab', 'reviewTab', 'puzzleTab'] as const).find(k => k === which) ?? 'playTab';
+  localStorage.setItem('xz_active_tab', tabKey);
+}
+// 底部 Tab 按钮：DOM 中 data-tab 与正文 id 对应
+document.querySelectorAll<HTMLButtonElement>('.tabBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    setTab(btn.dataset.tab ?? 'playTab');
+  });
+});
+// 恢复上次所在 Tab（默认对弈）
+(function restoreTab() {
+  const saved = localStorage.getItem('xz_active_tab');
+  if (saved && tabBodies.includes(saved)) {
+    const btn = document.querySelector<HTMLButtonElement>(`.tabBtn[data-tab="${saved}"]`);
+    if (btn) btn.click();
+  }
+})();
+
 // ---------- 顶部菜单（循环赛 / 编辑棋盘 / 关于） ----------
 const menuEntries = [
   ['menuLoopBtn', 'menuLoop'],
@@ -1947,6 +1974,11 @@ function updateSideRows() {
   blackStrengthSel.disabled = pvp || blackIsHuman;
   redEngToggle.disabled = pvp || redIsHuman;
   blackEngToggle.disabled = pvp || blackIsHuman;
+  // 低频按钮（帮机悔棋/帮机重走）：仅非人人模式显示；提和/翻转各模式均保留
+  const ueBtn = document.getElementById('btnUndoEngine');
+  const reBtn = document.getElementById('btnRedoEngine');
+  if (ueBtn) ueBtn.style.display = pvp ? 'none' : '';
+  if (reBtn) reBtn.style.display = pvp ? 'none' : '';
 }
 // 引擎设置折叠（默认收起；仅该侧为引擎时可展开）
 const engBoxOpen = { red: false, black: false };

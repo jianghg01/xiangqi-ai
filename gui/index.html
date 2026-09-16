@@ -2,26 +2,22 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<title>象棋 AI · 对弈与分析</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>象棋 AI</title>
 <style>
-  /* 界面主题：深色（默认）/ 浅色，由 JS 设置 html[data-theme] */
   :root {
-    --bg: #2b241c; --panel: #3a3227; --panel-line: #5a4c38;
-    --h3: #f0e2c0; --input-bg: #241f18; --input-text: #d8c9a8;
-    --border: #555; --btn: #7a5c33; --btn-hover: #8d6d3f;
-    --status: #ffd479; --note: #a89a7d; --note-strong: #c8b896;
-    --analysis-bg: #241f18; --anal-top: #9fe1cb;
-    --menu-bg: #3a3227; --menu-item: #4a3f2e; --menu-item-active: #8d6d3f;
-    --menu-border: #5a4c38; --scroll-thumb: #5a4c38;
-    --move-bg: #241f18; --move-text: #d8c9a8; --move-hover: #fff; --move-no: #7d7060;
-    --curve-bg: #241f18; --shadow: rgba(0,0,0,.5);
+    --bg: #1a1d24; --panel: #23272f; --h3: #e8c27a; --input-bg: #2c313b; --input-text: #e2e2e2;
+    --border: #3a404c; --btn: #3a3f4d; --btn-hover: #4a5060; --status: #f0a30a;
+    --note: #8a8f99; --panel-line: #3a404c; --analysis-bg: #2a2f38; --anal-top: #f0a30a;
+    --menu-bg: #23272f; --menu-item: #2c313b; --menu-item-active: #3d4a63;
+    --menu-border: #3a404c; --scroll-thumb: #3a404c;
+    --move-bg: #23272f; --move-text: #d8d3c8; --move-hover: #f0a30a; --move-no: #6a6f7a;
+    --curve-bg: #23272f; --shadow: rgba(0,0,0,.6);
   }
   html[data-theme="light"] {
-    --bg: #ede6d8; --panel: #faf6ee; --panel-line: #d8cdb8;
-    --h3: #5b4632; --input-bg: #fffdf8; --input-text: #4a3f2e;
-    --border: #b8a889; --btn: #8a6b3f; --btn-hover: #9a7c4d;
-    --status: #b3761a; --note: #8a7a5f; --note-strong: #6f6248;
-    --analysis-bg: #fffdf8; --anal-top: #1f7a5c;
+    --bg: #f2efe9; --panel: #fffdf8; --h3: #8a5a00; --input-bg: #ffffff; --input-text: #3a3a3a;
+    --border: #d9d0be; --btn: #6b6f78; --btn-hover: #585c66; --status: #c07a00;
+    --note: #7a7468; --panel-line: #e0d8c8; --analysis-bg: #faf7f0; --anal-top: #c07a00;
     --menu-bg: #faf6ee; --menu-item: #e8dfcc; --menu-item-active: #d6c4a0;
     --menu-border: #d8cdb8; --scroll-thumb: #c9bb9f;
     --move-bg: #fffdf8; --move-text: #4a3f2e; --move-hover: #111; --move-no: #a0947e;
@@ -89,6 +85,14 @@
   .menuitem { background: var(--menu-item); font-size: 13px; }
   .menuitem.active { background: var(--menu-item-active); }
   .menuPanel { position: absolute; top: 46px; left: 12px; background: var(--menu-bg); border: 1px solid var(--menu-border); border-radius: 10px; padding: 12px; min-width: 340px; z-index: 60; box-shadow: 0 10px 30px var(--shadow); }
+  /* Tab 分区（简洁化：对弈/设置/阅览/闯关欣赏） */
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tabBtn { flex: 1; background: var(--menu-item); color: var(--input-text); border-radius: 8px; padding: 6px 4px; font-size: 13px; }
+  .tabBtn.active { background: #2e7d43; color: #fff; }
+  .tabBody { display: none; }
+  .tabBody.active { display: block; }
+  /* 低频按钮（帮机悔棋/重走）：非 pvp 才显示 */
+  .engBtnRow { display: flex; gap: 6px; }
 </style>
 </head>
 <body>
@@ -106,18 +110,59 @@
       <button id="btnLoopStop">停止</button>
     </div>
     <div class="row">
-      <label style="font-size:13px;align-self:center" title="自然限着回合数：连续 N 回合双方均未吃子时，「提和」按钮即可按自然限着判和（《2020版象棋竞赛规则》4.2.4，国家大赛常用40回合）">
-        自然限着
-      <select id="naturalLimitSel" style="margin-left:4px">
-        <option value="40">40回合（群众赛酌减）</option>
-        <option value="50" selected>50回合（2020版专业标准）</option>
-        <option value="60">60回合（规则上限）</option>
+      <span style="font-size:13px;align-self:center">和棋规则</span>
+      <select id="loopDrawRule" title="循环赛对局的和棋判负规则">
+        <option value="0">和棋不计分</option>
+        <option value="1">和棋双方扣分</option>
       </select>
+      <span style="font-size:13px;align-self:center">先手方</span>
+      <select id="loopFirst" title="每轮先手方规则">
+        <option value="red">固定红先</option>
+        <option value="swap">轮流红先</option>
+      </select>
+    </div>
+    <div class="row">
+      <select id="loopMode" title="循环赛双方执子模式" style="width:100%">
+        <option value="12">12层 对 12层</option>
+        <option value="24">24层 对 24层</option>
+        <option value="mix">12层 对 24层</option>
+        <option value="custom" id="loopCustomOpt">自定义双方强度</option>
+      </select>
+    </div>
+    <div class="row" id="loopCustomRow" style="display:none">
+      <span style="font-size:13px;align-self:center">红方</span>
+      <select id="loopRedStrength">
+        <option value="1">入门（1层）</option>
+        <option value="2">初级（2层）</option>
+        <option value="3">业余（3层）</option>
+        <option value="5">中级（5层）</option>
+        <option value="8">高级（8层）</option>
+        <option value="12">大师（12层）</option>
+        <option value="18">特大师（18层）</option>
+        <option value="24">满级（24层）</option>
+      </select>
+      <span style="font-size:13px;align-self:center">黑方</span>
+      <select id="loopBlackStrength">
+        <option value="1">入门（1层）</option>
+        <option value="2">初级（2层）</option>
+        <option value="3">业余（3层）</option>
+        <option value="5">中级（5层）</option>
+        <option value="8">高级（8层）</option>
+        <option value="12">大师（12层）</option>
+        <option value="18">特大师（18层）</option>
+        <option value="24">满级（24层）</option>
+      </select>
+    </div>
+    <div class="row">
+      <span style="font-size:13px;align-self:center">循环间隔</span>
+      <input type="number" id="loopDelay" min="1" max="60" value="1" style="width:60px" />秒
+      <span style="font-size:13px;align-self:center">对局视角翻转</span>
+      <label style="font-size:13px;align-self:center;display:flex;align-items:center;gap:4px">
+        <input type="checkbox" id="loopFlipChk" title="循环赛中点/看棋时棋盘上下翻转（红上黑下）" />上下翻转
       </label>
-      <span style="font-size:12px;color:var(--note);align-self:center">将军只计8着 · 前25回合不得提和（2020版4.3）</span>
     </div>
     <div class="note" id="loopReport"></div>
-    <div class="note">需机机对弈模式并已启动引擎；只有人为填写局数并点「开始循环」才会自动连赛，单局结束不会自己续局</div>
+    <div class="note">需机机对弈模式并已启动引擎；填局数点「开始循环」才连赛，单局结束不会自己续局</div>
   </div>
   <div class="menuPanel" id="menuEdit" style="display:none">
     <h3>棋子编辑（仅编辑模式）</h3>
@@ -132,7 +177,7 @@
     <div class="note">进入编辑模式后：点选下方棋子，再点棋盘上的格子摆放或删除（✕ 删除）；也可以直接编辑 FEN 后载入，用于摆残局/自测局面</div>
   </div>
   <div class="menuPanel" id="menuAbout" style="display:none">
-    <h3 style="margin:0 0 6px">象棋 AI v0.4.0</h3>
+    <h3 style="margin:0 0 6px">象棋 AI v0.4.1</h3>
     <div class="note">引擎：楚河引擎（UCI） · 满级 24 层参考 ELO 约 4000（国际天梯基准）</div>
     <div class="note">人机 / 机机 / 人人对弈、实时分析、AI 点评、LLM 复盘解说、残局闯关、名局欣赏、复盘研习、变着记录、多引擎对决</div>
     <div class="note">个性化：深色/浅色/跟随系统主题、自定义棋盘底纹、自定义快捷键、PGN 自定义开局库、自动保存崩溃恢复</div>
@@ -149,324 +194,347 @@
   </div>
 
   <div class="panel">
-    <h3>对弈</h3>
-    <div class="row">
-      <button id="btnMode" class="primary" title="按当前设置直接开始对弈：自动启动引擎，从当前棋盘局面（初始或编辑模式摆好）开下">开始</button>
-      <button id="btnResume" title="恢复上次异常退出时未完成的自动保存对局（如有）" style="display:none">恢复对局</button>
-      <button id="btnNew" title="重新从初始局面开始新对局">新对局</button>
-      <button id="btnUndo" title="悔棋：人机撤销人机各一步；人人对弈撤销双方各一步">悔棋</button>
-      <button id="btnUndoEngine" title="帮机悔棋：撤销引擎刚走的一步，再点「帮机重走」让引擎重新思考">帮机悔棋</button>
-      <button id="btnRedoEngine" title="帮机重走：让引擎（重新）思考当前局面并走一步">帮机重走</button>
-      <button id="btnDrawOffer" title="向对方提和：人机时引擎不占优即接受判和；机机时你作裁判，直接判和">提和</button>
-      <button id="btnFlip" title="切换棋盘视角：上下翻转（红上黑下）↔ 左右翻转（水平镜像）↔ 恢复默认">↕上下翻转</button>
+    <!-- Tab 导航 -->
+    <div class="tabs">
+      <button class="tabBtn active" data-tab="playTab" id="tabPlayBtn">对弈</button>
+      <button class="tabBtn" data-tab="settingsTab" id="tabSettingsBtn">设置</button>
+      <button class="tabBtn" data-tab="reviewTab" id="tabReviewBtn">阅览</button>
+      <button class="tabBtn" data-tab="puzzleTab" id="tabPuzzleBtn">闯关欣赏</button>
     </div>
-    <div class="row">
-      <select id="gameMode" title="对局模式；默认机机对弈">
-        <option value="eve" selected>机机对弈（默认）</option>
-        <option value="pve">人机对弈</option>
-        <option value="pvp">人人对弈（双人同屏）</option>
-      </select>
-      <select id="humanSide" title="人机模式下你的执方（机机/人人不生效）">
-        <option value="red">人执红</option>
-        <option value="black">人执黑</option>
-      </select>
-      <select id="handicapSel" title="让子：引擎侧移除相应子力，只从初始局面开局时生效">
-        <option value="0" selected>不让子</option>
-        <option value="n1">让单马</option>
-        <option value="n2">让双马</option>
-        <option value="c1">让单炮</option>
-        <option value="c2">让双炮</option>
-        <option value="r1">让单车</option>
-        <option value="rnc">让车马炮</option>
-      </select>
-      <label style="font-size:13px;align-self:center;display:flex;align-items:center;gap:4px" title="开启后：引擎思考完不直接落子，会高亮推荐着法，由你点击确认或替它改走别的棋">
-        <input type="checkbox" id="interveneChk" />干预引擎着法
-      </label>
-    </div>
-    <!-- 红方行：任何对弈模式布局一致（名称/强度/引擎设置/计时） -->
-    <div class="sideRow" id="rowRed">
-      <div class="sideTop">
-        <span class="sideTag" style="color:#b02a1e">红方</span>
-        <span class="sideRole" id="redRole">引擎</span>
-        <input type="text" id="redName" value="红方·楚河" title="红方名字，可自定义" style="width:96px;padding:3px 6px" />
-        <select id="redStrength" title="红方行棋强度（机机=红方引擎；你执红的人机局中本侧是你，不生效）" style="padding:3px 6px">
-          <option value="1">入门（1层）</option>
-          <option value="2">初级（2层）</option>
-          <option value="3">业余（3层）</option>
-          <option value="5">中级（5层）</option>
-          <option value="8">高级（8层）</option>
-          <option value="12">大师（12层）</option>
-          <option value="18">特大师（18层）</option>
-          <option value="24" selected>满级（24层）</option>
+
+    <!-- ============ Tab1 对弈 ============ -->
+    <div class="tabBody active" id="playTab">
+      <h3>对弈</h3>
+      <div class="row">
+        <button id="btnMode" class="primary" title="按当前设置直接开始对弈：自动启动引擎，从当前棋盘局面（初始或编辑模式摆好）开下">开始</button>
+        <button id="btnResume" title="恢复上次异常退出时未完成的自动保存对局（如有）" style="display:none">恢复对局</button>
+        <button id="btnNew" title="重新从初始局面开始新对局">新对局</button>
+        <button id="btnUndo" title="悔棋：人机撤销人机各一步；人人对弈撤销双方各一步">悔棋</button>
+      </div>
+      <div class="row engBtnRow" id="engBtnRow">
+        <button id="btnUndoEngine" title="帮机悔棋：撤销引擎刚走的一步，再点「帮机重走」让引擎重新思考">帮机悔棋</button>
+        <button id="btnRedoEngine" title="帮机重走：让引擎（重新）思考当前局面并走一步">帮机重走</button>
+        <button id="btnDrawOffer" title="向对方提和：人机时引擎不占优即接受判和；机机时你作裁判，直接判和">提和</button>
+        <button id="btnFlip" title="切换棋盘视角：上下翻转（红上黑下）↔ 左右翻转（水平镜像）↔ 恢复默认">↕翻转</button>
+      </div>
+      <div class="row">
+        <select id="gameMode" title="对局模式；默认机机对弈">
+          <option value="eve" selected>机机对弈（默认）</option>
+          <option value="pve">人机对弈</option>
+          <option value="pvp">人人对弈（双人同屏）</option>
         </select>
-        <button class="sideEngBtn" id="redEngToggle" title="红方引擎设置：点击展开/收起（默认收起）">⚙引擎</button>
-        <span class="sideClock" id="redClock" title="红方用时/剩余时间">00:00</span>
-      </div>
-      <div class="sideEng" id="redEngBox">
-        <label for="redEnginePath">引擎路径</label>
-        <input type="text" id="redEnginePath" placeholder="留空=内置楚河引擎；可填其它 UCI 引擎 exe" title="红方引擎 exe 路径（相对 gui 目录或绝对路径）；留空=内置引擎；设置自动保存" style="flex:1;min-width:140px" />
-        <span style="font-size:11px">留空=内置，自动保存</span>
-      </div>
-    </div>
-    <!-- 黑方行 -->
-    <div class="sideRow" id="rowBlack">
-      <div class="sideTop">
-        <span class="sideTag" style="color:#1e3e6e">黑方</span>
-        <span class="sideRole" id="blackRole">引擎</span>
-        <input type="text" id="blackName" value="黑方·楚河" title="黑方名字，可自定义" style="width:96px;padding:3px 6px" />
-        <select id="blackStrength" title="黑方行棋强度（机机=黑方引擎；你执黑的人机局中本侧是你，不生效）" style="padding:3px 6px">
-          <option value="1">入门（1层）</option>
-          <option value="2">初级（2层）</option>
-          <option value="3">业余（3层）</option>
-          <option value="5">中级（5层）</option>
-          <option value="8">高级（8层）</option>
-          <option value="12">大师（12层）</option>
-          <option value="18">特大师（18层）</option>
-          <option value="24" selected>满级（24层）</option>
+        <select id="humanSide" title="人机模式下你的执方（机机/人人不生效）">
+          <option value="red">人执红</option>
+          <option value="black">人执黑</option>
         </select>
-        <button class="sideEngBtn" id="blackEngToggle" title="黑方引擎设置：点击展开/收起（默认收起）">⚙引擎</button>
-        <span class="sideClock" id="blackClock" title="黑方用时/剩余时间">00:00</span>
+        <select id="handicapSel" title="让子：引擎侧移除相应子力，只从初始局面开局时生效">
+          <option value="0" selected>不让子</option>
+          <option value="n1">让单马</option>
+          <option value="n2">让双马</option>
+          <option value="c1">让单炮</option>
+          <option value="c2">让双炮</option>
+          <option value="r1">让单车</option>
+          <option value="rnc">让车马炮</option>
+        </select>
+        <label style="font-size:13px;align-self:center;display:flex;align-items:center;gap:4px" title="开启后：引擎思考完不直接落子，会高亮推荐着法，由你点击确认或替它改走别的棋">
+          <input type="checkbox" id="interveneChk" />干预引擎着法
+        </label>
       </div>
-      <div class="sideEng" id="blackEngBox">
-        <label for="blackEnginePath">引擎路径</label>
-        <input type="text" id="blackEnginePath" placeholder="留空=内置楚河引擎；可填其它 UCI 引擎 exe" title="黑方引擎 exe 路径（相对 gui 目录或绝对路径）；留空=内置引擎；设置自动保存" style="flex:1;min-width:140px" />
-        <span style="font-size:11px">留空=内置，自动保存</span>
+      <!-- 红方行：任何对弈模式布局一致（名称/强度/引擎设置/计时） -->
+      <div class="sideRow" id="rowRed">
+        <div class="sideTop">
+          <span class="sideTag" style="color:#b02a1e">红方</span>
+          <span class="sideRole" id="redRole">引擎</span>
+          <input type="text" id="redName" value="红方·楚河" title="红方名字，可自定义" style="width:96px;padding:3px 6px" />
+          <select id="redStrength" title="红方行棋强度（机机=红方引擎；你执红的人机局中本侧是你，不生效）" style="padding:3px 6px">
+            <option value="1">入门（1层）</option>
+            <option value="2">初级（2层）</option>
+            <option value="3">业余（3层）</option>
+            <option value="5">中级（5层）</option>
+            <option value="8">高级（8层）</option>
+            <option value="12">大师（12层）</option>
+            <option value="18">特大师（18层）</option>
+            <option value="24" selected>满级（24层）</option>
+          </select>
+          <button class="sideEngBtn" id="redEngToggle" title="红方引擎设置：点击展开/收起（默认收起）">⚙引擎</button>
+          <span class="sideClock" id="redClock" title="红方用时/剩余时间">00:00</span>
+        </div>
+        <div class="sideEng" id="redEngBox">
+          <label for="redEnginePath">引擎路径</label>
+          <input type="text" id="redEnginePath" placeholder="留空=内置楚河引擎；可填其它 UCI 引擎 exe" title="红方引擎 exe 路径（相对 gui 目录或绝对路径）；留空=内置引擎；设置自动保存" style="flex:1;min-width:140px" />
+          <span style="font-size:11px">留空=内置，自动保存</span>
+        </div>
+      </div>
+      <!-- 黑方行 -->
+      <div class="sideRow" id="rowBlack">
+        <div class="sideTop">
+          <span class="sideTag" style="color:#1e3e6e">黑方</span>
+          <span class="sideRole" id="blackRole">引擎</span>
+          <input type="text" id="blackName" value="黑方·楚河" title="黑方名字，可自定义" style="width:96px;padding:3px 6px" />
+          <select id="blackStrength" title="黑方行棋强度（机机=黑方引擎；你执黑的人机局中本侧是你，不生效）" style="padding:3px 6px">
+            <option value="1">入门（1层）</option>
+            <option value="2">初级（2层）</option>
+            <option value="3">业余（3层）</option>
+            <option value="5">中级（5层）</option>
+            <option value="8">高级（8层）</option>
+            <option value="12">大师（12层）</option>
+            <option value="18">特大师（18层）</option>
+            <option value="24" selected>满级（24层）</option>
+          </select>
+          <button class="sideEngBtn" id="blackEngToggle" title="黑方引擎设置：点击展开/收起（默认收起）">⚙引擎</button>
+          <span class="sideClock" id="blackClock" title="黑方用时/剩余时间">00:00</span>
+        </div>
+        <div class="sideEng" id="blackEngBox">
+          <label for="blackEnginePath">引擎路径</label>
+          <input type="text" id="blackEnginePath" placeholder="留空=内置楚河引擎；可填其它 UCI 引擎 exe" title="黑方引擎 exe 路径（相对 gui 目录或绝对路径）；留空=内置引擎；设置自动保存" style="flex:1;min-width:140px" />
+          <span style="font-size:11px">留空=内置，自动保存</span>
+        </div>
+      </div>
+      <div class="row" title="红黑名称/强度/引擎各自独立设置（⚙展开），自动保存；点「开始」按当前设置开下">
+        <span style="font-size:13px;align-self:center">规则体系</span>
+        <select id="ruleSet" title="判和规则体系：国规2020（自然限着+前25回合不提和）/ 网络规则（天天象棋：400步上限+重复5次+长将6回合判和）/ 休闲简化（点提和即判和）">
+          <option value="guogui" selected>国规 2020（竞赛标准）</option>
+          <option value="net">网络规则（天天象棋）</option>
+          <option value="casual">休闲简化</option>
+        </select>
+      </div>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">赛制</span>
+        <select id="clockModeSel" title="正式赛制：包干/加秒，超时判负；不选则只统计用时">
+          <option value="0-0" selected>不限时</option>
+          <option value="5-0">包干 5 分钟</option>
+          <option value="10-0">包干 10 分钟</option>
+          <option value="20-0">包干 20 分钟</option>
+          <option value="10-5">10 分 + 5 秒</option>
+          <option value="20-10">20 分 + 10 秒</option>
+        </select>
+      </div>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">每步时限</span>
+        <select id="timeLimit" title="每步思考时间限制（人机/机机通用）；不限则按强度深度">
+          <option value="0" selected>不限（按深度·默认）</option>
+          <option value="500">0.5秒</option>
+          <option value="1000">1秒</option>
+          <option value="2000">2秒</option>
+          <option value="3000">3秒</option>
+          <option value="5000">5秒</option>
+          <option value="10000">10秒</option>
+        </select>
+        <span class="note" style="align-self:center">时限越短走得越快</span>
+        <button id="btnSound" title="落子/吃子/将军音效开关">🔇音效:关</button>
+      </div>
+      <div class="note" id="openingName"></div>
+      <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
+    </div>
+
+    <!-- ============ Tab2 设置 ============ -->
+    <div class="tabBody" id="settingsTab">
+      <h3>引擎</h3>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">引擎线程</span>
+        <select id="threadsSel" title="引擎计算线程数；自动 = CPU 核心数 - 2">
+          <option value="auto" selected>自动</option>
+          <option value="2">2</option>
+          <option value="4">4</option>
+          <option value="6">6</option>
+          <option value="8">8</option>
+        </select>
+        <span style="font-size:13px;align-self:center">哈希</span>
+        <select id="hashSel" title="置换表内存大小（MB），越大思考越稳定">
+          <option value="128">128MB</option>
+          <option value="256">256MB</option>
+          <option value="512" selected>512MB</option>
+          <option value="1024">1024MB</option>
+        </select>
+      </div>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">避和求胜</span>
+        <select id="avoidDraw" title="引擎发现即将三次重复/子力和棋且自己不处败势时，自动改走评分可接受的替代着法，继续求胜">
+          <option value="1" selected>开（推荐强软）</option>
+          <option value="0">关（可接受和棋）</option>
+        </select>
+        <span style="font-size:13px;align-self:center">开局库</span>
+        <select id="useBook" title="引擎对局前几步按开局库（名手开局序列）行棋">
+          <option value="1" selected>开</option>
+          <option value="0">关</option>
+        </select>
+      </div>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">开局类型</span>
+        <select id="openingCategory" title="指定引擎起手（人机时你执红、机机时双方各自选）：中炮/顺炮/仙人指路/飞相局/过宫炮/起马局/九尾龟；不限定=开局库随机">
+          <option value="any" selected>不限定（开局库随机）</option>
+          <option value="zhongpao">中炮系列</option>
+          <option value="shunpao">顺炮系列</option>
+          <option value="xianren">仙人指路</option>
+          <option value="feixiang">飞相局</option>
+          <option value="guogong">过宫炮</option>
+          <option value="qima">起马局</option>
+          <option value="jiuweigu">九尾龟</option>
+        </select>
+        <label style="font-size:13px;align-self:center;cursor:pointer" title="开启后开局阶段（前 10 手）禁用开局库，引擎主动偏离最高胜率着法，倾向子力交换/弃子进攻，棋局更精彩但棋力下降">
+          <input type="checkbox" id="sacrificeMode" /> 弃子优先
+        </label>
+      </div>
+      <div class="note" style="margin-top:4px">弃子优先需关「避和求胜」才生效</div>
+      <div class="row" style="align-items:center">
+        <span style="font-size:13px;align-self:center">导入开局</span>
+        <input type="file" id="bookFile" accept=".pgn,.txt,text/plain" style="display:none" />
+        <button id="btnBookImport" title="从 PGN 文件导入对局前若干回合作为开局序列，加入本地自定义开局库（人机/机机引擎起手可选到）">导入PGN</button>
+        <button id="btnBookClear" title="清空本地导入的自定义开局库" style="display:none">清库</button>
+        <span style="font-size:12px;color:var(--note);align-self:center" id="bookCount"></span>
+      </div>
+      <details id="shortcutPanel" style="margin-bottom:8px">
+        <summary style="font-size:13px;color:var(--note);cursor:pointer;margin-bottom:6px">快捷键设置（点击输入框后按组合键录入）</summary>
+        <div id="shortcutRows" style="display:flex;flex-direction:column;gap:5px"></div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <button id="btnKeysReset" style="padding:4px 10px;font-size:12px">恢复默认</button>
+        </div>
+      </details>
+
+      <h3>外观</h3>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">棋盘皮肤</span>
+        <select id="themeSel" title="棋盘配色主题"></select>
+      </div>
+      <div class="row" style="align-items:center">
+        <span style="font-size:13px;align-self:center">棋盘底纹</span>
+        <input type="file" id="bgFile" accept="image/*" style="display:none" />
+        <button id="btnBgPick" title="选择本地图片作为棋盘背景（拉伸铺满；线条与棋子保持清晰）">选图</button>
+        <button id="btnBgClear" title="恢复默认木色棋盘" style="display:none">清除</button>
+        <span style="font-size:12px;color:var(--note);align-self:center">自定义底纹</span>
+      </div>
+      <div class="row">
+        <span style="font-size:13px;align-self:center">界面主题</span>
+        <select id="uiTheme" title="界面颜色主题（跟随系统 / 深色 / 浅色）">
+          <option value="auto" selected>跟随系统</option>
+          <option value="dark">深色（默认）</option>
+          <option value="light">浅色</option>
+        </select>
       </div>
     </div>
-    <div class="note">红黑两行布局固定不变：名称/强度/引擎各自独立设置（⚙展开），引擎选择自动保存；点「开始」按当前设置开下，引擎自动启动</div>
-    <div class="row">
-      <span style="font-size:13px;align-self:center">规则体系</span>
-      <select id="ruleSet" title="判和规则体系：国规2020（自然限着+前25回合不提和）/ 网络规则（天天象棋：400步上限+重复5次+长将6回合判和）/ 休闲简化（点提和即判和）">
-        <option value="guogui" selected>国规 2020（竞赛标准）</option>
-        <option value="net">网络规则（天天象棋）</option>
-        <option value="casual">休闲简化</option>
-      </select>
-    </div>
-    <div class="row">
-      <span style="font-size:13px;align-self:center">避和求胜</span>
-      <select id="avoidDraw" title="引擎发现即将三次重复/子力和棋且自己不处败势时，自动改走评分可接受的替代着法，继续求胜">
-        <option value="1" selected>开（推荐强软）</option>
-        <option value="0">关（可接受和棋）</option>
-      </select>
-      <span style="font-size:13px;align-self:center">开局库</span>
-      <select id="useBook" title="引擎对局前几步按开局库（名手开局序列）行棋">
-        <option value="1" selected>开</option>
-        <option value="0">关</option>
-      </select>
-    </div>
-    <div class="row">
-      <span style="font-size:13px;align-self:center">开局类型</span>
-      <select id="openingCategory" title="指定引擎起手（人机时你执红、机机时双方各自选）：中炮/顺炮/仙人指路/飞相局/过宫炮/起马局/九尾龟；不限定=开局库随机">
-        <option value="any" selected>不限定（开局库随机）</option>
-        <option value="zhongpao">中炮系列</option>
-        <option value="shunpao">顺炮系列</option>
-        <option value="xianren">仙人指路</option>
-        <option value="feixiang">飞相局</option>
-        <option value="guogong">过宫炮</option>
-        <option value="qima">起马局</option>
-        <option value="jiuweigu">九尾龟</option>
-      </select>
-      <label style="font-size:13px;align-self:center;cursor:pointer" title="开启后开局阶段（前 10 手）禁用开局库，引擎主动偏离最高胜率着法，倾向子力交换/弃子进攻，棋局更精彩但棋力下降">
-        <input type="checkbox" id="sacrificeMode" /> 弃子优先
-      </label>
-    </div>
-    <div class="note" style="margin-top:4px">开局类型：指定起手并随机选开局库中的一条；弃子优先：开局前 10 手主动偏离最优着法（评分损失 ≤5 兵），需关「避和求胜」才生效</div>
-    <div class="row" style="align-items:center">
-      <span style="font-size:13px;align-self:center">导入开局</span>
-      <input type="file" id="bookFile" accept=".pgn,.txt,text/plain" style="display:none" />
-      <button id="btnBookImport" title="从 PGN 文件导入对局前若干回合作为开局序列，加入本地自定义开局库（人机/机机引擎起手可选到）">导入PGN</button>
-      <button id="btnBookClear" title="清空本地导入的自定义开局库" style="display:none">清库</button>
-      <span style="font-size:12px;color:var(--note);align-self:center" id="bookCount"></span>
-    </div>
-    <details id="shortcutPanel" style="margin-bottom:8px">
-      <summary style="font-size:13px;color:var(--note);cursor:pointer;margin-bottom:6px">快捷键设置（点击输入框后按组合键录入）</summary>
-      <div id="shortcutRows" style="display:flex;flex-direction:column;gap:5px"></div>
-      <div style="display:flex;gap:6px;margin-top:6px">
-        <button id="btnKeysReset" style="padding:4px 10px;font-size:12px">恢复默认</button>
-        <span style="font-size:12px;color:var(--note);align-self:center">恢复默认</span>
+
+    <!-- ============ Tab3 阅览 ============ -->
+    <div class="tabBody" id="reviewTab">
+      <h3>实时分析（MultiPV 3）</h3>
+      <div class="row">
+        <button id="btnAnalysis">开启分析</button>
       </div>
-    </details>
-    <div class="row">
-      <span style="font-size:13px;align-self:center">引擎线程</span>
-      <select id="threadsSel" title="引擎计算线程数；自动 = CPU 核心数 - 2">
-        <option value="auto" selected>自动</option>
-        <option value="2">2</option>
-        <option value="4">4</option>
-        <option value="6">6</option>
-        <option value="8">8</option>
-      </select>
-      <span style="font-size:13px;align-self:center">哈希</span>
-      <select id="hashSel" title="置换表内存大小（MB），越大思考越稳定">
-        <option value="128">128MB</option>
-        <option value="256">256MB</option>
-        <option value="512" selected>512MB</option>
-        <option value="1024">1024MB</option>
-      </select>
-    </div>
-    <div class="note">避和求胜：引擎将主动避开三次重复/无进攻子力的和棋（已处败势时除外）</div>
-    <div class="row">
-      <span style="font-size:13px;align-self:center">赛制</span>
-      <select id="clockModeSel" title="正式赛制：包干/加秒，超时判负；不选则只统计用时">
-        <option value="0-0" selected>不限时</option>
-        <option value="5-0">包干 5 分钟</option>
-        <option value="10-0">包干 10 分钟</option>
-        <option value="20-0">包干 20 分钟</option>
-        <option value="10-5">10 分 + 5 秒</option>
-        <option value="20-10">20 分 + 10 秒</option>
-      </select>
-    </div>
-    <div class="row">
-      <span style="font-size:13px;align-self:center">棋盘皮肤</span>
-      <select id="themeSel" title="棋盘配色主题"></select>
-    </div>
-    <div class="row" style="align-items:center">
-      <span style="font-size:13px;align-self:center">棋盘底纹</span>
-      <input type="file" id="bgFile" accept="image/*" style="display:none" />
-      <button id="btnBgPick" title="选择本地图片作为棋盘背景（拉伸铺满；线条与棋子保持清晰）">选图</button>
-      <button id="btnBgClear" title="恢复默认木色棋盘" style="display:none">清除</button>
-      <span style="font-size:12px;color:var(--note);align-self:center">自定义底纹</span>
-    </div>
-    <div class="row">
-      <span style="font-size:13px;align-self:center">界面主题</span>
-      <select id="uiTheme" title="界面颜色主题（跟随系统 / 深色 / 浅色）">
-        <option value="auto" selected>跟随系统</option>
-        <option value="dark">深色（默认）</option>
-        <option value="light">浅色</option>
-      </select>
-    </div>
-    <div class="row">
-      <span style="font-size:13px;align-self:center">每步时限</span>
-      <select id="timeLimit" title="每步思考时间限制（人机/机机通用）；不限则按强度深度">
-        <option value="0" selected>不限（按深度·默认）</option>
-        <option value="500">0.5秒</option>
-        <option value="1000">1秒</option>
-        <option value="2000">2秒</option>
-        <option value="3000">3秒</option>
-        <option value="5000">5秒</option>
-        <option value="10000">10秒</option>
-      </select>
-      <span style="font-size:12px;color:var(--note);align-self:center">时限越短走得越快</span>
-      <button id="btnSound" title="落子/吃子/将军音效开关">🔇音效:关</button>
-    </div>
-    <div class="note" id="openingName"></div>
-    <div class="status" id="gameStatus">编辑模式：可摆子 / 载入 FEN</div>
+      <div class="analysis" id="analysis">—</div>
+      <canvas id="curve" class="curve" width="292" height="80"></canvas>
+      <div class="note">胜率曲线：红方视角，随每步分析更新</div>
 
-    <h3>实时分析（MultiPV 3）</h3>
-    <div class="row">
-      <button id="btnAnalysis">开启分析</button>
-    </div>
-    <div class="analysis" id="analysis">—</div>
-    <canvas id="curve" class="curve" width="292" height="80"></canvas>
-    <div class="note">胜率曲线：红方视角，随每步分析更新</div>
+      <h3>棋谱保存 / 复盘</h3>
+      <div class="row">
+        <button id="btnSaveGame">保存棋谱</button>
+        <button id="btnSavePgn">导出 PGN</button>
+        <button id="btnSnap">导出局面图</button>
+        <button id="btnLoadGame">打开棋谱复盘</button>
+        <button id="btnBranches" title="悔棋时自动保存的变着分支（原对局快照），可载入复盘对比">变着记录</button>
+      </div>
+      <div class="note" id="branchesList" style="line-height:2.1"></div>
+      <div class="row" id="replayRow" style="display:none">
+        <button id="btnRepFirst">|◀</button>
+        <button id="btnRepPrev">◀</button>
+        <button id="btnRepNext">▶</button>
+        <button id="btnRepLast">▶|</button>
+        <button id="btnRepPlay">自动</button>
+        <button id="btnRepSpeed" title="切换自动播放速度">速度1x</button>
+        <button id="btnGuess">打谱训练</button>
+        <button id="btnRepExit">退出复盘</button>
+      </div>
+      <div class="row" id="reviewRow" style="display:none">
+        <button id="btnReview" class="primary">AI 点评</button>
+        <button id="btnRepStudy" title="对当前手做变着研习：引擎推荐替代着法并对比实际着法的优劣">变着研习</button>
+        <button id="btnReviewExport" title="把 AI 点评与 LLM 解说导出为报告文件">导出报告</button>
+        <span style="font-size:12px;color:var(--note);align-self:center">逐手评分标记 ◎/?!/?/??</span>
+      </div>
+      <div class="row" id="llmRow" style="display:none">
+        <button id="btnLLM" class="primary" title="用大模型生成复盘解说（需先配置 LLM）">🤖 LLM 复盘解说</button>
+        <select id="llmStyle" title="解说风格">
+          <option value="brief" selected>简洁版</option>
+          <option value="deep">深度复盘版</option>
+        </select>
+        <button id="btnLlmCfgToggle" title="填写大模型接口配置">⚙配置</button>
+        <span style="font-size:12px;color:var(--note);align-self:center">对局结束后调用</span>
+      </div>
+      <div class="row" id="llmCfgRow" style="display:none;flex-wrap:wrap;gap:4px">
+        <input type="text" id="llmBaseUrl" placeholder="Base URL（OpenAI兼容）" style="width:190px" title="如 https://api.siliconflow.cn/v1" />
+        <input type="text" id="llmModel" placeholder="模型名" style="width:150px" title="如 Qwen/Qwen3-235B-A22B-Instruct" />
+        <input type="password" id="llmApiKey" placeholder="API Key" style="width:170px" />
+        <button id="btnLlmSave" title="保存 LLM 配置到本地">保存配置</button>
+      </div>
+      <div class="note" id="llmReport" style="white-space:pre-wrap;line-height:1.8"></div>
+      <div class="moveList" id="moveList"></div>
+      <div class="note" id="reviewReport"></div>
+      <div class="note" id="replayLabel"></div>
 
-    <h3>棋谱保存 / 复盘</h3>
-    <div class="row">
-      <button id="btnSaveGame">保存棋谱</button>
-      <button id="btnSavePgn">导出 PGN</button>
-      <button id="btnSnap">导出局面图</button>
-      <button id="btnLoadGame">打开棋谱复盘</button>
-      <button id="btnBranches" title="悔棋时自动保存的变着分支（原对局快照），可载入复盘对比">变着记录</button>
-    </div>
-    <div class="note" id="branchesList" style="line-height:2.1"></div>
-    <div class="row" id="replayRow" style="display:none">
-      <button id="btnRepFirst">|◀</button>
-      <button id="btnRepPrev">◀</button>
-      <button id="btnRepNext">▶</button>
-      <button id="btnRepLast">▶|</button>
-      <button id="btnRepPlay">自动</button>
-      <button id="btnRepSpeed" title="切换自动播放速度">速度1x</button>
-      <button id="btnGuess">打谱训练</button>
-      <button id="btnRepExit">退出复盘</button>
-    </div>
-    <div class="row" id="reviewRow" style="display:none">
-      <button id="btnReview" class="primary">AI 点评</button>
-      <button id="btnRepStudy" title="对当前手做变着研习：引擎推荐替代着法并对比实际着法的优劣">变着研习</button>
-      <button id="btnReviewExport" title="把 AI 点评与 LLM 解说导出为报告文件">导出报告</button>
-      <span style="font-size:12px;color:var(--note);align-self:center">逐手评分标记 ◎/?!/?/??</span>
-    </div>
-    <div class="row" id="llmRow" style="display:none">
-      <button id="btnLLM" class="primary" title="用大模型生成复盘解说（需先配置 LLM）">🤖 LLM 复盘解说</button>
-      <select id="llmStyle" title="解说风格">
-        <option value="brief" selected>简洁版</option>
-        <option value="deep">深度复盘版</option>
-      </select>
-      <button id="btnLlmCfgToggle" title="填写大模型接口配置">⚙配置</button>
-      <span style="font-size:12px;color:var(--note);align-self:center">对局结束后调用，不干预引擎思考</span>
-    </div>
-    <div class="row" id="llmCfgRow" style="display:none;flex-wrap:wrap;gap:4px">
-      <input type="text" id="llmBaseUrl" placeholder="Base URL（OpenAI兼容）" style="width:190px" title="如 https://api.siliconflow.cn/v1" />
-      <input type="text" id="llmModel" placeholder="模型名" style="width:150px" title="如 Qwen/Qwen3-235B-A22B-Instruct" />
-      <input type="password" id="llmApiKey" placeholder="API Key" style="width:170px" />
-      <button id="btnLlmSave" title="保存 LLM 配置到本地">保存配置</button>
-    </div>
-    <div class="note" id="llmReport" style="white-space:pre-wrap;line-height:1.8"></div>
-    <div class="moveList" id="moveList"></div>
-    <div class="note" id="reviewReport"></div>
-    <div class="note" id="replayLabel"></div>
+      <h3>战绩统计</h3>
+      <div class="row">
+        <button id="btnStats">查看战绩</button>
+        <button id="btnStatsClear">清空战绩</button>
+      </div>
+      <div class="note" id="statsReport" style="white-space:pre-wrap;line-height:1.9"></div>
 
-    <h3>战绩统计</h3>
-    <div class="row">
-      <button id="btnStats">查看战绩</button>
-      <button id="btnStatsClear">清空战绩</button>
+      <h3>棋谱库（games 目录）</h3>
+      <div class="row">
+        <button id="btnLibSave">当前对局存入库</button>
+        <button id="btnLibRefresh">刷新</button>
+      </div>
+      <div class="note" id="libList" style="line-height:2.1"></div>
     </div>
-    <div class="note" id="statsReport" style="white-space:pre-wrap;line-height:1.9"></div>
 
-    <h3>棋谱库（games 目录）</h3>
-    <div class="row">
-      <button id="btnLibSave">当前对局存入库</button>
-      <button id="btnLibRefresh">刷新</button>
-    </div>
-    <div class="note" id="libList" style="line-height:2.1"></div>
+    <!-- ============ Tab4 闯关欣赏 ============ -->
+    <div class="tabBody" id="puzzleTab">
+      <h3>残局闯关（古谱杀局）</h3>
+      <div class="row">
+        <select id="puzzleSel" style="flex:1;min-width:0" title="两步/三步杀残局，预算内完成即过关"></select>
+      </div>
+      <div class="row">
+        <button id="btnPuzzleLoad" class="primary">载入闯关</button>
+        <button id="btnPuzzleHint">提示</button>
+        <span style="font-size:12px;color:var(--note);align-self:center" id="puzzleInfo"></span>
+      </div>
+      <div class="note">攻方在预算步数（N步杀+1）内完成绝杀即过关，引擎全力防守</div>
 
-    <h3>残局闯关（古谱杀局）</h3>
-    <div class="row">
-      <select id="puzzleSel" style="flex:1;min-width:0" title="两步/三步杀残局，预算内完成即过关"></select>
-    </div>
-    <div class="row">
-      <button id="btnPuzzleLoad" class="primary">载入闯关</button>
-      <button id="btnPuzzleHint">提示</button>
-      <span style="font-size:12px;color:var(--note);align-self:center" id="puzzleInfo"></span>
-    </div>
-    <div class="note">攻方在预算步数（N步杀+1）内完成绝杀即过关，引擎全力防守</div>
+      <h3>自定义残局</h3>
+      <div class="note">在编辑模式摆好局面后，填写下方信息即可保存；载入后与内置残局一样闯关挑战</div>
+      <div class="row" style="gap:4px;flex-wrap:wrap">
+        <input type="text" id="cpzName" placeholder="残局名称" style="width:160px" title="自定义残局名称" />
+        <select id="cpzSide" title="攻方执子（先行方）">
+          <option value="red" selected>红先</option>
+          <option value="black">黑先</option>
+        </select>
+        <select id="cpzMoves" title="杀法步数（攻方在 N 步内完成绝杀即过关）">
+          <option value="1">一步杀</option>
+          <option value="2" selected>两步杀</option>
+          <option value="3">三步杀</option>
+          <option value="4">四步杀</option>
+        </select>
+      </div>
+      <div class="row" style="gap:4px;flex-wrap:wrap">
+        <input type="text" id="cpzSolution" placeholder="参考着法（可选，如 f1f0 或 炮二平五）" style="width:200px" title="参考着法，供「提示」按钮显示；可填 ICCS 或中文纵线记法" />
+        <button id="btnCpzSave">保存残局</button>
+        <button id="btnCpzExport" title="把当前保存的残局导出为 PGN 文件">导出 PGN</button>
+        <button id="btnCpzImport" title="从 PGN 文件导入残局">导入 PGN</button>
+      </div>
+      <div class="row" style="gap:4px;flex-wrap:wrap">
+        <select id="cpzSel" style="flex:1;min-width:0" title="已保存的自定义残局"></select>
+        <button id="btnCpzLoad">载入</button>
+        <button id="btnCpzDelete">删除</button>
+      </div>
+      <div class="note" id="cpzInfo"></div>
 
-    <h3>自定义残局</h3>
-    <div class="note">在编辑模式摆好局面后，填写下方信息即可保存；载入后与内置残局一样闯关挑战</div>
-    <div class="row" style="gap:4px;flex-wrap:wrap">
-      <input type="text" id="cpzName" placeholder="残局名称" style="width:160px" title="自定义残局名称" />
-      <select id="cpzSide" title="攻方执子（先行方）">
-        <option value="red" selected>红先</option>
-        <option value="black">黑先</option>
-      </select>
-      <select id="cpzMoves" title="杀法步数（攻方在 N 步内完成绝杀即过关）">
-        <option value="1">一步杀</option>
-        <option value="2" selected>两步杀</option>
-        <option value="3">三步杀</option>
-        <option value="4">四步杀</option>
-      </select>
+      <h3>名局欣赏（古谱《自出洞来无敌手》）</h3>
+      <div class="row">
+        <select id="classicCategory" title="古谱七类" style="flex:1;min-width:0"></select>
+        <select id="classicGame" title="每类五局" style="flex:1;min-width:0"></select>
+      </div>
+      <div class="row">
+        <button id="btnLoadClassic" class="primary">载入复盘</button>
+        <span style="font-size:12px;color:var(--note);align-self:center" id="classicInfo"></span>
+      </div>
+      <div class="note">纯阳道人古谱 · 七类三十五局 · 全部得先胜 · 载入后可自动播放/逐步研习</div>
     </div>
-    <div class="row" style="gap:4px;flex-wrap:wrap">
-      <input type="text" id="cpzSolution" placeholder="参考着法（可选，如 f1f0 或 炮二平五）" style="width:200px" title="参考着法，供「提示」按钮显示；可填 ICCS 或中文纵线记法" />
-      <button id="btnCpzSave">保存残局</button>
-      <button id="btnCpzExport" title="把当前保存的残局导出为 PGN 文件">导出 PGN</button>
-      <button id="btnCpzImport" title="从 PGN 文件导入残局">导入 PGN</button>
-    </div>
-    <div class="row" style="gap:4px;flex-wrap:wrap">
-      <select id="cpzSel" style="flex:1;min-width:0" title="已保存的自定义残局"></select>
-      <button id="btnCpzLoad">载入</button>
-      <button id="btnCpzDelete">删除</button>
-    </div>
-    <div class="note" id="cpzInfo"></div>
-
-    <h3>名局欣赏（古谱《自出洞来无敌手》）</h3>
-    <div class="row">
-      <select id="classicCategory" title="古谱七类" style="flex:1;min-width:0"></select>
-      <select id="classicGame" title="每类五局" style="flex:1;min-width:0"></select>
-    </div>
-    <div class="row">
-      <button id="btnLoadClassic" class="primary">载入复盘</button>
-      <span style="font-size:12px;color:var(--note);align-self:center" id="classicInfo"></span>
-    </div>
-    <div class="note">纯阳道人古谱 · 七类三十五局 · 全部得先胜 · 载入后可自动播放/逐步研习</div>
   </div>
 </div>
 </div>
