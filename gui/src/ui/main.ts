@@ -955,7 +955,8 @@ function doMove(mv: Move) {
 // ---------- 对局自动保存 / 崩溃恢复（localStorage 快照，每步写入） ----------
 const AUTOSAVE_KEY = 'xz_autosave';
 function saveAuto() {
-  if (mode !== 'play' || !movesHistory.length || gameOver) return;
+  // 闯关对局不写自动保存：残局恢复后没有闯关状态（电脑应招/预算/星级）会变成普通对局
+  if (puzzleActive || mode !== 'play' || !movesHistory.length || gameOver) return;
   try {
     let startBoard;
     try {
@@ -3639,7 +3640,9 @@ function refreshPuzzleLabels() {
 }
 refreshPuzzleLabels();
 
-function loadPuzzle() {
+let puzzleLoading = false; // 防连点：引擎启动完成前忽略重复「载入」
+async function loadPuzzle() {
+  if (puzzleLoading) return;
   const p = PUZZLES.find((x) => x.id === puzzleSel.value);
   if (!p) return;
   puzzleHintUsed = false; // 重新闯关：重置提示标记
@@ -3677,14 +3680,28 @@ function loadPuzzle() {
     setStatus('残局 FEN 无效');
     return;
   }
-  newGame(pb);
-  setStatus(`残局闯关：${p.name} · ${p.movesToMate}步杀（预算 ${p.movesToMate + 1} 步）`);
-  // 闯关需要电脑（防守方）自动应招：确保引擎已启动（未启动则自动拉起）
-  void ensureEngines();
+  puzzleLoading = true;
+  try {
+    // 闯关需要电脑（防守方）自动应招：先确保引擎就绪，避免玩家走完第一步后卡在电脑回合
+    if (!engineReady) {
+      setStatus('引擎启动中…');
+      const ok = await ensureEngines();
+      if (!ok) {
+        puzzleActive = null;
+        setStatus('引擎不可用，残局闯关需要电脑应招（请检查引擎配置）');
+        return;
+      }
+    }
+    newGame(pb);
+    setStatus(`残局闯关：${p.name} · ${p.movesToMate}步杀（预算 ${p.movesToMate + 1} 步）`);
+  } finally {
+    puzzleLoading = false;
+  }
 }
 $('btnPuzzleLoad').addEventListener('click', loadPuzzle);
 
 $('btnPuzzleHint').addEventListener('click', () => {
+  if (puzzleLoading) return; // 引擎启动中，暂不提供提示
   const p = puzzleActive ?? PUZZLES.find((x) => x.id === puzzleSel.value);
   if (!p) {
     setStatus('请先选择残局');
