@@ -6,9 +6,10 @@
 - `board/`：FEN 解析、初始局面、走子生成
 - `rules/`：各类棋子合法着法（马腿、塞象眼、士象范围、兵过河）、将帅照面、将军/绝杀判定、非法着法拒绝
 - `uci/`：info 行解析（score cp / mate / multipv / pv）、bestmove 解析、异常输出容错
+- 当前共 **131 项**测试（15 个测试文件），`npm test` 运行
 
 ### 集成测试
-- UCI 客户端对真实引擎的握手与搜索往返（标记为慢速测试）
+- UCI 客户端对真实引擎的握手与搜索往返（`tests/engine-integration.test.ts`，需设置 `ENGINE_PATH` 环境变量指向引擎 exe；未设置时自动跳过）
 
 ### 引擎回归（engine 线）
 - 基线：官方版本 `bench` 输出（nodes 数值）记录入库 `engine-src/bench-baseline.txt`
@@ -22,3 +23,4 @@
 ## 3. 纪律
 - 交付前 `npm test` 全绿；引擎改动 bench 通过
 - 修复 bug 时先写复现测试再修复（回归保护）
+- GitHub Actions CI（`.github/workflows/ci.yml`）在 main/dev 分支自动执行 `npm test` 与 `npx tsc --noEmit`，CI 红 = 禁止 merge
