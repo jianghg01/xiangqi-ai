@@ -16,7 +16,7 @@
 powershell -ExecutionPolicy Bypass -File scripts/download-engine.ps1
 ```
 
-脚本从官方 Release 下载 universal 二进制与 nnue 权重到 `engine/`。
+脚本从官方 Release 下载 universal 二进制与 nnue 权重到 `engine/`，并自动将 Windows 引擎与权重放置为项目实际引用的文件名 **`engine-x64.exe`** 与 **`eval.nnue`**。
 
 ## 验证引擎
 
