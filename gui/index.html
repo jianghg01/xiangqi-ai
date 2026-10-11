@@ -92,6 +92,8 @@
   .menuitem { background: var(--menu-item); font-size: 13px; }
   .menuitem.active { background: var(--menu-item-active); }
   .menuPanel { position: absolute; top: 46px; left: 12px; background: var(--menu-bg); border: 1px solid var(--menu-border); border-radius: 10px; padding: 12px; min-width: 340px; z-index: 60; box-shadow: 0 10px 30px var(--shadow); }
+  /* 编辑棋盘工具：固定在棋盘左侧空白处，不遮挡棋盘 */
+  #menuEdit { position: fixed; left: 12px; top: 50%; transform: translateY(-50%); max-height: calc(100vh - 90px); overflow-y: auto; z-index: 50; }
   /* Tab 分区（简洁化：对弈/设置/阅览/闯关欣赏） */
   .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-shrink: 0; }
   .tabBtn { flex: 1; background: var(--menu-item); color: var(--input-text); border-radius: 8px; padding: 6px 4px; font-size: 13px; }

@@ -1952,6 +1952,7 @@ $('btnMode').addEventListener('click', async () => {
     const ok = await ensureEngines();
     if (!ok) return;
     mode = 'play';
+    setMenu(null); // 关闭「编辑棋盘」工具，让出左侧空白
     ($('btnMode') as HTMLButtonElement).textContent = '返回编辑';
     view.onSquare = playSquareClick; // 复盘/打谱后恢复棋盘落子
     gameMode = gameModeSel.value as 'pve' | 'pvp' | 'eve';
@@ -2068,7 +2069,10 @@ for (const [b, p] of menuEntries) {
   // 面板内点击不关闭菜单（输入局数等）
   ($(p) as HTMLElement).addEventListener('click', (ev) => ev.stopPropagation());
 }
-document.addEventListener('click', () => setMenu(null));
+// 点击空白处关闭菜单；编辑模式下保持「编辑棋盘」工具常开，避免摆棋时面板被关闭
+document.addEventListener('click', () => {
+  if (mode !== 'edit' || openMenu !== 'menuEdit') setMenu(null);
+});
 
 // 数据备份 / 恢复（棋谱库 games 目录 + localStorage 设置）
 $('menuBackupBtn').addEventListener('click', async (ev) => {
