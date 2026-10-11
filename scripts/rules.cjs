@@ -188,8 +188,18 @@ function countPiece(board, side, type) {
 }
 
 // src/rules/rules.ts
-var DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-var DIAGS = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+var DIRS = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1]
+];
+var DIAGS = [
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1]
+];
 var KNIGHT = [
   [1, 2],
   [2, 1],
@@ -298,7 +308,12 @@ function pseudoMovesFrom(board, from) {
       if (inPalace(to, side)) push(to);
     }
   } else if (type === "B") {
-    for (const [df, dr] of [[2, 2], [2, -2], [-2, 2], [-2, -2]]) {
+    for (const [df, dr] of [
+      [2, 2],
+      [2, -2],
+      [-2, 2],
+      [-2, -2]
+    ]) {
       const to = sq(from.file + df, from.rank + dr);
       const eye = sq(from.file + df / 2, from.rank + dr / 2);
       if (onBoard(to) && !crossedRiver(to, side) && !getPiece(board, eye.file, eye.rank)) push(to);
@@ -375,7 +390,9 @@ function legalMoves(board, side) {
 function legalMovesFrom(board, from) {
   const p = getPiece(board, from.file, from.rank);
   if (!p) return [];
-  return legalMoves(board, p.side).filter((mv) => mv.from.file === from.file && mv.from.rank === from.rank);
+  return legalMoves(board, p.side).filter(
+    (mv) => mv.from.file === from.file && mv.from.rank === from.rank
+  );
 }
 function checkStatus(board) {
   const side = board.sideToMove;
