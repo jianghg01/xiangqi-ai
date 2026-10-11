@@ -20,8 +20,8 @@
 ## 编译命令
 
 ```powershell
-$env:Path = "D:\1.DouBaoDownload\3.WB\xiangqi-ai\tools\w64devkit\bin;" + $env:Path
-cd D:\1.DouBaoDownload\3.WB\xiangqi-ai\engine-src\src
+$env:Path = "D:\AI_code\2.GitHub_IDEProjects\xiangqi-ai\tools\w64devkit\bin;" + $env:Path
+cd D:\AI_code\2.GitHub_IDEProjects\xiangqi-ai\engine-src\src
 make build ARCH=x86-64-avx2 debug=yes -j8
 ```
 
