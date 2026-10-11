@@ -32,6 +32,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Check shared rules artifact is in sync
+        run: |
+          npm run build:rules
+          git diff --exit-code -- ../scripts/rules.cjs
+
       - name: Type check
         run: npx tsc --noEmit
 
