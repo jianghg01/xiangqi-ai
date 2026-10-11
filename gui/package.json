@@ -12,7 +12,11 @@
     "build": "tsc --noEmit && vite build",
     "dist": "vite build && electron-builder --win nsis",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\""
   },
   "build": {
     "appId": "com.xiangqi.ai",
@@ -51,9 +55,15 @@
     }
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "electron": "^33.2.0",
     "electron-builder": "^25.1.8",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
     "typescript": "^5.6.3",
+    "typescript-eslint": "^8.71.1",
     "vite": "^5.4.10",
     "vitest": "^2.1.4"
   }

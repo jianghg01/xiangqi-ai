@@ -177,7 +177,7 @@ let cpHistory: number[] = [];          // 红方视角胜率曲线数据
 // 引擎最近一次对弈评估（红方视角，厘兵），供提和按钮判断引擎是否占优
 let lastEvalRedCp: number | null = null;
 let lastEvalMate = false;                // 引擎最近一次评估是否处于绝杀线
-let lastInfoMap = new Map<number, EngineInfo>();
+const lastInfoMap = new Map<number, EngineInfo>();
 
 // 强度分级 → 搜索深度（引擎新版无 Skill Level，用深度限强）
 const ANALYSIS_DEPTH = 14;
