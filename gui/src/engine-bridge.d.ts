@@ -24,6 +24,8 @@ declare global {
         temperature?: number;
       }): Promise<{ content: string } | { error: string }>;
       getMem(): Promise<{ totalMB: number; freeMB: number }>;
+      exportData(localStorageData: Record<string, string>): Promise<{ canceled: boolean; path?: string }>;
+      importData(): Promise<{ canceled: boolean; path?: string; localStorageData?: Record<string, string> }>;
     };
   }
 }

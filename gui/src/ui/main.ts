@@ -1684,6 +1684,44 @@ for (const [b, p] of menuEntries) {
 }
 document.addEventListener('click', () => setMenu(null));
 
+// 数据备份 / 恢复（棋谱库 games 目录 + localStorage 设置）
+$('menuBackupBtn').addEventListener('click', async ev => {
+  ev.stopPropagation();
+  setMenu(null);
+  if (!engineApi) { setStatus('备份功能需要 Electron 环境'); return; }
+  const data: Record<string, string> = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k) data[k] = localStorage.getItem(k) ?? '';
+  }
+  try {
+    const res = await engineApi.exportData(data);
+    if (res && !res.canceled && res.path) {
+      setStatus(`✅ 数据已备份到：${res.path}`);
+    }
+  } catch (e) {
+    setStatus(`备份失败：${String(e)}`);
+  }
+});
+$('menuRestoreBtn').addEventListener('click', async ev => {
+  ev.stopPropagation();
+  setMenu(null);
+  if (!engineApi) { setStatus('恢复功能需要 Electron 环境'); return; }
+  try {
+    const res = await engineApi.importData();
+    if (res && !res.canceled) {
+      if (res.localStorageData) {
+        for (const [k, v] of Object.entries(res.localStorageData)) {
+          try { localStorage.setItem(k, v); } catch { /* 忽略单个失败 */ }
+        }
+      }
+      setStatus(`✅ 已从 ${res.path ?? ''} 恢复棋谱库与设置，部分设置重启后完全生效`);
+    }
+  } catch (e) {
+    setStatus(`恢复失败：${String(e)}`);
+  }
+});
+
 $('btnNew').addEventListener('click', () => { if (mode === 'play') newGame(); });
 // 翻转棋盘：手动切换上下视角（再次点击恢复默认视角）
 $('btnFlip').addEventListener('click', () => {

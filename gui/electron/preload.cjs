@@ -16,4 +16,6 @@ contextBridge.exposeInMainWorld('engine', {
   libDelete: name => ipcRenderer.invoke('lib:delete', name),
   llmChat: payload => ipcRenderer.invoke('llm:chat', payload),
   getMem: () => ipcRenderer.invoke('sys:mem'),
+  exportData: localStorageData => ipcRenderer.invoke('data:export', { localStorageData }),
+  importData: () => ipcRenderer.invoke('data:import'),
 });

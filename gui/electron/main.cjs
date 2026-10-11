@@ -275,6 +275,52 @@ ipcMain.handle('lib:delete', (_e, name) => {
   catch (e) { return { error: String(e) }; }
 });
 
+// ---------- 数据备份/恢复（games 棋谱库 + localStorage 设置导出为目录） ----------
+ipcMain.handle('data:export', async (_e, { localStorageData }) => {
+  const r = await dialog.showOpenDialog(win, {
+    title: '选择备份保存位置（将在此创建 xiangqi-ai-backup-<时间戳> 文件夹）',
+    properties: ['openDirectory', 'createDirectory'],
+  });
+  if (r.canceled || !r.filePaths.length) return { canceled: true };
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  const targetDir = path.join(r.filePaths[0], `xiangqi-ai-backup-${stamp}`);
+  fs.mkdirSync(targetDir, { recursive: true });
+  // 复制棋谱库目录（含自动备份）
+  if (fs.existsSync(libDir())) {
+    fs.cpSync(libDir(), path.join(targetDir, 'games'), { recursive: true });
+  }
+  // 写入 localStorage 备份（战绩/配置/开局库/闯关进度等）
+  fs.writeFileSync(
+    path.join(targetDir, 'localStorage-backup.json'),
+    JSON.stringify(localStorageData ?? {}, null, 2),
+    'utf8',
+  );
+  return { canceled: false, path: targetDir };
+});
+
+ipcMain.handle('data:import', async () => {
+  const r = await dialog.showOpenDialog(win, {
+    title: '选择备份目录（包含 games 与 localStorage-backup.json）',
+    properties: ['openDirectory'],
+  });
+  if (r.canceled || !r.filePaths.length) return { canceled: true };
+  const backupDir = r.filePaths[0];
+  const gamesSrc = path.join(backupDir, 'games');
+  if (fs.existsSync(gamesSrc)) {
+    const dst = libDir();
+    fs.mkdirSync(dst, { recursive: true });
+    // 合并复制（同名覆盖），恢复棋谱库
+    fs.cpSync(gamesSrc, dst, { recursive: true });
+  }
+  let localStorageData = {};
+  const dataFile = path.join(backupDir, 'localStorage-backup.json');
+  if (fs.existsSync(dataFile)) {
+    try { localStorageData = JSON.parse(fs.readFileSync(dataFile, 'utf8')); }
+    catch { /* 备份 JSON 损坏时忽略，仅恢复 games */ }
+  }
+  return { canceled: false, path: backupDir, localStorageData };
+});
+
 // ---------- LLM 复盘解说（OpenAI 兼容 /chat/completions；渲染进程只组装消息，网络在主进程） ----------
 ipcMain.handle('llm:chat', async (_e, { baseUrl, apiKey, model, messages, maxTokens = 2048, temperature = 0.6 }) => {
   if (!baseUrl || !apiKey || !model) return { error: '请先填写 LLM 配置（Base URL / API Key / 模型）' };
