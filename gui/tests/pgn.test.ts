@@ -33,16 +33,25 @@ describe('exportPgn', () => {
     expect(pgn).not.toContain('[FEN');
     const pgn2 = exportPgn({
       startFen: '4k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1',
-      redName: 'A', blackName: 'B', result: '', moves: ['e9e8'], movesZh: ['帅五进一'],
+      redName: 'A',
+      blackName: 'B',
+      result: '',
+      moves: ['e9e8'],
+      movesZh: ['帅五进一'],
     });
     expect(pgn2).toContain('[FEN "4k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1"]');
   });
 
   it('结果标签映射：1-0 / 0-1 / 1/2-1/2', () => {
-    const mk = (result: string) => exportPgn({
-      startFen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
-      redName: '红方', blackName: '黑方', result, moves: ['e6e5'], movesZh: ['兵五进一'],
-    });
+    const mk = (result: string) =>
+      exportPgn({
+        startFen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1',
+        redName: '红方',
+        blackName: '黑方',
+        result,
+        moves: ['e6e5'],
+        movesZh: ['兵五进一'],
+      });
     expect(mk('绝杀，红方胜')).toContain('1-0');
     expect(mk('绝杀，黑方胜')).toContain('0-1');
     expect(mk('和局')).toContain('1/2-1/2');

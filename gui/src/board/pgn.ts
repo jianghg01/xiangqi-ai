@@ -14,8 +14,8 @@ export interface PgnMeta {
   startFen: string;
   redName: string;
   blackName: string;
-  result: string;        // 中文描述，如 "绝杀，红方胜"；空串表示未结束
-  moves: string[];       // 内部坐标 ICCS（rank 0=黑底线）
+  result: string; // 中文描述，如 "绝杀，红方胜"；空串表示未结束
+  moves: string[]; // 内部坐标 ICCS（rank 0=黑底线）
 }
 
 const CN_NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
@@ -43,7 +43,8 @@ export function exportPgn(meta: {
   movesZh: string[];
   date?: string;
 }): string {
-  const isInitial = meta.startFen.trim().split(/\s+/)[0] ===
+  const isInitial =
+    meta.startFen.trim().split(/\s+/)[0] ===
     'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR';
   const tags: string[] = [
     `[Event "象棋 AI 对局"]`,
@@ -66,7 +67,8 @@ export function exportPgn(meta: {
 // ---------- 导入 ----------
 
 // 中文记法着法 token（黑方常用阿拉伯数字，兼容汉字）
-const ZH_MOVE_RE = /^[前后中]?[帅仕相马车炮兵将士象卒][一二三四五六七八九1234567890]?[平进退][一二三四五六七八九1234567890]?$/;
+const ZH_MOVE_RE =
+  /^[前后中]?[帅仕相马车炮兵将士象卒][一二三四五六七八九1234567890]?[平进退][一二三四五六七八九1234567890]?$/;
 const ICCS_MOVE_RE = /^[a-i][0-9][a-i][0-9]$/;
 
 /** 从 PGN 文本提取标签与着法 token（去掉回合编号/结果/注释） */
@@ -77,10 +79,10 @@ function tokenizePgn(text: string): { tags: Record<string, string>; tokens: stri
     return '\n';
   });
   const tokens = movesPart
-    .replace(/\{[^}]*\}/g, ' ')          // {} 注释
-    .replace(/;[^\n]*/g, ' ')            // 行注释
+    .replace(/\{[^}]*\}/g, ' ') // {} 注释
+    .replace(/;[^\n]*/g, ' ') // 行注释
     .split(/\s+/)
-    .filter(t => t && !/^\d+\.+$/.test(t) && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(t));
+    .filter((t) => t && !/^\d+\.+$/.test(t) && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(t));
   return { tags, tokens };
 }
 
@@ -94,7 +96,12 @@ function numVariants(t: string): string[] {
     }
   });
   // 棋子字互换（来源软件常混用：红士写作士、黑象写作相、卒兵将帅互串）
-  const SWAPS: [string, string][] = [['士', '仕'], ['象', '相'], ['卒', '兵'], ['将', '帅']];
+  const SWAPS: [string, string][] = [
+    ['士', '仕'],
+    ['象', '相'],
+    ['卒', '兵'],
+    ['将', '帅'],
+  ];
   for (const [a, b] of SWAPS) {
     for (const v of [...out]) {
       if (v.includes(a)) out.add(v.split(a).join(b));
@@ -108,7 +115,7 @@ function matchToken(board: BoardData, side: Side, token: string): Move | null {
   const legal = legalMoves(board, side);
   if (ICCS_MOVE_RE.test(token)) {
     // ICCS 内部坐标直接匹配
-    const hit = legal.find(mv => toIccs(mv) === token);
+    const hit = legal.find((mv) => toIccs(mv) === token);
     return hit ?? null;
   }
   if (!ZH_MOVE_RE.test(token)) return null;
@@ -133,7 +140,10 @@ export function parsePgn(text: string): PgnMeta {
   } catch {
     board = initialBoard();
   }
-  const startFen = tags.FEN && board ? tags.FEN : 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1';
+  const startFen =
+    tags.FEN && board
+      ? tags.FEN
+      : 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1';
   const parsed = parseMoveTokens(board, tokens);
   let result = '';
   const tag = tags.Result ?? '';

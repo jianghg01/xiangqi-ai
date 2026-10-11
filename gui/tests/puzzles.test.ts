@@ -5,12 +5,19 @@ import { parseFen, toFen } from '../src/board/fen';
 import { applyMove, checkStatus, legalMovesFrom } from '../src/rules/rules';
 import { parseIccs, Side } from '../src/board/types';
 
-const PUZZLES = puzzlesJson as { id: string; name: string; fen: string; side: Side; movesToMate: number; solution: string }[];
+const PUZZLES = puzzlesJson as {
+  id: string;
+  name: string;
+  fen: string;
+  side: Side;
+  movesToMate: number;
+  solution: string;
+}[];
 
 describe('残局题库', () => {
   it('题量充足且 id 唯一', () => {
     expect(PUZZLES.length).toBeGreaterThanOrEqual(40);
-    expect(new Set(PUZZLES.map(p => p.id)).size).toBe(PUZZLES.length);
+    expect(new Set(PUZZLES.map((p) => p.id)).size).toBe(PUZZLES.length);
   });
 
   it('FEN 合法且可往返', () => {
@@ -25,7 +32,9 @@ describe('残局题库', () => {
       const b = parseFen(p.fen).board;
       expect(b.sideToMove).toBe(p.side);
       const sol = parseIccs(p.solution)!;
-      const legal = legalMovesFrom(b, sol.from).some(m => m.to.file === sol.to.file && m.to.rank === sol.to.rank);
+      const legal = legalMovesFrom(b, sol.from).some(
+        (m) => m.to.file === sol.to.file && m.to.rank === sol.to.rank,
+      );
       expect(legal).toBe(true);
     }
   });

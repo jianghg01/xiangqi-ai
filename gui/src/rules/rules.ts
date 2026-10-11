@@ -5,10 +5,27 @@
 import { BoardData, cloneBoard, getPiece, setPiece } from '../board/fen';
 import { Move, Piece, Side, Square, sq } from '../board/types';
 
-const DIRS: [number, number][] = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-const DIAGS: [number, number][] = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+const DIRS: [number, number][] = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+];
+const DIAGS: [number, number][] = [
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1],
+];
 const KNIGHT: [number, number][] = [
-  [1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2],
+  [1, 2],
+  [2, 1],
+  [2, -1],
+  [1, -2],
+  [-1, -2],
+  [-2, -1],
+  [-2, 1],
+  [-1, 2],
 ];
 
 function onBoard(s: Square): boolean {
@@ -53,7 +70,9 @@ export function attackedBy(board: BoardData, target: Square, by: Side): boolean 
 
   // 车 / 炮（四方向射线）
   for (const [df, dr] of DIRS) {
-    let cf = f + df, cr = r + dr, screen = false;
+    let cf = f + df,
+      cr = r + dr,
+      screen = false;
     while (cf >= 0 && cf <= 8 && cr >= 0 && cr <= 9) {
       const p = getPiece(board, cf, cr);
       if (p) {
@@ -65,13 +84,15 @@ export function attackedBy(board: BoardData, target: Square, by: Side): boolean 
           break;
         }
       }
-      cf += df; cr += dr;
+      cf += df;
+      cr += dr;
     }
   }
 
   // 马（注意蹩腿判断方向：腿在马的相邻位置，朝目标方向）
   for (const [df, dr] of KNIGHT) {
-    const tf = f + df, tr = r + dr;
+    const tf = f + df,
+      tr = r + dr;
     if (tf < 0 || tf > 8 || tr < 0 || tr > 9) continue;
     const p = getPiece(board, tf, tr);
     if (!p || p.side !== by || p.type !== 'N') continue;
@@ -129,7 +150,12 @@ export function pseudoMovesFrom(board: BoardData, from: Square): Move[] {
       if (inPalace(to, side)) push(to);
     }
   } else if (type === 'B') {
-    for (const [df, dr] of [[2, 2], [2, -2], [-2, 2], [-2, -2]] as [number, number][]) {
+    for (const [df, dr] of [
+      [2, 2],
+      [2, -2],
+      [-2, 2],
+      [-2, -2],
+    ] as [number, number][]) {
       const to = sq(from.file + df, from.rank + dr);
       const eye = sq(from.file + df / 2, from.rank + dr / 2);
       if (onBoard(to) && !crossedRiver(to, side) && !getPiece(board, eye.file, eye.rank)) push(to);
@@ -145,7 +171,8 @@ export function pseudoMovesFrom(board: BoardData, from: Square): Move[] {
     }
   } else if (type === 'R') {
     for (const [df, dr] of DIRS) {
-      let f = from.file + df, r = from.rank + dr;
+      let f = from.file + df,
+        r = from.rank + dr;
       while (f >= 0 && f <= 8 && r >= 0 && r <= 9) {
         const t = getPiece(board, f, r);
         if (!t) out.push({ from, to: sq(f, r) });
@@ -153,12 +180,15 @@ export function pseudoMovesFrom(board: BoardData, from: Square): Move[] {
           if (t.side !== side) out.push({ from, to: sq(f, r) });
           break;
         }
-        f += df; r += dr;
+        f += df;
+        r += dr;
       }
     }
   } else if (type === 'C') {
     for (const [df, dr] of DIRS) {
-      let f = from.file + df, r = from.rank + dr, screen = false;
+      let f = from.file + df,
+        r = from.rank + dr,
+        screen = false;
       while (f >= 0 && f <= 8 && r >= 0 && r <= 9) {
         const t = getPiece(board, f, r);
         if (!screen) {
@@ -168,7 +198,8 @@ export function pseudoMovesFrom(board: BoardData, from: Square): Move[] {
           if (t.side !== side) out.push({ from, to: sq(f, r) });
           break;
         }
-        f += df; r += dr;
+        f += df;
+        r += dr;
       }
     }
   } else {
@@ -205,13 +236,15 @@ export function applyMove(board: BoardData, mv: Move): BoardData {
 
 // 合法着法 = 伪合法 且 走后不被将/将帅不照面
 export function legalMoves(board: BoardData, side: Side): Move[] {
-  return pseudoMoves(board, side).filter(mv => !inCheck(applyMove(board, mv), side));
+  return pseudoMoves(board, side).filter((mv) => !inCheck(applyMove(board, mv), side));
 }
 
 export function legalMovesFrom(board: BoardData, from: Square): Move[] {
   const p = getPiece(board, from.file, from.rank);
   if (!p) return [];
-  return legalMoves(board, p.side).filter(mv => mv.from.file === from.file && mv.from.rank === from.rank);
+  return legalMoves(board, p.side).filter(
+    (mv) => mv.from.file === from.file && mv.from.rank === from.rank,
+  );
 }
 
 export type GameStatus = 'ok' | 'check' | 'checkmate' | 'stalemate';
@@ -231,7 +264,11 @@ export function hasAttackingPieces(board: BoardData, side: Side): boolean {
   for (let r = 0; r < 10; r++)
     for (let f = 0; f < 9; f++) {
       const p = getPiece(board, f, r);
-      if (p && p.side === side && (p.type === 'R' || p.type === 'C' || p.type === 'N' || p.type === 'P')) {
+      if (
+        p &&
+        p.side === side &&
+        (p.type === 'R' || p.type === 'C' || p.type === 'N' || p.type === 'P')
+      ) {
         return true;
       }
     }

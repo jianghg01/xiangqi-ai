@@ -38,12 +38,26 @@ describe('tagForLoss 评分差值标记', () => {
 
 describe('消息组装', () => {
   const step = (over: Partial<StepEval> = {}): StepEval => ({
-    ply: 1, side: 'red', moveZh: '炮二平五', fenAfter: 'fen1',
-    scoreCp: 50, pv: 'h2e2 h9g7', depth: 18, loss: 0, tag: '平稳', ...over,
+    ply: 1,
+    side: 'red',
+    moveZh: '炮二平五',
+    fenAfter: 'fen1',
+    scoreCp: 50,
+    pv: 'h2e2 h9g7',
+    depth: 18,
+    loss: 0,
+    tag: '平稳',
+    ...over,
   });
   const base: ReviewContextInput = {
-    pgn: '1. 炮二平五', startFen: 'start', redName: '玩家', blackName: '引擎',
-    result: '红胜', steps: [step()], fullFens: ['start', 'fen1'], style: 'brief',
+    pgn: '1. 炮二平五',
+    startFen: 'start',
+    redName: '玩家',
+    blackName: '引擎',
+    result: '红胜',
+    steps: [step()],
+    fullFens: ['start', 'fen1'],
+    style: 'brief',
   };
 
   it('内置系统提示词包含核心要求', () => {

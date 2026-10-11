@@ -16,7 +16,7 @@ import {
 const fen = (s: string) => parseFen(s).board;
 const targets = (boardFen: string, from: { file: number; rank: number }) => {
   const b = fen(boardFen);
-  return pseudoMovesFrom(b, sq(from.file, from.rank)).map(m => `${m.to.file},${m.to.rank}`);
+  return pseudoMovesFrom(b, sq(from.file, from.rank)).map((m) => `${m.to.file},${m.to.rank}`);
 };
 
 describe('初始局面', () => {
@@ -65,7 +65,7 @@ describe('炮打隔子', () => {
   // 红炮 (4,7)，黑子 (4,4)，黑将 (4,0)：隔一个子可以打
   it('有炮架才能吃子', () => {
     const b = fen('4k4/9/9/9/4n4/9/9/4C4/9/4K4 w - - 0 1');
-    const ms = pseudoMovesFrom(b, sq(4, 7)).map(m => `${m.to.file},${m.to.rank}`);
+    const ms = pseudoMovesFrom(b, sq(4, 7)).map((m) => `${m.to.file},${m.to.rank}`);
     // 无阻挡路径
     expect(ms).toContain('4,6');
     expect(ms).toContain('4,5');
@@ -81,13 +81,13 @@ describe('兵过河', () => {
   it('过河兵可横走', () => {
     // 红兵 (4,4) 已过河
     const b = fen('4k4/9/9/9/4P4/9/9/9/9/4K4 w - - 0 1');
-    const ms = pseudoMovesFrom(b, sq(4, 4)).map(m => `${m.to.file},${m.to.rank}`);
+    const ms = pseudoMovesFrom(b, sq(4, 4)).map((m) => `${m.to.file},${m.to.rank}`);
     expect(ms).toContain('4,3'); // 前进
     expect(ms).toContain('3,4'); // 横走
     expect(ms).toContain('5,4');
     // 未过河红兵 (4,5)：只能前进
     const b2 = fen('4k4/9/9/9/9/4P4/9/9/9/4K4 w - - 0 1');
-    const ms2 = pseudoMovesFrom(b2, sq(4, 5)).map(m => `${m.to.file},${m.to.rank}`);
+    const ms2 = pseudoMovesFrom(b2, sq(4, 5)).map((m) => `${m.to.file},${m.to.rank}`);
     expect(ms2).toEqual(['4,4']);
   });
 });
@@ -162,6 +162,8 @@ describe('无进攻子力判和', () => {
   });
 
   it('初始局面 → 不判和', () => {
-    expect(isMaterialDraw(fen('rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1'))).toBe(false);
+    expect(
+      isMaterialDraw(fen('rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1')),
+    ).toBe(false);
   });
 });

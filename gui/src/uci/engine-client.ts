@@ -3,9 +3,9 @@
 export interface EngineInfo {
   depth: number;
   multipv: number;
-  scoreCp: number | null;   // 分数（行棋方视角，厘兵）
+  scoreCp: number | null; // 分数（行棋方视角，厘兵）
   scoreMate: number | null; // #N 步杀
-  pv: string[];             // ICCS 着法序列
+  pv: string[]; // ICCS 着法序列
 }
 
 export interface GoOptions {
@@ -16,14 +16,22 @@ export interface GoOptions {
 
 export function parseInfo(line: string): EngineInfo | null {
   const t = line.split(/\s+/);
-  let depth = 0, multipv = 1, scoreCp: number | null = null, scoreMate: number | null = null;
+  let depth = 0,
+    multipv = 1,
+    scoreCp: number | null = null,
+    scoreMate: number | null = null;
   const pv: string[] = [];
   for (let i = 1; i < t.length; i++) {
     if (t[i] === 'depth') depth = parseInt(t[++i], 10) || 0;
     else if (t[i] === 'multipv') multipv = parseInt(t[++i], 10) || 1;
     else if (t[i] === 'score') {
-      if (t[i + 1] === 'cp') { scoreCp = parseInt(t[i + 2], 10); i += 2; }
-      else if (t[i + 1] === 'mate') { scoreMate = parseInt(t[i + 2], 10); i += 2; }
+      if (t[i + 1] === 'cp') {
+        scoreCp = parseInt(t[i + 2], 10);
+        i += 2;
+      } else if (t[i + 1] === 'mate') {
+        scoreMate = parseInt(t[i + 2], 10);
+        i += 2;
+      }
     } else if (t[i] === 'pv') {
       pv.push(...t.slice(i + 1));
       break;
@@ -52,10 +60,18 @@ export class UciClient {
     }
   }
 
-  uci() { this.send('uci'); }
-  isready() { this.send('isready'); }
-  setOption(name: string, value: string | number) { this.send(`setoption name ${name} value ${value}`); }
-  newGame() { this.send('ucinewgame'); }
+  uci() {
+    this.send('uci');
+  }
+  isready() {
+    this.send('isready');
+  }
+  setOption(name: string, value: string | number) {
+    this.send(`setoption name ${name} value ${value}`);
+  }
+  newGame() {
+    this.send('ucinewgame');
+  }
   position(fen: string, moves: string[] = []) {
     this.send(`position fen ${fen}` + (moves.length ? ` moves ${moves.join(' ')}` : ''));
   }
@@ -66,8 +82,12 @@ export class UciClient {
     if (opts.infinite) s += ' infinite';
     this.send(s);
   }
-  stop() { this.send('stop'); }
-  quit() { this.send('quit'); }
+  stop() {
+    this.send('stop');
+  }
+  quit() {
+    this.send('quit');
+  }
 }
 
 // 引擎分数（行棋方视角）→ 红方视角
@@ -77,7 +97,7 @@ export function toRedPersp(cp: number, sideToMove: 'red' | 'black'): number {
 
 // 厘兵 → 胜率%（logistic，k 与 lichess 一致）
 export function cpToWinrate(cp: number): number {
-  return (100 / (1 + Math.exp(-0.00368208 * cp)));
+  return 100 / (1 + Math.exp(-0.00368208 * cp));
 }
 
 export function formatScore(cp: number | null, mate: number | null): string {
@@ -89,7 +109,10 @@ export function formatScore(cp: number | null, mate: number | null): string {
 // ---------- 坐标系转换 ----------
 // 引擎 ICCS：rank 0 = 红方底线（FEN 最后一行）；本项目内部：rank 0 = 黑方底线（FEN 首行）
 // 因此引擎的 rank r 对应内部 rank 9-r；file 两侧一致（a..i = 0..8）
-export function engineMoveToLocal(mv: { from: { file: number; rank: number }; to: { file: number; rank: number } }): { from: { file: number; rank: number }; to: { file: number; rank: number } } {
+export function engineMoveToLocal(mv: {
+  from: { file: number; rank: number };
+  to: { file: number; rank: number };
+}): { from: { file: number; rank: number }; to: { file: number; rank: number } } {
   return {
     from: { file: mv.from.file, rank: 9 - mv.from.rank },
     to: { file: mv.to.file, rank: 9 - mv.to.rank },
@@ -98,7 +121,7 @@ export function engineMoveToLocal(mv: { from: { file: number; rank: number }; to
 
 // 引擎 pv 着法串（ICCS）转内部坐标串，仅用于显示
 export function enginePvToLocal(pv: string[]): string[] {
-  return pv.map(s => {
+  return pv.map((s) => {
     const m = /^([a-i])(\d)([a-i])(\d)$/.exec(s);
     if (!m) return s;
     return m[1] + (9 - parseInt(m[2], 10)) + m[3] + (9 - parseInt(m[4], 10));

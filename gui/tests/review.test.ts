@@ -1,6 +1,13 @@
 // AI 复盘点评纯逻辑测试
 import { describe, it, expect } from 'vitest';
-import { normalizeScore, lossList, classifyLoss, marksFor, summarize, acplOf } from '../src/uci/review';
+import {
+  normalizeScore,
+  lossList,
+  classifyLoss,
+  marksFor,
+  summarize,
+  acplOf,
+} from '../src/uci/review';
 
 describe('normalizeScore 评分归一化', () => {
   it('厘兵分原样返回', () => {
@@ -51,8 +58,8 @@ describe('classifyLoss 标记分类', () => {
     const losses = lossList(scores, 3);
     const marks = marksFor(losses, scores);
     expect(marks).toHaveLength(3);
-    expect(marks[0]).toBe('?');    // 300-60=240 → '?'
-    expect(marks[2]).toBeNull();   // before=-5000 已必败
+    expect(marks[0]).toBe('?'); // 300-60=240 → '?'
+    expect(marks[2]).toBeNull(); // before=-5000 已必败
   });
 });
 
@@ -64,9 +71,9 @@ describe('summarize 分方汇总', () => {
     expect(s.red.cnt).toBe(2);
     expect(s.black.cnt).toBe(2);
     expect(s.black.q3).toBe(1);
-    expect(s.red.q1).toBe(1);          // k=2 损失60 属红方
+    expect(s.red.q1).toBe(1); // k=2 损失60 属红方
     expect(s.black.q1).toBe(0);
-    expect(acplOf(s.red)).toBe(30);   // (0+60)/2
+    expect(acplOf(s.red)).toBe(30); // (0+60)/2
     expect(acplOf(s.black)).toBe(150); // (300+0)/2
   });
   it('黑先：奇数手记红', () => {

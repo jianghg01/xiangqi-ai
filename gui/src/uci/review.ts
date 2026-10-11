@@ -1,11 +1,11 @@
 // AI 复盘点评纯逻辑：评分归一化、损失计算、标记分类、ACPL 汇总（可单测）
 
 export interface ReviewSideAcc {
-  sum: number;   // 损失合计（单手上限 500）
-  cnt: number;   // 手数
-  q1: number;    // ?! 缓着数
-  q2: number;    // ?  失误数
-  q3: number;    // ?? 大败数
+  sum: number; // 损失合计（单手上限 500）
+  cnt: number; // 手数
+  q1: number; // ?! 缓着数
+  q2: number; // ?  失误数
+  q3: number; // ?? 大败数
 }
 
 export interface ReviewSummary {
@@ -26,7 +26,7 @@ export function normalizeScore(scoreCp: number | null, scoreMate: number | null)
 export function lossList(scores: number[], n: number): number[] {
   const losses: number[] = [];
   for (let k = 0; k < n; k++) {
-    let loss = scores[k] - (-scores[k + 1]);
+    let loss = scores[k] - -scores[k + 1];
     if (loss < 0) loss = 0; // 走得比预期更好，不扣分
     losses.push(loss);
   }
@@ -47,13 +47,17 @@ export function marksFor(losses: number[], scores: number[]): (string | null)[] 
 }
 
 // 分方汇总（startSide 为第 0 手行棋方；偶数手 = startSide）
-export function summarize(losses: number[], marks: (string | null)[], startSide: 'red' | 'black'): ReviewSummary {
+export function summarize(
+  losses: number[],
+  marks: (string | null)[],
+  startSide: 'red' | 'black',
+): ReviewSummary {
   const acc: ReviewSummary = {
     red: { sum: 0, cnt: 0, q1: 0, q2: 0, q3: 0 },
     black: { sum: 0, cnt: 0, q1: 0, q2: 0, q3: 0 },
   };
   losses.forEach((loss, k) => {
-    const side = k % 2 === 0 ? startSide : (startSide === 'red' ? 'black' : 'red');
+    const side = k % 2 === 0 ? startSide : startSide === 'red' ? 'black' : 'red';
     const a = acc[side];
     a.sum += Math.min(loss, 500);
     a.cnt++;

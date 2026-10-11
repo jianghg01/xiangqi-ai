@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  emptyBoard,
-  INITIAL_FEN,
-  initialBoard,
-  parseFen,
-  setPiece,
-  toFen,
-} from '../src/board/fen';
+import { emptyBoard, INITIAL_FEN, initialBoard, parseFen, setPiece, toFen } from '../src/board/fen';
 
 describe('FEN 解析', () => {
   it('解析初始局面', () => {
@@ -67,7 +60,7 @@ describe('初始局面完整性', () => {
   it('双方各 16 子', () => {
     const b = initialBoard();
     const flat = b.pieces.flat();
-    expect(flat.filter(p => p?.side === 'red')).toHaveLength(16);
-    expect(flat.filter(p => p?.side === 'black')).toHaveLength(16);
+    expect(flat.filter((p) => p?.side === 'red')).toHaveLength(16);
+    expect(flat.filter((p) => p?.side === 'black')).toHaveLength(16);
   });
 });

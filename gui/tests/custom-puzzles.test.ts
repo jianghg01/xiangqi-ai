@@ -12,8 +12,12 @@ import { exportPgn, parsePgn } from '../src/board/pgn';
 const store = new Map<string, string>();
 const localStorageShim = {
   getItem: (k: string) => (store.has(k) ? store.get(k)! : null),
-  setItem: (k: string, v: string) => { store.set(k, String(v)); },
-  removeItem: (k: string) => { store.delete(k); },
+  setItem: (k: string, v: string) => {
+    store.set(k, String(v));
+  },
+  removeItem: (k: string) => {
+    store.delete(k);
+  },
   clear: () => store.clear(),
 };
 
@@ -88,7 +92,7 @@ describe('自定义残局 localStorage 持久化', () => {
     };
     saveCustomPuzzles([item]);
     expect(loadCustomPuzzles().length).toBe(1);
-    const after = loadCustomPuzzles().filter(x => x.id !== 'cpz-test2');
+    const after = loadCustomPuzzles().filter((x) => x.id !== 'cpz-test2');
     saveCustomPuzzles(after);
     expect(loadCustomPuzzles().length).toBe(0);
   });

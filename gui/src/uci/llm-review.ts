@@ -16,15 +16,15 @@ export type ReviewStyle = 'brief' | 'deep';
 
 // 每步评估记录
 export interface StepEval {
-  ply: number;            // 第几步（从 1 起）
-  side: 'red' | 'black';  // 行棋方
-  moveZh: string;         // 中文记谱
-  fenAfter: string;       // 走完后的局面 FEN
+  ply: number; // 第几步（从 1 起）
+  side: 'red' | 'black'; // 行棋方
+  moveZh: string; // 中文记谱
+  fenAfter: string; // 走完后的局面 FEN
   scoreCp: number | null; // 引擎评估（行棋方视角，厘兵）
-  pv: string;             // 主变 ICCS（空格分隔，内部坐标系）
-  depth: number;          // 搜索深度
-  loss: number;           // 本手损失 = 走前分 - 走后分（行棋方视角，负值=得分提升）
-  tag: StepTag;           // 六类标记
+  pv: string; // 主变 ICCS（空格分隔，内部坐标系）
+  depth: number; // 搜索深度
+  loss: number; // 本手损失 = 走前分 - 走后分（行棋方视角，负值=得分提升）
+  tag: StepTag; // 六类标记
 }
 
 export type StepTag = '妙手' | '佳着' | '平稳' | '疑问手' | '败招' | '漏招';
@@ -32,11 +32,11 @@ export type StepTag = '妙手' | '佳着' | '平稳' | '疑问手' | '败招' | 
 // 评分差值（loss，厘兵）→ 标记。与 AI 点评（review.ts）的 40/100/250 阈值对称扩展：
 //   正向为损失（败招/漏招 >100/250、疑问手 40~100）；负向为得分提升（佳着/妙手）。
 export function tagForLoss(loss: number): StepTag {
-  if (loss > 250) return '漏招';       // 大败/漏杀
-  if (loss > 100) return '败招';       // 失误、明显亏损
-  if (loss > 40) return '疑问手';      // 缓手、稍差
-  if (loss < -250) return '妙手';      // 极大提升（通常净赚大子/抓住对方漏招）
-  if (loss < -40) return '佳着';       // 明显提升
+  if (loss > 250) return '漏招'; // 大败/漏杀
+  if (loss > 100) return '败招'; // 失误、明显亏损
+  if (loss > 40) return '疑问手'; // 缓手、稍差
+  if (loss < -250) return '妙手'; // 极大提升（通常净赚大子/抓住对方漏招）
+  if (loss < -40) return '佳着'; // 明显提升
   return '平稳';
 }
 
@@ -63,8 +63,8 @@ export interface ReviewContextInput {
   redName: string;
   blackName: string;
   result: string;
-  steps: StepEval[];        // 按步序
-  fullFens: string[];       // 完整 FEN 序列（含起始局面，length = steps+1）
+  steps: StepEval[]; // 按步序
+  fullFens: string[]; // 完整 FEN 序列（含起始局面，length = steps+1）
   style: ReviewStyle;
 }
 
@@ -84,7 +84,9 @@ export function buildUserPrompt(ctx: ReviewContextInput): string {
     for (const s of ctx.steps) {
       const cp = s.scoreCp === null ? '-' : s.scoreCp.toString().padStart(5);
       const pv = s.pv ? s.pv.split(' ').slice(0, 6).join(' ') : '-';
-      L.push(`${s.ply} | ${s.side === 'red' ? '红' : '黑'} | ${s.moveZh} | ${cp} | ${s.loss >= 0 ? '+' + s.loss : s.loss} | ${s.tag} | ${s.depth} | ${pv}`);
+      L.push(
+        `${s.ply} | ${s.side === 'red' ? '红' : '黑'} | ${s.moveZh} | ${cp} | ${s.loss >= 0 ? '+' + s.loss : s.loss} | ${s.tag} | ${s.depth} | ${pv}`,
+      );
     }
   }
   // 完整 FEN 序列（深度复盘需要精确定位局面）
@@ -96,7 +98,9 @@ export function buildUserPrompt(ctx: ReviewContextInput): string {
 }
 
 // 组装发送给大模型的 messages
-export function buildMessages(ctx: ReviewContextInput): { role: 'system' | 'user'; content: string }[] {
+export function buildMessages(
+  ctx: ReviewContextInput,
+): { role: 'system' | 'user'; content: string }[] {
   return [
     { role: 'system', content: LLM_SYSTEM_PROMPT },
     {

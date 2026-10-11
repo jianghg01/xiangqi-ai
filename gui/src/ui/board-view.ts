@@ -8,18 +8,11 @@
 export type FlipMode = 'none' | 'ud' | 'lr';
 
 import { BoardData, getPiece, setPiece, toFen } from '../board/fen';
-import {
-  Piece,
-  PieceType,
-  PIECE_CHAR,
-  Side,
-  Square,
-  sq,
-} from '../board/types';
+import { Piece, PieceType, PIECE_CHAR, Side, Square, sq } from '../board/types';
 
-const CELL = 64;          // 格距（px）
-const MARGIN = 40;        // 边距
-const PIECE_R = 26;       // 棋子半径
+const CELL = 64; // 格距（px）
+const MARGIN = 40; // 边距
+const PIECE_R = 26; // 棋子半径
 const W = MARGIN * 2 + CELL * 8;
 const H = MARGIN * 2 + CELL * 9;
 
@@ -33,9 +26,39 @@ export interface BoardTheme {
   black: string;
 }
 export const BOARD_THEMES: Record<string, { name: string; theme: BoardTheme }> = {
-  classic: { name: '经典木色', theme: { bg: '#f5e7c8', line: '#6b4a2b', text: '#5b3a1e', pieceBg: '#fdf6e3', red: '#b02a1e', black: '#1e3e6e' } },
-  walnut: { name: '胡桃深木', theme: { bg: '#d9b382', line: '#5a3a1a', text: '#4a2f14', pieceBg: '#fbf3df', red: '#a02318', black: '#173a5e' } },
-  jade: { name: '墨玉', theme: { bg: '#2e4636', line: '#c8b88a', text: '#d8c9a0', pieceBg: '#f2ead2', red: '#c23a28', black: '#28527a' } },
+  classic: {
+    name: '经典木色',
+    theme: {
+      bg: '#f5e7c8',
+      line: '#6b4a2b',
+      text: '#5b3a1e',
+      pieceBg: '#fdf6e3',
+      red: '#b02a1e',
+      black: '#1e3e6e',
+    },
+  },
+  walnut: {
+    name: '胡桃深木',
+    theme: {
+      bg: '#d9b382',
+      line: '#5a3a1a',
+      text: '#4a2f14',
+      pieceBg: '#fbf3df',
+      red: '#a02318',
+      black: '#173a5e',
+    },
+  },
+  jade: {
+    name: '墨玉',
+    theme: {
+      bg: '#2e4636',
+      line: '#c8b88a',
+      text: '#d8c9a0',
+      pieceBg: '#f2ead2',
+      red: '#c23a28',
+      black: '#28527a',
+    },
+  },
 };
 
 // 分析提示箭头（rank 0 = 引擎第一推荐）
@@ -51,22 +74,22 @@ export class BoardView {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private board: BoardData;
-  private selected: Square | null = null;      // 编辑模式：选中格子
+  private selected: Square | null = null; // 编辑模式：选中格子
   private paletteType: PieceType | null = null;
   private paletteSide: Side = 'red';
   private onChange: (() => void) | null = null;
   private animating = false;
-  private highlights: Square[] = [];           // 对弈模式：合法落点
+  private highlights: Square[] = []; // 对弈模式：合法落点
   private lastMove: { from: Square; to: Square } | null = null;
-  private checkSquare: Square | null = null;   // 被将军一方的将/帅位置（红圈标记）
-  private arrows: Arrow[] = [];                // 分析提示箭头
+  private checkSquare: Square | null = null; // 被将军一方的将/帅位置（红圈标记）
+  private arrows: Arrow[] = []; // 分析提示箭头
   private theme: BoardTheme = BOARD_THEMES.classic.theme;
-  private customBg: HTMLImageElement | null = null;   // 自定义底纹图（dataURL 导入，拉伸铺满）
+  private customBg: HTMLImageElement | null = null; // 自定义底纹图（dataURL 导入，拉伸铺满）
   private customBgUrl = '';
-  private dragFrom: Square | null = null;      // 拖拽中的棋子起点
+  private dragFrom: Square | null = null; // 拖拽中的棋子起点
   private dragPos: [number, number] | null = null; // 拖拽当前像素位置
-  private swallowClick = false;                // 拖拽后吞掉紧随的 click
-  private flipMode: FlipMode = 'none';         // 棋盘视角：默认/上下翻转/左右翻转
+  private swallowClick = false; // 拖拽后吞掉紧随的 click
+  private flipMode: FlipMode = 'none'; // 棋盘视角：默认/上下翻转/左右翻转
   // 对弈模式：设置后接管棋盘点击；为 null 时走编辑摆子逻辑
   onSquare: ((s: Square) => void) | null = null;
 
@@ -76,14 +99,18 @@ export class BoardView {
     if (!ctx) throw new Error('无法获取 canvas 上下文');
     this.ctx = ctx;
     this.board = board;
-    this.resize(W, H);   // 初始尺寸=逻辑尺寸，缓冲 2x 抗锯齿
+    this.resize(W, H); // 初始尺寸=逻辑尺寸，缓冲 2x 抗锯齿
 
-    canvas.addEventListener('click', e => this.onClick(e));
-    canvas.addEventListener('mousedown', e => this.onMouseDown(e));
-    canvas.addEventListener('mousemove', e => this.onMouseMove(e));
-    canvas.addEventListener('mouseup', e => this.onMouseUp(e));
+    canvas.addEventListener('click', (e) => this.onClick(e));
+    canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+    canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+    canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
     canvas.addEventListener('mouseleave', () => {
-      if (this.dragFrom) { this.dragFrom = null; this.dragPos = null; this.draw(); }
+      if (this.dragFrom) {
+        this.dragFrom = null;
+        this.dragPos = null;
+        this.draw();
+      }
     });
     this.draw();
   }
@@ -128,7 +155,7 @@ export class BoardView {
   // 按目标 CSS 尺寸等比缩放棋盘：缓冲始终为显示尺寸的 2x（高 DPI 清晰），重绘
   // 逻辑坐标恒为 W×H，通过 setTransform 映射到缓冲像素
   resize(cssW: number, cssH: number) {
-    const s = cssW / W;   // 显示缩放比（s>1 放大、s<1 缩小）
+    const s = cssW / W; // 显示缩放比（s>1 放大、s<1 缩小）
     this.canvas.width = Math.max(2, Math.round(cssW * 2));
     this.canvas.height = Math.max(2, Math.round(cssH * 2));
     this.canvas.style.width = Math.round(cssW) + 'px';
@@ -144,13 +171,19 @@ export class BoardView {
     return [(e.clientX - rect.left) / k, (e.clientY - rect.top) / k];
   }
 
-  setOnChange(cb: () => void) { this.onChange = cb; }
+  setOnChange(cb: () => void) {
+    this.onChange = cb;
+  }
   setPalette(type: PieceType | null, side: Side) {
     this.paletteType = type;
     this.paletteSide = side;
   }
-  getFen(): string { return toFen(this.board); }
-  getBoard(): BoardData { return this.board; }
+  getFen(): string {
+    return toFen(this.board);
+  }
+  getBoard(): BoardData {
+    return this.board;
+  }
 
   // 替换整个局面（载入 FEN / 初始局面 / 清空）
   replaceBoard(board: BoardData) {
@@ -163,15 +196,31 @@ export class BoardView {
   }
 
   // 对弈模式：显示合法落点与上一步
-  setHighlights(squares: Square[]) { this.highlights = squares; this.draw(); }
+  setHighlights(squares: Square[]) {
+    this.highlights = squares;
+    this.draw();
+  }
   setLastMove(from: Square | null, to: Square | null) {
     this.lastMove = from && to ? { from, to } : null;
     this.draw();
   }
-  setCheck(s: Square | null) { this.checkSquare = s; this.draw(); }
-  setFlipMode(m: FlipMode) { if (this.flipMode !== m) { this.flipMode = m; this.draw(); } }
-  getFlipMode(): FlipMode { return this.flipMode; }
-  setArrows(arr: Arrow[]) { this.arrows = arr; this.draw(); }
+  setCheck(s: Square | null) {
+    this.checkSquare = s;
+    this.draw();
+  }
+  setFlipMode(m: FlipMode) {
+    if (this.flipMode !== m) {
+      this.flipMode = m;
+      this.draw();
+    }
+  }
+  getFlipMode(): FlipMode {
+    return this.flipMode;
+  }
+  setArrows(arr: Arrow[]) {
+    this.arrows = arr;
+    this.draw();
+  }
   setThemeByName(name: string) {
     const t = BOARD_THEMES[name]?.theme;
     if (!t) return;
@@ -181,7 +230,12 @@ export class BoardView {
 
   // 自定义棋盘底纹：dataURL 图片拉伸铺满；null 清除恢复木色
   setCustomBg(dataUrl: string | null) {
-    if (!dataUrl) { this.customBg = null; this.customBgUrl = ''; this.draw(); return; }
+    if (!dataUrl) {
+      this.customBg = null;
+      this.customBgUrl = '';
+      this.draw();
+      return;
+    }
     if (dataUrl === this.customBgUrl) return;
     const img = new Image();
     img.onload = () => {
@@ -218,13 +272,20 @@ export class BoardView {
   private toXy(s: Square): [number, number] {
     let f = s.file;
     let r = s.rank;
-    if (this.flipMode === 'ud') { f = 8 - f; r = 9 - r; }
-    else if (this.flipMode === 'lr') { f = 8 - f; }
+    if (this.flipMode === 'ud') {
+      f = 8 - f;
+      r = 9 - r;
+    } else if (this.flipMode === 'lr') {
+      f = 8 - f;
+    }
     return [MARGIN + f * CELL, MARGIN + r * CELL];
   }
 
   private onClick(e: MouseEvent) {
-    if (this.swallowClick) { this.swallowClick = false; return; }
+    if (this.swallowClick) {
+      this.swallowClick = false;
+      return;
+    }
     const s = this.toSquare(e);
     if (!s || this.animating) return;
     if (this.onSquare) {
@@ -257,7 +318,10 @@ export class BoardView {
   // 走子动画（M3 规则校验通过后由上层调用）
   animateMove(from: Square, to: Square, done?: () => void) {
     const p = getPiece(this.board, from.file, from.rank);
-    if (!p) { done?.(); return; }
+    if (!p) {
+      done?.();
+      return;
+    }
     this.animating = true;
     const [x0, y0] = this.toXy(from);
     const [x1, y1] = this.toXy(to);
@@ -326,7 +390,12 @@ export class BoardView {
     c.lineWidth = 1;
 
     // 九宫斜线
-    for (const [f0, r0, f1, r1] of [[3,0,5,2],[5,0,3,2],[3,7,5,9],[5,7,3,9]]) {
+    for (const [f0, r0, f1, r1] of [
+      [3, 0, 5, 2],
+      [5, 0, 3, 2],
+      [3, 7, 5, 9],
+      [5, 7, 3, 9],
+    ]) {
       c.beginPath();
       c.moveTo(MARGIN + f0 * CELL, MARGIN + r0 * CELL);
       c.lineTo(MARGIN + f1 * CELL, MARGIN + r1 * CELL);
@@ -343,15 +412,31 @@ export class BoardView {
 
     // 兵/炮位标记（四角直角短线，边线处只画内侧）
     const marks: [number, number][] = [
-      [1,2],[7,2],[0,3],[2,3],[4,3],[6,3],[8,3],
-      [1,7],[7,7],[0,6],[2,6],[4,6],[6,6],[8,6],
+      [1, 2],
+      [7, 2],
+      [0, 3],
+      [2, 3],
+      [4, 3],
+      [6, 3],
+      [8, 3],
+      [1, 7],
+      [7, 7],
+      [0, 6],
+      [2, 6],
+      [4, 6],
+      [6, 6],
+      [8, 6],
     ];
     c.strokeStyle = this.theme.line;
     for (const [f, r] of marks) {
       const [x, y] = this.toXy(sq(f, r));
-      const g = 5, l = 10;
+      const g = 5,
+        l = 10;
       const sides = [f > 0, f < 8]; // 左侧、右侧是否画
-      for (const [on, dx] of [[sides[0], -1], [sides[1], 1]] as [boolean, number][]) {
+      for (const [on, dx] of [
+        [sides[0], -1],
+        [sides[1], 1],
+      ] as [boolean, number][]) {
         if (!on) continue;
         for (const dy of [-1, 1]) {
           c.beginPath();
@@ -437,7 +522,8 @@ export class BoardView {
       const rank = Math.max(0, Math.min(2, a.rank));
       const [x0, y0] = this.toXy(a.from);
       const [x1, y1] = this.toXy(a.to);
-      const dx = x1 - x0, dy = y1 - y0;
+      const dx = x1 - x0,
+        dy = y1 - y0;
       const len = Math.hypot(dx, dy) || 1;
       // 起止各留出棋子半径，箭头尖端再留 4px
       const sx = x0 + (dx / len) * (PIECE_R - 2);
@@ -470,7 +556,10 @@ export class BoardView {
   private drawPiece(p: Piece, x: number, y: number, lifted = false) {
     const c = this.ctx;
     c.save();
-    if (lifted) { c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 12; }
+    if (lifted) {
+      c.shadowColor = 'rgba(0,0,0,.35)';
+      c.shadowBlur = 12;
+    }
     c.beginPath();
     c.arc(x, y, PIECE_R, 0, Math.PI * 2);
     c.fillStyle = this.theme.pieceBg;

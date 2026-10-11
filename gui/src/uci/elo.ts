@@ -1,6 +1,6 @@
 // ELO 等级化：低强度档概率性选择次优着法（模拟分段棋手的不精确性）
 export interface BlunderProfile {
-  p: number;      // 触发概率
+  p: number; // 触发概率
   margin: number; // 可接受次优损失上限（厘兵）
 }
 
@@ -8,12 +8,18 @@ export interface BlunderProfile {
 // 依据：开源引擎官方天梯图（基准：象棋旋风2007C=2600），NNUE 满级棋力约 4000
 // （2026-01-31 版 4002.7 列第一）；人类天花板王天一巅峰 <2800。低档位叠加扰动模拟人类水平。
 export const DEPTH_ELO: Record<string, number> = {
-  '1': 1400, '2': 1600, '3': 1800, '5': 2100,
-  '8': 2400, '12': 2700, '18': 3200, '24': 4000,
+  '1': 1400,
+  '2': 1600,
+  '3': 1800,
+  '5': 2100,
+  '8': 2400,
+  '12': 2700,
+  '18': 3200,
+  '24': 4000,
 };
 
 export interface PerfRecord {
-  elo: number;    // 该档引擎参考 ELO
+  elo: number; // 该档引擎参考 ELO
   win: number;
   loss: number;
   games: number;
@@ -50,7 +56,7 @@ export function pickBlunder<T extends { cp: number }>(
   rand: number,
 ): T | null {
   if (bestCp === null) return null;
-  const ok = candidates.filter(c => bestCp - c.cp <= margin);
+  const ok = candidates.filter((c) => bestCp - c.cp <= margin);
   if (ok.length < 2) return null;
   return ok[Math.min(ok.length - 1, Math.max(0, Math.floor(rand * ok.length)))];
 }

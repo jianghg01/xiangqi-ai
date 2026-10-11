@@ -1,6 +1,12 @@
 // 开局库测试：每条序列必须从初始局面逐合法重放；匹配逻辑正确
 import { describe, expect, it } from 'vitest';
-import { OPENINGS, isOpeningValid, matchOpening, matchOpeningByCategory, categoryOf } from '../src/board/openings';
+import {
+  OPENINGS,
+  isOpeningValid,
+  matchOpening,
+  matchOpeningByCategory,
+  categoryOf,
+} from '../src/board/openings';
 
 describe('开局库', () => {
   it('所有开局序列每一步都合法', () => {
@@ -10,7 +16,7 @@ describe('开局库', () => {
   });
 
   it('开局名互不重复', () => {
-    const names = OPENINGS.map(o => o.name);
+    const names = OPENINGS.map((o) => o.name);
     expect(new Set(names).size).toBe(names.length);
   });
 
@@ -42,8 +48,8 @@ describe('开局库', () => {
   });
 
   it('偏离开局库返回 null', () => {
-    expect(matchOpening(['e9e8'])).toBeNull();          // 帅五进一，无此开局
-    expect(matchOpening(['h7e7', 'e6e5'])).toBeNull();  // 黑回应不在库中
+    expect(matchOpening(['e9e8'])).toBeNull(); // 帅五进一，无此开局
+    expect(matchOpening(['h7e7', 'e6e5'])).toBeNull(); // 黑回应不在库中
   });
 });
 
@@ -51,8 +57,19 @@ describe('按开局类别匹配（人指定起手）', () => {
   it('空序列 + 中炮类：首着为炮二平五/炮八平五，名称属中炮体系', () => {
     const m = matchOpeningByCategory([], 'zhongpao')!;
     expect(['h7e7', 'b7e7']).toContain(m.next);
-    expect(['中炮', '五七炮', '五六炮', '五九炮', '列手炮', '反宫马', '屏风马', '单提马', '半途列炮']
-      .some(k => m.name.includes(k))).toBe(true);
+    expect(
+      [
+        '中炮',
+        '五七炮',
+        '五六炮',
+        '五九炮',
+        '列手炮',
+        '反宫马',
+        '屏风马',
+        '单提马',
+        '半途列炮',
+      ].some((k) => m.name.includes(k)),
+    ).toBe(true);
   });
 
   it('空序列 + 顺炮类：名称含顺炮', () => {
@@ -103,10 +120,7 @@ describe('按开局类别匹配（人指定起手）', () => {
   });
 
   it('开局走完时 next 为 null', () => {
-    const m = matchOpeningByCategory(
-      ['h7e7', 'b0a2', 'h9g7', 'h0g2', 'i9h9', 'i0h0'],
-      'zhongpao',
-    );
+    const m = matchOpeningByCategory(['h7e7', 'b0a2', 'h9g7', 'h0g2', 'i9h9', 'i0h0'], 'zhongpao');
     expect(m!.name).toBe('中炮对单提马');
     expect(m!.next).toBeNull();
   });

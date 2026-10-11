@@ -26,16 +26,21 @@ function naturalLimitReached(startFen: string, movesHistory: string[], limitTurn
   for (let i = 0; i < movesHistory.length; i++) {
     const mv = parseIccs(movesHistory[i]);
     if (!mv) break;
-    const mover: Side = i % 2 === 0 ? startSide : (startSide === 'red' ? 'black' : 'red');
+    const mover: Side = i % 2 === 0 ? startSide : startSide === 'red' ? 'black' : 'red';
     const isCap = b.pieces[mv.to.rank][mv.to.file] != null;
     const after = applyMove(b, mv);
     const gived = inCheck(after, mover === 'red' ? 'black' : 'red');
     if (isCap) {
-      cap = 0; checkStreak = 0;
+      cap = 0;
+      checkStreak = 0;
     } else if (gived) {
-      if (checkStreak < CHECK_CAP) { cap++; checkStreak++; }
+      if (checkStreak < CHECK_CAP) {
+        cap++;
+        checkStreak++;
+      }
     } else {
-      cap++; checkStreak = 0;
+      cap++;
+      checkStreak = 0;
     }
     b = after;
   }
@@ -47,7 +52,7 @@ function buildNoCaptureSequence(startFen: string, n: number): string[] {
   let b = parseFen(startFen).board;
   const out: string[] = [];
   for (let i = 0; i < n; i++) {
-    const mover: Side = i % 2 === 0 ? b.sideToMove : (b.sideToMove === 'red' ? 'black' : 'red');
+    const mover: Side = i % 2 === 0 ? b.sideToMove : b.sideToMove === 'red' ? 'black' : 'red';
     let found: string | null = null;
     for (const [fr, ff] of allPieceSquares(b, mover)) {
       const legal = legalMovesFrom(b, { rank: fr, file: ff });
@@ -70,10 +75,11 @@ function buildNoCaptureSequence(startFen: string, n: number): string[] {
 
 function allPieceSquares(board: BoardData, side: Side): [number, number][] {
   const out: [number, number][] = [];
-  for (let r = 0; r < 10; r++) for (let f = 0; f < 9; f++) {
-    const p = board.pieces[r][f];
-    if (p && p.side === side) out.push([r, f]);
-  }
+  for (let r = 0; r < 10; r++)
+    for (let f = 0; f < 9; f++) {
+      const p = board.pieces[r][f];
+      if (p && p.side === side) out.push([r, f]);
+    }
   return out;
 }
 
@@ -129,7 +135,11 @@ describe('天天象棋网络规则：局面重复 & 长将', () => {
     // 复刻 main.ts 修正后的 posKey（不含 sideToMove），构造 3 次同局面
     const b = parseFen(FEN).board;
     const keyOf = (board: typeof b) =>
-      board.pieces.map(row => row.map(p => (p ? (p.side === 'red' ? p.type : p.type.toLowerCase()) : '.')).join('')).join('/');
+      board.pieces
+        .map((row) =>
+          row.map((p) => (p ? (p.side === 'red' ? p.type : p.type.toLowerCase()) : '.')).join(''),
+        )
+        .join('/');
     const k = keyOf(b);
     // 同一局面键值恒定（与走棋方无关）
     expect(k).not.toContain(' '); // 旧版键带 ' w'/' b' 后缀
@@ -146,29 +156,43 @@ describe('天天象棋网络规则：局面重复 & 长将', () => {
 describe('开局创新：弃子优先综合评分', () => {
   // 复刻 main.ts 弃子优先的评分公式：
   // score = capVal*1.5 + (givesCheck?400:0) - price*0.5 + noise(0..150)，代价护栏 price<=600
-  const PIECE_VAL: Record<string, number> = { P: 100, N: 400, R: 900, C: 450, B: 200, A: 200, K: 0 };
-  function sacrificeScore(cp: number, bestCp: number, capVal: number, givesCheck: boolean, noise: number): number {
+  const PIECE_VAL: Record<string, number> = {
+    P: 100,
+    N: 400,
+    R: 900,
+    C: 450,
+    B: 200,
+    A: 200,
+    K: 0,
+  };
+  function sacrificeScore(
+    cp: number,
+    bestCp: number,
+    capVal: number,
+    givesCheck: boolean,
+    noise: number,
+  ): number {
     const price = Math.max(0, bestCp - cp);
     return capVal * 1.5 + (givesCheck ? 400 : 0) - price * 0.5 + noise;
   }
 
   it('吃车 + 将军的着法综合分显著高于无吃子空着', () => {
-    const capCheck = sacrificeScore(-300, 100, PIECE_VAL.R, true, 0);  // 吃车并将军，代价 4 兵
-    const quiet = sacrificeScore(100, 100, 0, false, 0);                // 最佳线但无吃子无将军
+    const capCheck = sacrificeScore(-300, 100, PIECE_VAL.R, true, 0); // 吃车并将军，代价 4 兵
+    const quiet = sacrificeScore(100, 100, 0, false, 0); // 最佳线但无吃子无将军
     expect(capCheck).toBeGreaterThan(quiet); // 吃车 1350 + 将军 400 覆盖代价惩罚
   });
 
   it('代价惩罚生效：代价越大综合分越低', () => {
-    const cheap = sacrificeScore(80, 100, PIECE_VAL.R, false, 0);   // 代价 20 cp
-    const dear = sacrificeScore(-500, 100, PIECE_VAL.R, false, 0);  // 代价 600 cp
+    const cheap = sacrificeScore(80, 100, PIECE_VAL.R, false, 0); // 代价 20 cp
+    const dear = sacrificeScore(-500, 100, PIECE_VAL.R, false, 0); // 代价 600 cp
     expect(cheap).toBeGreaterThan(dear);
   });
 
   it('代价护栏 600：超过则不选（防止无脑弃子送死）', () => {
     const within = (cp: number, bestCp: number) => Math.max(0, bestCp - cp) <= 600;
     const bestCp = 100;
-    expect(within(-499, bestCp)).toBe(true);   // 代价 599，允许
-    expect(within(-501, bestCp)).toBe(false);  // 代价 601，排除
+    expect(within(-499, bestCp)).toBe(true); // 代价 599，允许
+    expect(within(-501, bestCp)).toBe(false); // 代价 601，排除
   });
 
   it('随机扰动上限 150，可打破并列着法', () => {

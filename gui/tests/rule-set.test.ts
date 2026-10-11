@@ -6,7 +6,7 @@ type RuleSet = 'guogui' | 'net' | 'casual';
 
 // 复刻 main.ts naturalLimitTurns：网络规则固定 60 回合（天天自然限招 120 步），国规用下拉（40/50/60，缺省 50）
 function naturalLimitTurns(ruleSet: RuleSet, selValue: string): number {
-  return ruleSet === 'net' ? 60 : (parseInt(selValue, 10) || 50);
+  return ruleSet === 'net' ? 60 : parseInt(selValue, 10) || 50;
 }
 
 // 复刻 main.ts offerDraw：休闲简化点「提和」即协商判和
@@ -22,7 +22,12 @@ function universalDraw(materialNone: boolean, boardRepeats: number): string | nu
 }
 
 // 复刻 main.ts afterMove 网络规则特有判和：重复5次 / 长将12着 / 400步，仅 net 启用
-function netOnlyDraw(ruleSet: RuleSet, boardRepeats: number, checkStreak: number, ply: number): string | null {
+function netOnlyDraw(
+  ruleSet: RuleSet,
+  boardRepeats: number,
+  checkStreak: number,
+  ply: number,
+): string | null {
   if (ruleSet === 'net') {
     if (boardRepeats >= 5) return '重复5次';
     if (checkStreak >= 12) return '长将6回合';

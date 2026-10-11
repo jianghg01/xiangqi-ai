@@ -2,15 +2,7 @@
 // 例（初始局面）：rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1
 // 行序：rank 0（黑方底线，FEN 第一行）→ rank 9（红方底线）
 
-import {
-  FILES,
-  FEN_TO_PIECE,
-  Piece,
-  PieceType,
-  Side,
-  pieceToFenChar,
-  sq,
-} from './types';
+import { FILES, FEN_TO_PIECE, Piece, PieceType, Side, pieceToFenChar, sq } from './types';
 
 export interface BoardData {
   // pieces[rank][file] = 棋子或 null
@@ -18,8 +10,7 @@ export interface BoardData {
   sideToMove: Side;
 }
 
-export const INITIAL_FEN =
-  'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1';
+export const INITIAL_FEN = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1';
 
 export function emptyBoard(): BoardData {
   const pieces: (Piece | null)[][] = [];
@@ -62,7 +53,7 @@ export function parseFen(fen: string): { board: BoardData; extra: string[] } {
   return { board, extra: parts.slice(2) };
 }
 
-export function toFen(board: BoardData, extra: string[] = ['-','-','0','1']): string {
+export function toFen(board: BoardData, extra: string[] = ['-', '-', '0', '1']): string {
   const rows: string[] = [];
   for (let rank = 0; rank < 10; rank++) {
     let row = '';
@@ -70,7 +61,10 @@ export function toFen(board: BoardData, extra: string[] = ['-','-','0','1']): st
     for (let file = 0; file < 9; file++) {
       const p = board.pieces[rank][file];
       if (p) {
-        if (empty) { row += empty; empty = 0; }
+        if (empty) {
+          row += empty;
+          empty = 0;
+        }
         row += pieceToFenChar(p);
       } else {
         empty++;
@@ -96,7 +90,7 @@ export function setPiece(board: BoardData, file: number, rank: number, p: Piece 
 
 export function cloneBoard(board: BoardData): BoardData {
   return {
-    pieces: board.pieces.map(row => row.slice()),
+    pieces: board.pieces.map((row) => row.slice()),
     sideToMove: board.sideToMove,
   };
 }

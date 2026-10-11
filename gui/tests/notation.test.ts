@@ -21,8 +21,8 @@ describe('moveToChinese', () => {
 
   it('直线兵种进退用步数：兵五进一 / 卒3进1', () => {
     const b = initialBoard();
-    expect(zh(b, 'e6e5')).toBe('兵五进一');      // 红中兵前进一步（rank 6→5）
-    expect(zh(b, 'c3c4')).toBe('卒3进1');        // 黑 3路卒前进一步（rank 3→4，黑前进=rank 增大）
+    expect(zh(b, 'e6e5')).toBe('兵五进一'); // 红中兵前进一步（rank 6→5）
+    expect(zh(b, 'c3c4')).toBe('卒3进1'); // 黑 3路卒前进一步（rank 3→4，黑前进=rank 增大）
   });
 
   it('黑方平移：卒3平2', () => {
@@ -32,8 +32,8 @@ describe('moveToChinese', () => {
 
   it('帅与仕：帅五进一 / 仕六进五', () => {
     const b = initialBoard();
-    expect(zh(b, 'e9e8')).toBe('帅五进一');      // 红帅 rank 9→8
-    expect(zh(b, 'd9e8')).toBe('仕六进五');      // 红仕斜走到花心
+    expect(zh(b, 'e9e8')).toBe('帅五进一'); // 红帅 rank 9→8
+    expect(zh(b, 'd9e8')).toBe('仕六进五'); // 红仕斜走到花心
   });
 
   it('同线消歧：前炮退二 / 后炮进二', () => {
@@ -42,8 +42,8 @@ describe('moveToChinese', () => {
     setPiece(b, 4, 0, { side: 'black', type: 'K' });
     setPiece(b, 4, 4, { side: 'red', type: 'C' }); // 前（rank 小，靠敌方）
     setPiece(b, 4, 7, { side: 'red', type: 'C' }); // 后
-    expect(zh(b, 'e4e6')).toBe('前炮退二');        // rank 4→6，红方后退 2 步
-    expect(zh(b, 'e7e5')).toBe('后炮进二');        // rank 7→5，红方前进 2 步
+    expect(zh(b, 'e4e6')).toBe('前炮退二'); // rank 4→6，红方后退 2 步
+    expect(zh(b, 'e7e5')).toBe('后炮进二'); // rank 7→5，红方前进 2 步
   });
 
   it('同线消歧（黑方）：前卒进1 / 后卒退1', () => {

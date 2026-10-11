@@ -22,9 +22,9 @@ describe('名局欣赏（自出洞来无敌手）', () => {
     expect(CLASSICS.length).toBe(35);
     expect(CLASSIC_CATEGORIES.length).toBe(7);
     for (const cat of CLASSIC_CATEGORIES) {
-      expect(CLASSICS.filter(g => g.category === cat).length, cat).toBe(5);
+      expect(CLASSICS.filter((g) => g.category === cat).length, cat).toBe(5);
     }
-    expect(new Set(CLASSICS.map(g => g.id)).size).toBe(35);
+    expect(new Set(CLASSICS.map((g) => g.id)).size).toBe(35);
     for (const g of CLASSICS) expect(findClassic(g.id)).toBe(g);
   });
 

@@ -1,10 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { UciClient, parseInfo, toRedPersp, cpToWinrate, formatScore, engineMoveToLocal, enginePvToLocal } from '../src/uci/engine-client';
+import {
+  UciClient,
+  parseInfo,
+  toRedPersp,
+  cpToWinrate,
+  formatScore,
+  engineMoveToLocal,
+  enginePvToLocal,
+} from '../src/uci/engine-client';
 
 describe('info 行解析', () => {
   it('标准 multipv 输出', () => {
     const info = parseInfo('info depth 12 multipv 2 score cp -34 nodes 1234 pv h2e2 b2c2 h0g2');
-    expect(info).toEqual({ depth: 12, multipv: 2, scoreCp: -34, scoreMate: null, pv: ['h2e2', 'b2c2', 'h0g2'] });
+    expect(info).toEqual({
+      depth: 12,
+      multipv: 2,
+      scoreCp: -34,
+      scoreMate: null,
+      pv: ['h2e2', 'b2c2', 'h0g2'],
+    });
   });
 
   it('mate 分数', () => {
@@ -21,7 +35,7 @@ describe('info 行解析', () => {
 describe('UciClient 指令', () => {
   it('go depth 与 position 组装', () => {
     const sent: string[] = [];
-    const c = new UciClient(s => sent.push(s));
+    const c = new UciClient((s) => sent.push(s));
     c.position('rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1', ['h2e2']);
     c.go({ depth: 12 });
     expect(sent[0]).toContain('position fen rnbakabnr');
@@ -32,7 +46,9 @@ describe('UciClient 指令', () => {
   it('bestmove 回调', () => {
     let got = '';
     const c = new UciClient(() => {});
-    c.onBestmove = bm => { got = bm; };
+    c.onBestmove = (bm) => {
+      got = bm;
+    };
     c.handleLine('bestmove h2e2 ponder e9h9');
     expect(got).toBe('h2e2');
   });

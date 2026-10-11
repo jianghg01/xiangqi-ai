@@ -20,7 +20,13 @@ function columnLabel(side: 'red' | 'black', file: number): string {
 }
 
 // 同一纵线上与 from 同种同方的其他棋子的 rank 列表
-function sameFilePeers(board: BoardData, side: 'red' | 'black', type: PieceType, file: number, fromRank: number): number[] {
+function sameFilePeers(
+  board: BoardData,
+  side: 'red' | 'black',
+  type: PieceType,
+  file: number,
+  fromRank: number,
+): number[] {
   const ranks: number[] = [];
   for (let r = 0; r < 10; r++) {
     if (r === fromRank) continue;
@@ -71,7 +77,7 @@ export function moveToChinese(board: BoardData, mv: Move): string {
     let prefix: string;
     if (n === 2) prefix = idx === 0 ? '前' : '后';
     else if (n === 3) prefix = idx === 0 ? '前' : idx === n - 1 ? '后' : '中';
-    else prefix = idx === 0 ? '前' : idx === n - 1 ? '后' : CN_NUM[idx] ?? '中';
+    else prefix = idx === 0 ? '前' : idx === n - 1 ? '后' : (CN_NUM[idx] ?? '中');
     return prefix + nameChar + verb + suffix;
   }
 
@@ -98,7 +104,9 @@ export function movesToChinese(startBoard: BoardData, iccsMoves: string[]): stri
 }
 
 // 局部解析，避免循环依赖 types（types.ts 不依赖本模块）
-function parseIccsLocal(s: string): { from: { file: number; rank: number }; to: { file: number; rank: number } } | null {
+function parseIccsLocal(
+  s: string,
+): { from: { file: number; rank: number }; to: { file: number; rank: number } } | null {
   const m = /^([a-i])(\d)([a-i])(\d)$/.exec(s.trim());
   if (!m) return null;
   return {

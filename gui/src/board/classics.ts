@@ -8,20 +8,20 @@ import classicsData from '../data/classics.json';
 
 export interface ClassicGame {
   id: string;
-  category: string;   // 七类：自字信手炮 / 出字列手炮 / 洞字入手炮 / 来字窝心炮 / 无字袖手炮 / 敌字出手炮 / 手字应手炮
-  name: string;       // 第一局 ~ 第五局
-  opening: string;    // 对应现代布局名（顺炮横车对直车 / 中炮对单提马 / 起马局 等）
-  result: string;     // 全部为 红胜
-  moves: string[];    // 内部坐标 ICCS 着法（红黑交替，红方收尾）
-  movesZh: string[];  // 中文纵线记法，与 moves 一一对应
+  category: string; // 七类：自字信手炮 / 出字列手炮 / 洞字入手炮 / 来字窝心炮 / 无字袖手炮 / 敌字出手炮 / 手字应手炮
+  name: string; // 第一局 ~ 第五局
+  opening: string; // 对应现代布局名（顺炮横车对直车 / 中炮对单提马 / 起马局 等）
+  result: string; // 全部为 红胜
+  moves: string[]; // 内部坐标 ICCS 着法（红黑交替，红方收尾）
+  movesZh: string[]; // 中文纵线记法，与 moves 一一对应
 }
 
 export const CLASSIC_BOOK: string = classicsData.book;
 export const CLASSICS: ClassicGame[] = classicsData.games as ClassicGame[];
 
 // 七类目录（保持自→出→洞→来→无→敌→手 顺序，即书名七字顺序）
-export const CLASSIC_CATEGORIES: string[] = [...new Set(CLASSICS.map(g => g.category))];
+export const CLASSIC_CATEGORIES: string[] = [...new Set(CLASSICS.map((g) => g.category))];
 
 export function findClassic(id: string): ClassicGame | undefined {
-  return CLASSICS.find(g => g.id === id);
+  return CLASSICS.find((g) => g.id === id);
 }

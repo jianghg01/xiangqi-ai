@@ -17,8 +17,12 @@ export const OPENINGS: Opening[] = bookData;
 
 // 自定义开局（运行时注入，来自 PGN 导入，localStorage 持久化；测试环境不受影响）
 let customOpenings: Opening[] = [];
-export function setCustomOpenings(list: Opening[]) { customOpenings = list; }
-export function getCustomOpenings(): Opening[] { return [...customOpenings]; }
+export function setCustomOpenings(list: Opening[]) {
+  customOpenings = list;
+}
+export function getCustomOpenings(): Opening[] {
+  return [...customOpenings];
+}
 function allOpenings(): Opening[] {
   return customOpenings.length ? [...OPENINGS, ...customOpenings] : OPENINGS;
 }
@@ -30,8 +34,11 @@ export function isOpeningValid(o: Opening): boolean {
     const mv = parseIccs(s);
     if (!mv) return false;
     const ok = legalMoves(b, b.sideToMove).some(
-      l => l.from.file === mv.from.file && l.from.rank === mv.from.rank &&
-           l.to.file === mv.to.file && l.to.rank === mv.to.rank,
+      (l) =>
+        l.from.file === mv.from.file &&
+        l.from.rank === mv.from.rank &&
+        l.to.file === mv.to.file &&
+        l.to.rank === mv.to.rank,
     );
     if (!ok) return false;
     b.pieces[mv.to.rank][mv.to.file] = b.pieces[mv.from.rank][mv.from.file];
@@ -48,8 +55,10 @@ export function isOpeningValid(o: Opening): boolean {
 export function matchOpening(movesHistory: string[]): { name: string; next: string | null } | null {
   let best: Opening | null = null;
   for (const o of allOpenings()) {
-    if (movesHistory.length <= o.moves.length &&
-        o.moves.slice(0, movesHistory.length).every((m, i) => m === movesHistory[i])) {
+    if (
+      movesHistory.length <= o.moves.length &&
+      o.moves.slice(0, movesHistory.length).every((m, i) => m === movesHistory[i])
+    ) {
       if (!best || o.moves.length > best.moves.length) best = o;
     }
   }
@@ -61,7 +70,8 @@ export function matchOpening(movesHistory: string[]): { name: string; next: stri
 }
 
 // ---------- 按开局类别选择（人指定起手） ----------
-export type OpeningCategory = 'any' | 'zhongpao' | 'shunpao' | 'xianren' | 'feixiang' | 'guogong' | 'qima' | 'jiuweigu';
+export type OpeningCategory =
+  'any' | 'zhongpao' | 'shunpao' | 'xianren' | 'feixiang' | 'guogong' | 'qima' | 'jiuweigu';
 
 /**
  * 首着 → 类别映射（按红方首着确定性归类，避免名称含"中炮"导致误判）：
@@ -99,14 +109,16 @@ export function matchOpeningByCategory(
   movesHistory: string[],
   category: OpeningCategory,
 ): { name: string; next: string | null } | null {
-  const compatible = allOpenings().filter(o =>
-    movesHistory.length <= o.moves.length &&
-    o.moves.slice(0, movesHistory.length).every((m, i) => m === movesHistory[i]),
+  const compatible = allOpenings().filter(
+    (o) =>
+      movesHistory.length <= o.moves.length &&
+      o.moves.slice(0, movesHistory.length).every((m, i) => m === movesHistory[i]),
   );
   if (!compatible.length) return null;
-  const pool = category === 'any'
-    ? compatible
-    : compatible.filter(o => categoryOf(o.name, o.moves[0]) === category);
+  const pool =
+    category === 'any'
+      ? compatible
+      : compatible.filter((o) => categoryOf(o.name, o.moves[0]) === category);
   const selected = pool.length ? pool : compatible; // 类别内无匹配则回退全量兼容集合
   const pick = selected[Math.floor(Math.random() * selected.length)];
   return {
