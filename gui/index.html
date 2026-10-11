@@ -522,7 +522,11 @@
       <div class="note">攻方在预算步数（N步杀+1）内完成绝杀即过关，引擎全力防守</div>
 
       <h3>自定义残局</h3>
-      <div class="note">在编辑模式摆好局面后，填写下方信息即可保存；载入后与内置残局一样闯关挑战</div>
+      <div class="note">打开软件默认就是编辑模式：点「编辑棋盘 ▾」选择棋子（车马炮兵…或 ✕），再点棋盘格子摆放/删除；也可直接粘贴 FEN 后点「载入 FEN」。摆好后填下方信息点「保存残局」即可闯关。</div>
+      <div class="row">
+        <button id="btnCpzEdit" title="返回编辑模式：在棋盘上自由摆放棋子">进入编辑模式</button>
+        <button id="btnCpzClear" title="清空棋盘，从零开始摆放">清空棋盘</button>
+      </div>
       <div class="row" style="gap:4px;flex-wrap:wrap">
         <input type="text" id="cpzName" placeholder="残局名称" style="width:160px" title="自定义残局名称" />
         <select id="cpzSide" title="攻方执子（先行方）">

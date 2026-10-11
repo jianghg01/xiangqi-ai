@@ -1888,7 +1888,8 @@ function playSquareClick(s: Square) {
     view.setHighlights([]);
   }
 }
-view.onSquare = playSquareClick;
+// 初始默认处于编辑模式：onSquare 置空，让 BoardView 内置的摆子/删除逻辑接管棋盘点击
+view.onSquare = mode === 'edit' ? null : playSquareClick;
 
 // 干预确认：mv 为引擎建议或人改走的着法，清挂起并落子
 function confirmEngineMove(mv: Move) {
@@ -1979,25 +1980,41 @@ $('btnMode').addEventListener('click', async () => {
     if (engineTurnNow()) engineMove();
     else if (analysisOn) analyze();
   } else {
-    mode = 'edit';
-    loopActive = false;
-    ($('btnMode') as HTMLButtonElement).textContent = '开始';
-    view.onSquare = null;
-    if (waitingFor) stopEngineThen(() => {}); // 停掉残留搜索（analysis/engine/review 一律作废旧结果）
-    waitingFor = null;
-    engineProposal = null;
-    view.setArrows([]);
-    turnStart = null; // 停止计时
-    hideEndBanner();
-    moveListEl.style.display = 'none';
-    moveListEl.innerHTML = '';
-    reviewRow.style.display = 'none';
-    llmRow.style.display = 'none';
-    reviewReportEl.textContent = '';
-    reviewMarks = [];
-    setStatus('');
-    setMenu('menuEdit'); // 编辑模式自动展开编辑棋盘工具
+    enterEditMode();
   }
+});
+
+// 进入编辑模式：棋盘交给 BoardView 内置摆子逻辑（onSquare=null），并展开「编辑棋盘」工具
+function enterEditMode() {
+  if (reviewing) cancelReview();
+  mode = 'edit';
+  loopActive = false;
+  ($('btnMode') as HTMLButtonElement).textContent = '开始';
+  view.onSquare = null;
+  if (waitingFor) stopEngineThen(() => {}); // 停掉残留搜索（analysis/engine/review 一律作废旧结果）
+  waitingFor = null;
+  engineProposal = null;
+  view.setArrows([]);
+  turnStart = null; // 停止计时
+  hideEndBanner();
+  moveListEl.style.display = 'none';
+  moveListEl.innerHTML = '';
+  reviewRow.style.display = 'none';
+  llmRow.style.display = 'none';
+  reviewReportEl.textContent = '';
+  reviewMarks = [];
+  setStatus('');
+  setMenu('menuEdit'); // 编辑模式自动展开编辑棋盘工具
+}
+// 自定义残局区快捷按钮：返回编辑模式 / 清空棋盘从零摆
+$('btnCpzEdit').addEventListener('click', () => {
+  enterEditMode();
+  setStatus('编辑模式：点「编辑棋盘 ▾」选棋子后点棋盘摆放；摆好填下方信息保存');
+});
+$('btnCpzClear').addEventListener('click', () => {
+  enterEditMode();
+  view.replaceBoard(emptyBoard());
+  setStatus('棋盘已清空，点「编辑棋盘 ▾」选棋子后摆放');
 });
 
 // ---------- 右侧面板 Tab 分区（对弈/设置/阅览/闯关欣赏） ----------
