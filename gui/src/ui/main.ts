@@ -259,6 +259,13 @@ function fitBoard() {
   // 上限 4：大屏/高分屏允许放大铺满；缓冲随尺寸重设（2x）不糊
   const scale = Math.max(0.35, Math.min(4, availH / BOARD_H, availW / BOARD_W));
   view.resize(BOARD_W * scale, BOARD_H * scale);
+  // 右侧面板与棋盘等高：切换选项卡时高度固定不跳动，内容超长在 tab 内部滚动
+  const panel = document.querySelector('.panel') as HTMLElement | null;
+  if (panel) {
+    const h = `${BOARD_H * scale}px`;
+    panel.style.height = h;
+    panel.style.maxHeight = h;
+  }
 }
 window.addEventListener('resize', fitBoard);
 fitBoard();
@@ -1629,7 +1636,9 @@ function onBestmove(bm: string) {
     const raw = parseIccs(bm);
     if (raw) {
       const mv = engineMoveToLocal(raw);
-      setStatus(`${ENGINE_BRAND}提示：${moveToChinese(view.getBoard(), mv)} 较优`);
+      // 直接在棋盘上画箭头指示建议着法，并给出中文记谱
+      view.setArrows([{ from: mv.from, to: mv.to, rank: 0 }]);
+      setStatus(`${ENGINE_BRAND}提示：建议走 ${moveToChinese(view.getBoard(), mv)}`);
     } else {
       setStatus(`${ENGINE_BRAND}提示不可用`);
     }
@@ -3670,6 +3679,8 @@ function loadPuzzle() {
   }
   newGame(pb);
   setStatus(`残局闯关：${p.name} · ${p.movesToMate}步杀（预算 ${p.movesToMate + 1} 步）`);
+  // 闯关需要电脑（防守方）自动应招：确保引擎已启动（未启动则自动拉起）
+  void ensureEngines();
 }
 $('btnPuzzleLoad').addEventListener('click', loadPuzzle);
 
@@ -3681,6 +3692,11 @@ $('btnPuzzleHint').addEventListener('click', () => {
   }
   if (!puzzleActive) {
     setStatus('请先载入残局再使用提示');
+    return;
+  }
+  // 提示应指出玩家（攻方）的下一步：轮到电脑行棋时先让电脑走完再提示
+  if (view.getBoard().sideToMove !== humanSide) {
+    setStatus('当前轮到电脑行棋，请稍候再使用提示');
     return;
   }
   puzzleHintUsed = true; // 用过提示：该关星级上限降为 1 星
@@ -3696,9 +3712,15 @@ $('btnPuzzleHint').addEventListener('click', () => {
     return;
   }
   try {
-    const b = parseFen(p.fen).board;
+    const b = view.getBoard();
     const mv = parseIccs(p.solution);
-    if (mv) setStatus(`提示：${moveToChinese(b, mv)}（原谱共 ${p.movesToMate} 步杀）`);
+    if (mv) {
+      // 原谱答案兜底：同样画箭头指示建议着法
+      view.setArrows([{ from: mv.from, to: mv.to, rank: 0 }]);
+      setStatus(`提示：建议走 ${moveToChinese(b, mv)}（原谱共 ${p.movesToMate} 步杀）`);
+    } else {
+      setStatus('提示不可用（可启动引擎后实时求解）');
+    }
   } catch {
     setStatus('提示不可用（可启动引擎后实时求解）');
   }
