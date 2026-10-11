@@ -2215,8 +2215,12 @@ $('btnBranches').addEventListener('click', () => {
 
 // 悔棋：人机撤销人机各一步（回退到人类行棋局面）；人人对弈撤销双方各一步；机机对弈不支持悔棋
 function undoMove() {
-  if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor || reviewing)
+  if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || reviewing) return;
+  // 引擎思考中悔棋：先停掉当前搜索（bestmove 回来后丢弃并继续悔棋），避免「悔棋无反应」
+  if (waitingFor) {
+    stopEngineThen(() => undoMove());
     return;
+  }
   saveBranch(); // 悔棋分叉：先记录当前对局快照
   // 干预挂起的建议着法随局面作废
   if (engineProposal) {
