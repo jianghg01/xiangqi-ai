@@ -9,7 +9,9 @@
 2. **每次改动后，必须编写或更新相关测试**，并在交付前确保所有测试与验证全部通过。
 3. `main` 分支只接受可运行节点（里程碑）：merge 前必须在 `dev` 上验证通过。
 4. 每个里程碑在 main 上打 tag（v0.1.0 …），并 `git push origin main --tags`。
-5. 引擎二进制与 nnue 权重**不入库**（`.gitignore` 已排除），统一用 `scripts/download-engine.ps1` 获取。
+5. 引擎二进制与 nnue 权重**不入库**（`.gitignore` 已排除），统一用 `scripts/download-engine.ps1` 获取；引擎源码以 **git submodule** 引入（见 `.gitmodules`），clone 后执行 `git submodule update --init --recursive`。
+6. **功能合并前必须同步 README 与 docs**，避免文档与实现漂移。
+7. CI 必须全绿才可 merge：GitHub Actions 在 main/dev 分支自动运行 `npm test`、`npx tsc --noEmit` 与 `npm run lint`（见 `.github/workflows/ci.yml`）。
 
 ## 项目约定
 
