@@ -8,6 +8,7 @@
 //   - bestmove 为 (none) 或超过 max-plies 判和；被将死的一方判负；双方无进攻子力判和
 
 const { spawn } = require('child_process');
+const { parseFen, toFen, applyMove, legalMoves, inCheck, hasAttackingPieces } = require('./rules.cjs');
 const fs = require('fs');
 const path = require('path');
 
@@ -29,185 +30,6 @@ if (!ENGINE_A || !ENGINE_B) {
 }
 const EXE_A = path.resolve(ENGINE_A);
 const EXE_B = path.resolve(ENGINE_B);
-
-// ---------- 极简中国象棋规则（判定走子合法与将死；与 gui/src/rules 同一套逻辑的 JS 版） ----------
-const DIRS = [[1,0],[-1,0],[0,1],[0,-1]];
-const KNIGHT = [[1,2],[2,1],[2,-1],[1,-2],[-1,-2],[-2,-1],[-2,1],[-1,2]];
-
-function fenToBoard(fen) {
-  const rows = fen.split(/\s+/)[0].split('/');
-  const pieces = [];
-  for (let r = 0; r < 10; r++) pieces.push(new Array(9).fill(null));
-  rows.forEach((row, rank) => {
-    let file = 0;
-    for (const ch of row) {
-      if (ch >= '1' && ch <= '9') file += +ch;
-      else {
-        const upper = ch.toUpperCase();
-        const type = { K:'K',A:'A',B:'B',N:'N',R:'R',C:'C',P:'P' }[upper];
-        pieces[rank][file] = { side: ch === upper ? 'red' : 'black', type };
-        file++;
-      }
-    }
-  });
-  const stm = fen.split(/\s+/)[1] === 'w' ? 'red' : 'black';
-  return { pieces, sideToMove: stm };
-}
-
-// 一方是否还有进攻子力（车马炮兵任一）
-function hasAttacking(board, side) {
-  for (const row of board.pieces)
-    for (const p of row)
-      if (p && p.side === side && (p.type === 'R' || p.type === 'C' || p.type === 'N' || p.type === 'P')) return true;
-  return false;
-}
-
-function pieceAt(b, f, r) { return b.pieces[r][f] || null; }
-
-function findKing(b, side) {
-  const r0 = side === 'red' ? 7 : 0;
-  for (let r = r0; r < r0 + 3; r++) for (let f = 3; f <= 5; f++) {
-    const p = pieceAt(b, f, r);
-    if (p && p.side === side && p.type === 'K') return { file: f, rank: r };
-  }
-  return null;
-}
-
-function flyingFacing(b) {
-  const rk = findKing(b, 'red'), bk = findKing(b, 'black');
-  if (!rk || !bk || rk.file !== bk.file) return false;
-  for (let r = bk.rank + 1; r < rk.rank; r++) if (pieceAt(b, rk.file, r)) return false;
-  return true;
-}
-
-function attackedBy(b, f, r, by) {
-  const dir = by === 'red' ? -1 : 1;
-  for (const [df, dr] of DIRS) {
-    let cf = f + df, cr = r + dr, screen = false;
-    while (cf >= 0 && cf <= 8 && cr >= 0 && cr <= 9) {
-      const p = pieceAt(b, cf, cr);
-      if (p) {
-        if (!screen) { if (p.side === by && p.type === 'R') return true; screen = true; }
-        else { if (p.side === by && p.type === 'C') return true; break; }
-      }
-      cf += df; cr += dr;
-    }
-  }
-  for (const [df, dr] of KNIGHT) {
-    const tf = f + df, tr = r + dr;
-    if (tf < 0 || tf > 8 || tr < 0 || tr > 9) continue;
-    const p = pieceAt(b, tf, tr);
-    if (!p || p.side !== by || p.type !== 'N') continue;
-    const lf = tf + (Math.abs(df) === 2 ? (df > 0 ? -1 : 1) : 0);
-    const lr = tr + (Math.abs(dr) === 2 ? (dr > 0 ? -1 : 1) : 0);
-    if (!pieceAt(b, lf, lr)) return true;
-  }
-  const pr = r - dir;
-  if (pr >= 0 && pr <= 9) {
-    const p = pieceAt(b, f, pr);
-    if (p && p.side === by && p.type === 'P') return true;
-  }
-  for (const df of [-1, 1]) {
-    const sf = f + df;
-    if (sf < 0 || sf > 8) continue;
-    const p = pieceAt(b, sf, r);
-    if (p && p.side === by && p.type === 'P') {
-      const crossed = by === 'red' ? r <= 4 : r >= 5;
-      if (crossed) return true;
-    }
-  }
-  return false;
-}
-
-function inCheck(b, side) {
-  if (flyingFacing(b)) return true;
-  const k = findKing(b, side);
-  return k ? attackedBy(b, k.file, k.rank, side === 'red' ? 'black' : 'red') : true;
-}
-
-function pseudoFrom(b, f0, r0) {
-  const p = pieceAt(b, f0, r0);
-  if (!p) return [];
-  const { side, type } = p;
-  const out = [];
-  const dir = side === 'red' ? -1 : 1;
-  const push = (f, r) => {
-    if (f < 0 || f > 8 || r < 0 || r > 9) return;
-    const t = pieceAt(b, f, r);
-    if (t && t.side === side) return;
-    out.push({ from: { file: f0, rank: r0 }, to: { file: f, rank: r } });
-  };
-  const palace = (f, r) => f >= 3 && f <= 5 && (side === 'red' ? r >= 7 : r <= 2);
-  if (type === 'K') {
-    for (const [df, dr] of DIRS) { const f = f0+df, r = r0+dr; if (palace(f, r)) push(f, r); }
-  } else if (type === 'A') {
-    for (const [df, dr] of [[1,1],[1,-1],[-1,1],[-1,-1]]) { const f = f0+df, r = r0+dr; if (palace(f, r)) push(f, r); }
-  } else if (type === 'B') {
-    for (const [df, dr] of [[2,2],[2,-2],[-2,2],[-2,-2]]) {
-      const f = f0+df, r = r0+dr;
-      const crossed = side === 'red' ? r < 5 : r > 4;
-      if (f < 0 || f > 8 || r < 0 || r > 9 || crossed) continue;
-      if (!pieceAt(b, f0+df/2, r0+dr/2)) push(f, r);
-    }
-  } else if (type === 'N') {
-    for (const [df, dr] of KNIGHT) {
-      const f = f0+df, r = r0+dr;
-      if (f < 0 || f > 8 || r < 0 || r > 9) continue;
-      const lf = f0 + (Math.abs(df) === 2 ? df/2 : 0);
-      const lr = r0 + (Math.abs(dr) === 2 ? dr/2 : 0);
-      if (!pieceAt(b, lf, lr)) push(f, r);
-    }
-  } else if (type === 'R') {
-    for (const [df, dr] of DIRS) {
-      let f = f0+df, r = r0+dr;
-      while (f >= 0 && f <= 8 && r >= 0 && r <= 9) {
-        const t = pieceAt(b, f, r);
-        if (!t) out.push({ from: {file:f0,rank:r0}, to: {file:f,rank:r} });
-        else { if (t.side !== side) out.push({ from: {file:f0,rank:r0}, to: {file:f,rank:r} }); break; }
-        f += df; r += dr;
-      }
-    }
-  } else if (type === 'C') {
-    for (const [df, dr] of DIRS) {
-      let f = f0+df, r = r0+dr, screen = false;
-      while (f >= 0 && f <= 8 && r >= 0 && r <= 9) {
-        const t = pieceAt(b, f, r);
-        if (!screen) { if (!t) out.push({ from: {file:f0,rank:r0}, to: {file:f,rank:r} }); else screen = true; }
-        else if (t) { if (t.side !== side) out.push({ from: {file:f0,rank:r0}, to: {file:f,rank:r} }); break; }
-        f += df; r += dr;
-      }
-    }
-  } else {
-    push(f0, r0 + dir);
-    const crossed = side === 'red' ? r0 <= 4 : r0 >= 5;
-    if (crossed) { push(f0-1, r0); push(f0+1, r0); }
-  }
-  return out;
-}
-
-function pseudoMoves(b, side) {
-  const out = [];
-  for (let r = 0; r < 10; r++) for (let f = 0; f < 9; f++) {
-    const p = pieceAt(b, f, r);
-    if (p && p.side === side) out.push(...pseudoFrom(b, f, r));
-  }
-  return out;
-}
-
-function applyMove(b, mv) {
-  const p = pieceAt(b, mv.from.file, mv.from.rank);
-  const nb = { pieces: b.pieces.map(row => row.slice()), sideToMove: b.sideToMove === 'red' ? 'black' : 'red' };
-  nb.pieces[mv.from.rank][mv.from.file] = null;
-  nb.pieces[mv.to.rank][mv.to.file] = p;
-  return nb;
-}
-
-function legalMoves(b, side) {
-  return pseudoMoves(b, side).filter(mv => {
-    const nb = applyMove(b, mv);
-    return !inCheck(nb, side);
-  });
-}
 
 // ---------- 引擎进程封装 ----------
 class Engine {
@@ -238,6 +60,11 @@ class Engine {
     this.proc.stderr.on('data', () => {});
     this.send('uci');
     await this.waitLine('uciok');
+    // 自动指定网络权重（引擎同目录下的 eval.nnue 或 pikafish.nnue，兼容两种命名）
+    const netNames = ['eval.nnue', 'pikafish.nnue'];
+    const engineDir = path.dirname(this.exe);
+    const netFile = netNames.find(n => fs.existsSync(path.join(engineDir, n)));
+    if (netFile) this.send(`setoption name EvalFile value ${path.join(engineDir, netFile)}`);
     this.send('setoption name MultiPV value 1');
     this.send('isready');
     await this.waitLine('readyok');
@@ -275,7 +102,7 @@ async function playGame(gameIdx, engA, engB) {
   // A 执红（偶数局）/ 黑（奇数局）
   const aIsRed = gameIdx % 2 === 0;
   let fen = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1';
-  let board = fenToBoard(fen);
+  let board = parseFen(fen).board;
   let plies = 0;
   const moves = [];
   const seen = new Map();   // 局面重复检测（同局面同方行棋出现 3 次 = 和）
@@ -303,11 +130,11 @@ async function playGame(gameIdx, engA, engB) {
     const ok = legal.find(l => l.from.file === mv.from.file && l.from.rank === mv.from.rank && l.to.file === mv.to.file && l.to.rank === mv.to.rank);
     if (!ok) return { result: 'illegal', winner: (stm === 'red') === aIsRed ? 'B' : 'A', plies, reason: `非法着法 ${bm}` };
     board = applyMove(board, mv);
-    fen = boardToFen(board);
+    fen = toFen(board);
     moves.push(bm);
     plies++;
     // 双方无进攻子力判和（只剩将帅士象，不可能将死）
-    if (!hasAttacking(board, 'red') && !hasAttacking(board, 'black')) {
+    if (!hasAttackingPieces(board, 'red') && !hasAttackingPieces(board, 'black')) {
       return { result: 'draw', winner: null, plies, reason: '双方无进攻子力' };
     }
     // 重复局面判和（3 次）
@@ -317,23 +144,6 @@ async function playGame(gameIdx, engA, engB) {
     seen.set(key, n);
   }
   return { result: 'draw', winner: null, plies, reason: `超过 ${MAX_PLIES} 步` };
-}
-
-function boardToFen(b) {
-  const rows = [];
-  for (let r = 0; r < 10; r++) {
-    let row = '', empty = 0;
-    for (let f = 0; f < 9; f++) {
-      const p = pieceAt(b, f, r);
-      if (p) {
-        if (empty) { row += empty; empty = 0; }
-        row += p.side === 'red' ? p.type : p.type.toLowerCase();
-      } else empty++;
-    }
-    if (empty) row += empty;
-    rows.push(row);
-  }
-  return `${rows.join('/')} ${b.sideToMove === 'red' ? 'w' : 'b'} - - 0 ${Math.floor(1)}`;
 }
 
 async function main() {
