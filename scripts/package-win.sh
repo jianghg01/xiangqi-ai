@@ -42,8 +42,8 @@ cp -r dist "$DEST/resources/app/"
 
 echo "[5/6] 复制引擎（皮卡鱼 + NNUE）"
 mkdir -p "$DEST/resources/app/engine"
-cp ../engine/Pikafish-Windows-x86-64-universal.exe "$DEST/resources/app/engine/"
-cp ../engine/pikafish.nnue "$DEST/resources/app/engine/"
+cp ../engine/engine-x64.exe "$DEST/resources/app/engine/"
+cp ../engine/eval.nnue "$DEST/resources/app/engine/"
 
 cat > "$DEST/使用说明.txt" <<'EOF2'
 象棋 AI 便携版

@@ -56,7 +56,7 @@ async function main() {
   await waitLine(l => l.startsWith('uciok'), 10000);
   send('setoption name Threads value 4');
   send('setoption name Hash value 512');
-  send('setoption name EvalFile value eval.nnue');
+  send('setoption name EvalFile value ' + path.join(path.dirname(ENGINE), 'eval.nnue'));
   send('ucinewgame');
   send('isready');
   await waitLine(l => l === 'readyok', 10000);
