@@ -3582,9 +3582,11 @@ interface Puzzle {
   side: Side;
   movesToMate: number;
   solution: string;
+  source?: string; // 古谱来源（自出洞来无敌手/适情雅趣/烂柯神机等）
 }
 const PUZZLES = puzzlesJson as Puzzle[];
 const puzzleSel = $('puzzleSel') as HTMLSelectElement;
+const puzzleSourceSel = $('puzzleSourceSel') as HTMLSelectElement;
 const puzzleInfoEl = $('puzzleInfo') as HTMLSpanElement;
 let puzzleActive: Puzzle | null = null;
 let puzzleHumanMoves = 0;
@@ -3628,16 +3630,34 @@ function markPuzzleDone(id: string, stars: number) {
 function refreshPuzzleLabels() {
   const done = getPuzzleDone();
   const stars = getPuzzleStars();
+  const sourceFilter = puzzleSourceSel.value || '全部';
+  const list =
+    sourceFilter === '全部'
+      ? PUZZLES
+      : PUZZLES.filter((p) => (p.source || '未分类') === sourceFilter);
   puzzleSel.innerHTML = '';
-  for (const p of PUZZLES) {
+  for (const p of list) {
     const mark = done.has(p.id) ? (stars[p.id] ? '★'.repeat(stars[p.id]) : '✓ ') : '';
     puzzleSel.add(new Option(`${mark}${p.name}（${p.movesToMate}步杀）`, p.id));
   }
   const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
   puzzleInfoEl.textContent = done.size
-    ? `共 ${PUZZLES.length} 关 · 已过 ${done.size} 关 · ⭐${totalStars}/${PUZZLES.length * 3}`
-    : `共 ${PUZZLES.length} 关 · 已过 0 关`;
+    ? `当前 ${list.length} 关 · 已过 ${done.size} 关 · ⭐${totalStars}/${PUZZLES.length * 3}`
+    : `当前 ${list.length} 关 · 已过 0 关`;
 }
+
+// 题库来源筛选下拉框（按古谱分册）
+const PUZZLE_SOURCES = ['全部', ...Array.from(new Set(PUZZLES.map((p) => p.source || '未分类')))];
+puzzleSourceSel.innerHTML = '';
+for (const s of PUZZLE_SOURCES) {
+  const label = s === '全部' ? `全部题库（${PUZZLES.length}关）` : s;
+  puzzleSourceSel.add(new Option(label, s));
+}
+puzzleSourceSel.addEventListener('change', () => {
+  refreshPuzzleLabels();
+  const first = puzzleSel.options[0];
+  if (first) puzzleSel.value = first.value;
+});
 refreshPuzzleLabels();
 
 let puzzleLoading = false; // 防连点：引擎启动完成前忽略重复「载入」

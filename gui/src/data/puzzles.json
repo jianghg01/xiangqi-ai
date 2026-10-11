@@ -5,7 +5,8 @@
   "fen": "2b1kab2/4aR3/2n1cN1cn/p3p3p/9/3p2P2/P1r1P3P/2N1C2C1/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "f1f0"
+  "solution": "f1f0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "zi1-m3",
@@ -13,7 +14,8 @@
   "fen": "2bakab2/1R3r3/2n1cN1cn/p3p3p/9/3p2P2/P1r1P3P/2N1C2C1/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "b1f1"
+  "solution": "b1f1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "zi2-m2",
@@ -21,7 +23,8 @@
   "fen": "2bak1b2/4a2R1/4c1c1r/p3C1p2/9/3p2P2/P3P4/2r4C1/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "h1e1"
+  "solution": "h1e1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "zi2-m3",
@@ -29,7 +32,8 @@
   "fen": "2bak1b1r/4a2R1/4c1c1n/p3C1p2/8R/3p2P2/P3P4/2r4C1/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "i4i2"
+  "solution": "i4i2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "zi3-m2",
@@ -37,7 +41,8 @@
   "fen": "3ak1b1r/4aR3/4bc1Cn/p1C5p/2pn5/6P2/P3P3P/5r3/9/2BAKAB1R w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "h2e2"
+  "solution": "h2e2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "zi3-m3",
@@ -45,7 +50,8 @@
   "fen": "3ak1b1r/4aR3/4bc1Cn/p3C3p/2pn5/6P2/P3P3P/2r6/9/2BAKAB1R w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "e3c3"
+  "solution": "e3c3",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "zi4-m2",
@@ -53,7 +59,8 @@
   "fen": "1r1ak1b2/4aR3/2C1b3n/p3r3p/2p4P1/9/P3P3P/9/4A4/2BAK1R2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "g9g0"
+  "solution": "g9g0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "zi4-m3",
@@ -61,7 +68,8 @@
   "fen": "1r1ak1b2/4aR3/2C1b3n/p3C2rp/2p3P2/9/P3P3P/9/4A4/2BAK1R2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "g4h4"
+  "solution": "g4h4",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "chu1-m2",
@@ -69,7 +77,8 @@
   "fen": "2bkrRbC1/9/4c1c2/2p1C3p/pn1r2p2/8P/P1P1P1P2/2N6/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "f0e0"
+  "solution": "f0e0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "chu1-m3",
@@ -77,7 +86,8 @@
   "fen": "2bk1abC1/4r4/4c1c2/2p1C3p/pn1r2p2/5R2P/P1P1P1P2/2N6/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "f5f0"
+  "solution": "f5f0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "chu2-m2",
@@ -85,7 +95,8 @@
   "fen": "1r3k3/4a4/1c2b2R1/2p1C1N1p/p2r5/8P/P1n1P1P2/2N6/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "h2h0"
+  "solution": "h2h0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "chu2-m3",
@@ -93,7 +104,8 @@
   "fen": "1r7/4ak3/1c2b1R2/2p1C1N1p/p2r5/8P/P1n1P1P2/2N6/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "g2h2"
+  "solution": "g2h2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "chu3-m2",
@@ -101,7 +113,8 @@
   "fen": "1rb1kabC1/5R3/4c4/2p1n1N1p/p2r5/8P/P1n1P1P2/2N6/9/1cBAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "f1f0"
+  "solution": "f1f0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "chu3-m3",
@@ -109,7 +122,8 @@
   "fen": "1rb2abC1/4k4/4c4/2p1n1N1p/p2r5/5R2P/P1n1P1P2/2N6/9/1cBAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "f5f1"
+  "solution": "f5f1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "chu4-m2",
@@ -117,7 +131,8 @@
   "fen": "1rbaknbC1/9/n2cc4/2p1p1p1p/p8/9/P1P1P1C1P/2r5N/9/2BAKABR1 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "g6g0"
+  "solution": "g6g0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "chu4-m3",
@@ -125,7 +140,8 @@
   "fen": "1rbakabC1/9/n2cc1n2/2p1p1p1p/p8/5R3/P1P1P1C1P/2r5N/9/2BAKABR1 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "f5f0"
+  "solution": "f5f0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "dong1-m2",
@@ -133,7 +149,8 @@
   "fen": "rnbakrcC1/4a4/4b4/p1p1C3p/9/9/P1P1P1P1P/2c5R/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "i7f7"
+  "solution": "i7f7",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "dong1-m3",
@@ -141,7 +158,8 @@
   "fen": "r1bakrcC1/4a4/n3b4/p1p1p3p/9/9/P1P1P1P1P/2c1C3R/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "e7e3"
+  "solution": "e7e3",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "dong2-m2",
@@ -149,7 +167,8 @@
   "fen": "1rbaka1RC/9/n3b4/p1p3p2/4RN3/9/P1P3P2/4C1c2/4K4/2BA1rB1c w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "e4e2"
+  "solution": "e4e2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "dong2-m3",
@@ -157,7 +176,8 @@
   "fen": "1rbak3C/4a2R1/n3b4/p1p3p2/4RN3/9/P1P3P2/4C1c2/4K4/2BA1rB1c w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "h1h0"
+  "solution": "h1h0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "dong3-m2",
@@ -165,7 +185,8 @@
   "fen": "r1bk1nb1C/4R4/n3N4/p1p3p2/9/9/P1P2rP2/4C1c2/9/2BAKAB1c w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "e1e0"
+  "solution": "e1e0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "dong3-m3",
@@ -173,7 +194,8 @@
   "fen": "r1b1knb1C/4a2R1/n3N4/p1p3p2/9/9/P1P2rP2/4C1c2/9/2BAKAB1c w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "h1e1"
+  "solution": "h1e1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "dong4-m2",
@@ -181,7 +203,8 @@
   "fen": "r2aR4/2n1akr2/4C1N2/p1p3p1p/9/9/P1P3P1P/5C3/6c2/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "e2e6"
+  "solution": "e2e6",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "dong4-m3",
@@ -189,7 +212,8 @@
   "fen": "r2aR4/2n2kr2/4CaN2/p1p3p1p/9/9/P1P3P1P/4C4/6c2/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "e7f7"
+  "solution": "e7f7",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "lai1-m2",
@@ -197,7 +221,8 @@
   "fen": "2bakc1n1/4a4/1rn1bR3/p1p3p1p/4C4/9/P1P3r1P/2N6/4C4/2BAKAB1R w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "f2e2"
+  "solution": "f2e2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "lai1-m3",
@@ -205,7 +230,8 @@
   "fen": "2bakcbn1/4a4/1rn1cR3/p1p3p1p/3NC4/9/P1P3r1P/2N6/4C4/2BAKAB1R w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "d4e2"
+  "solution": "d4e2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "lai2-m2",
@@ -213,7 +239,8 @@
   "fen": "1r1a1k3/2Cra2R1/5c3/p1p3p1p/9/4p4/P7P/2N6/5R3/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "f8f2"
+  "solution": "f8f2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "lai2-m3",
@@ -221,7 +248,8 @@
   "fen": "1r1a3R1/2Crak3/5c3/p1p3p1p/9/4p4/P7P/2N6/5R3/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "h0h1"
+  "solution": "h0h1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "wu1-m2",
@@ -229,7 +257,8 @@
   "fen": "r1b1kC1R1/9/nc7/p1p1p3p/6p2/4r4/P7P/4B1N2/4A4/3RKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "d9d1"
+  "solution": "d9d1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "wu1-m3",
@@ -237,7 +266,8 @@
   "fen": "r1b1kC1R1/9/nc7/p1p1p3p/4r1p2/4C4/P7P/4B1N2/4A4/R3KAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "a9d9"
+  "solution": "a9d9",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "wu3-m2",
@@ -245,7 +275,8 @@
   "fen": "1rb1kaR2/1Cc1aR3/n3c4/p3p1p1p/2p6/6P2/P1P1P3P/2N1B1r2/4A4/4KAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "f1e1"
+  "solution": "f1e1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "wu3-m3",
@@ -253,7 +284,8 @@
   "fen": "1rbakaR2/1CcR5/n3c4/p3p1p1p/2p6/6P2/P1P1P3P/2N1B1r2/4A4/4KAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "d1f1"
+  "solution": "d1f1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "wu4-m2",
@@ -261,7 +293,8 @@
   "fen": "rnbR5/1Cc1a2R1/4ck2C/p3p3p/2p2n3/6P2/P1P1P3P/2N1B4/4Ar3/4KAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "d0f0"
+  "solution": "d0f0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "wu4-m3",
@@ -269,7 +302,8 @@
   "fen": "rnbR4C/1Cc1a2R1/4ckn2/p3p3p/2p6/6P2/P1P1P3P/2N1B4/4Ar3/4KAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "i0i2"
+  "solution": "i0i2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di1-m2",
@@ -277,7 +311,8 @@
   "fen": "2ba4r/5k3/4ba2n/pn2C1p1p/9/2C6/P1P1P3P/2Nr4B/9/2BAKA3 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "c5f5"
+  "solution": "c5f5",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di1-m3",
@@ -285,7 +320,8 @@
   "fen": "2ba1k2r/2R6/4ba2n/pn2C1p1p/9/2C6/P1P1P3P/2Nr4B/9/2BAKA3 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "c1f1"
+  "solution": "c1f1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di5-m2",
@@ -293,7 +329,8 @@
   "fen": "C2k1ab2/2R6/4ca3/p3N1p2/8p/9/P3P1n1P/4B4/4A4/2B1KA1r1 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "e3c2"
+  "solution": "e3c2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di5-m3",
@@ -301,7 +338,8 @@
   "fen": "C1R2ab2/3k5/4ca3/p3N1p2/8p/9/P3P1n1P/4B4/4A4/2B1KA1r1 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "c0c1"
+  "solution": "c0c1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di2-m2",
@@ -309,7 +347,8 @@
   "fen": "2ba1abr1/9/4k3n/p3C1p1p/3R5/2C6/P1P5P/8B/4A4/2B1KA1r1 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "c5e5"
+  "solution": "c5e5",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di2-m3",
@@ -317,7 +356,8 @@
   "fen": "2ba1abr1/4k4/8n/p3C1p1p/3R1N3/2C6/P1P5P/8B/4A4/2B1KA1r1 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "f4e2"
+  "solution": "f4e2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di3-m2",
@@ -325,7 +365,8 @@
   "fen": "2bakab1r/9/2R3N1n/p3C1p2/9/8p/P1P1c3P/8B/4A4/2BK1A1r1 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "c2e2"
+  "solution": "c2e2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di3-m3",
@@ -333,7 +374,8 @@
   "fen": "2bakab1r/9/2R3N1n/p3C1p2/9/8p/P1P1c3P/7rB/4A4/2B1KA1R1 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "e9d9"
+  "solution": "e9d9",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di4-m2",
@@ -341,7 +383,8 @@
   "fen": "5abr1/3ka4/C5N2/p5p1p/9/2P6/P3R1P1P/3C5/9/2BAKABr1 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "a2d2"
+  "solution": "a2d2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "di4-m3",
@@ -349,7 +392,8 @@
   "fen": "5abr1/4a4/C2k2N2/p5p1p/4R4/2P6/P3c1P1P/3C5/9/2BAKABr1 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "e4e6"
+  "solution": "e4e6",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "shou1-m2",
@@ -357,7 +401,8 @@
   "fen": "2b1kNb2/9/2nR1a2n/p1p1C1p1p/4c4/8P/P8/2C6/4A1r2/2BA1KBr1 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "f0e2"
+  "solution": "f0e2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "shou1-m3",
@@ -365,7 +410,8 @@
   "fen": "2bk1Nb2/9/2n1Ra2n/p1p1C1p1p/4c4/8P/P8/2C6/4A1r2/2BA1KBr1 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "e2d2"
+  "solution": "e2d2",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "shou2-m2",
@@ -373,7 +419,8 @@
   "fen": "5ab2/3k5/2na2r1n/p1p1p1p1p/9/8P/P3C1P2/2C6/4A4/2BA1KB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "c7d7"
+  "solution": "c7d7",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "shou2-m3",
@@ -381,7 +428,8 @@
   "fen": "3k1ab2/5R3/2na2r1n/p1p1p1p1p/9/8P/P3C1P2/2C6/4A4/2BA1KB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "f1d1"
+  "solution": "f1d1",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "shou3-m2",
@@ -389,7 +437,8 @@
   "fen": "2b2kbr1/2N1a2C1/2nc4n/p1p1p1p1p/2rR5/8P/P3P1P2/2N2C3/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "d4f4"
+  "solution": "d4f4",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "shou3-m3",
@@ -397,7 +446,8 @@
   "fen": "2b2kbr1/2N1a2C1/2n2c2n/p1p1p1p1p/2rR5/8P/P3P1P2/2N1C4/9/2BAKAB2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "e7f7"
+  "solution": "e7f7",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "shou5-m2",
@@ -405,7 +455,8 @@
   "fen": "2b1kab2/3RaR3/2n1N3n/p1p1p1p1p/2c6/8P/P5P2/2r1C4/4AK3/2BA2r2 w - - 0 1",
   "side": "red",
   "movesToMate": 2,
-  "solution": "f1f0"
+  "solution": "f1f0",
+  "source": "自出洞来无敌手"
  },
  {
   "id": "shou5-m3",
@@ -413,6 +464,6055 @@
   "fen": "2b1kab2/3RaR3/2n1N3n/p1p1p1p1p/4c4/8P/P5P2/2r1C4/4A4/2BA1Kr2 w - - 0 1",
   "side": "red",
   "movesToMate": 3,
-  "solution": "f9f8"
+  "solution": "f9f8",
+  "source": "自出洞来无敌手"
+ },
+ {
+  "id": "适情雅趣-001",
+  "name": "适情雅趣001黾勉同心",
+  "fen": "4ka3/3RaP1n1/6R2/9/4P4/6C2/9/9/2rrp4/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-002",
+  "name": "适情雅趣002二龙绕室",
+  "fen": "3a1kb2/4a4/4b4/5NN2/9/9/9/8C/3r4c/4K1n2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-003",
+  "name": "适情雅趣003龙蛇混海",
+  "fen": "C2k5/4P4/r2cb1N1b/8C/6r2/9/9/6p2/4p4/5K1R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h9h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-004",
+  "name": "适情雅趣004平原走马",
+  "fen": "3C1a1c1/9/C2kbN3/4P4/9/9/9/9/r4p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "e3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-005",
+  "name": "适情雅趣005吐胆倾心",
+  "fen": "3a1k3/3P5/2r2a3/6N1n/9/6R2/9/4C4/4r4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-006",
+  "name": "适情雅趣006变起萧墙",
+  "fen": "9/n1rk5/1R1ab4/3N5/9/1C7/9/3n1p3/9/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "b2d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-007",
+  "name": "适情雅趣007入穴取虎",
+  "fen": "3k1a3/9/3a5/3rRN2C/9/9/9/6n2/3p1r3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e3e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-008",
+  "name": "适情雅趣008赤心报国",
+  "fen": "3k1aP2/8C/5a3/4R1N2/9/9/9/6n2/3r1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e3e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-009",
+  "name": "适情雅趣009长鲸授首",
+  "fen": "5a1C1/3ka4/4b4/7N1/1Rb6/9/9/5n3/2r1p4/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b4b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-010",
+  "name": "适情雅趣010力倾敌国",
+  "fen": "4ka3/2R1aR3/3cb4/9/3N5/9/9/C3C4/3p1pnr1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c1c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-011",
+  "name": "适情雅趣011馨壁偷光",
+  "fen": "3a1k3/2R1a4/3cb1n2/1C2N4/2b1C3R/9/9/9/r1r2p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e3g2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-012",
+  "name": "适情雅趣012军中烈士",
+  "fen": "3akr3/R4r2C/3a5/9/9/9/9/6n2/C2pA4/1R2K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "a1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-013",
+  "name": "适情雅趣013指挥若定",
+  "fen": "2bk1a3/1R2RN3/b3na3/2n6/9/1C7/9/9/3r1p2r/1Cc1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-014",
+  "name": "适情雅趣014移花接木",
+  "fen": "2b1ka1r1/3Ra4/3Pb4/9/9/1R7/2Pnc4/1C1CB3B/4Ap3/3AK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b5h5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-015",
+  "name": "适情雅趣015目视横流",
+  "fen": "4k4/3P3P1/b2N3R1/8r/2b6/9/9/3n5/4p4/C1R2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "h2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-016",
+  "name": "适情雅趣016雪拥蓝关",
+  "fen": "2ba1kb2/1P2a1R2/3cnrN2/C8/9/9/9/9/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-017",
+  "name": "适情雅趣017巅猿饮洞",
+  "fen": "1C2kab2/rN2a2R1/2r1c3b/9/9/5R3/9/7C1/9/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b1d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-018",
+  "name": "适情雅趣018停车绊马",
+  "fen": "n4k3/1R7/3a5/2N6/9/2C5R/5n3/9/r4cp1r/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i5f5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-019",
+  "name": "适情雅趣019投躯帝庭",
+  "fen": "2bk5/r3aR3/n1r1b4/9/9/6R2/9/3n5/4p4/1C3K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "b9b0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-020",
+  "name": "适情雅趣020落花流水",
+  "fen": "3a1k3/R3a4/4b1P2/3R4C/9/4C1N2/r8/9/2r1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d3d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-021",
+  "name": "适情雅趣021陷敌为忠",
+  "fen": "N2k1a3/5P3/3a5/9/9/9/9/C3RA3/4Nr3/2p1K1pnc w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e7e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-022",
+  "name": "适情雅趣022江心垂钓",
+  "fen": "3akabr1/1R3P3/9/9/2C6/4N4/9/4p4/2nn2r2/1R2K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-023",
+  "name": "适情雅趣024变生肘腋",
+  "fen": "1R1a5/2P1k4/1n2b4/4c4/9/9/9/2C5R/4r1r2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-024",
+  "name": "适情雅趣025开拓心胸",
+  "fen": "9/9/3ak4/9/4P4/9/6R1P/r2AB4/2r6/3K4R w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "e4e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-025",
+  "name": "适情雅趣026同心辅政",
+  "fen": "6R2/5k3/5a3/5R3/6p2/9/9/4rC2B/2n6/5KBr1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g0g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-026",
+  "name": "适情雅趣027兵戊黄龙",
+  "fen": "9/3k5/R2abN2C/C3P4/2b6/9/9/4p4/2r6/cr1AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "a3d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-027",
+  "name": "适情雅趣028连珠激响",
+  "fen": "3ak4/4a4/4b4/6N2/9/3rC4/4c4/4BR2C/1n1rA4/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f7f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-028",
+  "name": "适情雅趣032飞鲸吞钓",
+  "fen": "2bak4/C3a2NR/4b4/9/6p2/1C2c4/9/4B4/1r2A1c2/3RKAr2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h1f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-029",
+  "name": "适情雅趣033遇水叠桥",
+  "fen": "3k1n3/1R3R1n1/b3b4/3P5/9/9/9/4B1CC1/3ppcr2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g7g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-030",
+  "name": "适情雅趣034雕鹰捉兔",
+  "fen": "5k3/3Pa2R1/4ba2b/4C4/4N4/9/4c4/9/5p3/1r1nK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-031",
+  "name": "适情雅趣035井中投辖",
+  "fen": "2b1ka3/3Ra4/1c2b3c/N8/R8/6B2/4C1r2/C8/4Ap1n1/3AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d1d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-032",
+  "name": "适情雅趣036柳营射猎",
+  "fen": "2n1ka3/3RaR3/C3b3N/6N2/6b2/9/9/9/r2p1pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-033",
+  "name": "适情雅趣037地富兵强",
+  "fen": "4kabC1/4a4/4b2N1/5P3/9/9/9/6Cr1/R1pp4r/R3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "a8a0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-034",
+  "name": "适情雅趣038负笈追师",
+  "fen": "2baka3/1R7/4b2nn/4R2CN/4N4/9/9/5p3/2rc4r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "e3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-035",
+  "name": "适情雅趣039力敌万人",
+  "fen": "4k3N/3Pn4/4b4/c1p3n1R/4P3r/9/5R3/5C3/2r1p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i0g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-036",
+  "name": "适情雅趣040震惊百里",
+  "fen": "R1bak2CR/5P3/9/9/9/1rB6/9/9/4p3r/5KB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "h0d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-037",
+  "name": "适情雅趣040双鹭窥鱼",
+  "fen": "3ak3N/4aP3/8R/1rr5N/9/9/9/9/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-038",
+  "name": "适情雅趣042战如烈火",
+  "fen": "2b1ka3/4a3c/4b4/6n2/7RN/9/9/3CCR3/2rp1p3/4KAr1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f7f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-039",
+  "name": "适情雅趣043雁阵排空",
+  "fen": "6c2/5k3/1N2b4/4C4/2b2C3/3R5/9/6n2/7r1/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d5d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-040",
+  "name": "适情雅趣044惊心破胆",
+  "fen": "2rak1C2/5R3/3a5/6N2/9/9/9/r3C4/4p4/3K4R w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-041",
+  "name": "适情雅趣045毙马仆途",
+  "fen": "3a3nC/1R4c2/2C1k2r1/9/9/2r4N1/9/9/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "h5g3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-042",
+  "name": "适情雅趣046功成名就",
+  "fen": "2b1ka3/1R2a1P2/4b4/5R2C/4N4/4n4/9/4p4/1r5r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i3i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-043",
+  "name": "适情雅趣047曲突徙薪",
+  "fen": "3a1k3/4a1R2/5rNr1/9/6R2/9/9/9/3p1p3/3AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-044",
+  "name": "适情雅趣048野马诱虎",
+  "fen": "3k3r1/4a4/3a5/6N2/9/9/9/4C4/4p2c1/2BR1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "g3f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-045",
+  "name": "适情雅趣0劳问将士",
+  "fen": "3k1a3/1NR2n3/3a5/1r4CC1/2b6/9/9/9/1c1p3r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "g3g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-046",
+  "name": "适情雅趣050精忠报国",
+  "fen": "C4kbN1/R2Pa4/4ca3/4rNR2/6b2/6c2/9/4C4/4p3r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g3g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-047",
+  "name": "适情雅趣051近悦远来",
+  "fen": "4ka3/3P1R3/5P2b/6P1N/1R4b1c/2n6/8C/5A3/4AK3/1r4r2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-048",
+  "name": "适情雅趣052载沉载浮",
+  "fen": "2bak3C/3ra4/4c3b/7R1/9/9/9/3A5/r3p4/3K2R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h3h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-049",
+  "name": "适情雅趣053金玉毁椟",
+  "fen": "R2rk4/4nP3/2n1b4/6N2/9/1r2C4/4c4/4B4/3pN4/4KC3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-050",
+  "name": "适情雅趣054明修栈道",
+  "fen": "3r1k3/C5P2/5a3/CR2R4/9/9/9/2n6/5pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-051",
+  "name": "适情雅趣055明皇游月",
+  "fen": "2b1ka3/4a4/b6c1/7N1/2P1p4/1CR1C4/2P6/2n1p1nr1/8R/1rB1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h3f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-052",
+  "name": "适情雅趣056开门延敌",
+  "fen": "CnC1k4/9/7P1/4p4/9/p5B1r/1R4Pr1/4BAN2/6p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "c0c5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-053",
+  "name": "适情雅趣057远猎山林",
+  "fen": "3a5/1n1ka4/9/5N3/2P6/R8/C8/B2ABA1r1/3pNp3/rc2K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "a5d5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-054",
+  "name": "适情雅趣058耦断丝连",
+  "fen": "r1bP1k2r/1nn1P4/3cbc3/9/6P1p/7RC/9/4p4/3p1R3/2pCK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h5h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-055",
+  "name": "适情雅趣059路隔星河",
+  "fen": "r2aka3/3P5/8R/4r3C/6C2/6R2/9/3p5/4p4/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g4e4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-056",
+  "name": "适情雅趣060投命谁门",
+  "fen": "2bk4C/9/3a5/5cN2/9/9/8P/6n1B/2r2p3/1R2KA2r w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g3f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-057",
+  "name": "适情雅趣061祸不单行",
+  "fen": "4k4/4a4/2P5n/5N3/9/5R3/9/9/2p2p2r/C3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f3d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-058",
+  "name": "适情雅趣062一骑困魏",
+  "fen": "r4kb2/4a1P2/1n3a3/4N4/9/9/9/4C4/4p4/2BK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-059",
+  "name": "适情雅趣063肉袒负荆",
+  "fen": "4ka3/R3a4/b2rb4/4P2N1/9/9/9/3AB4/4pp3/1R1K1A3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "a1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-060",
+  "name": "适情雅趣064怀春育孕",
+  "fen": "2b1k1b2/3Ra4/2r2a2r/6R2/4P4/7C1/9/9/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h5h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-061",
+  "name": "适情雅趣065倚宫望子",
+  "fen": "4ka1n1/3Ra4/3nb4/7N1/9/6C2/9/9/2r2p2r/3RK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "g5g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-062",
+  "name": "适情雅趣066鸟藏深林",
+  "fen": "4kC3/3RaP3/3C2n1c/Nr1R5/9/9/9/4p4/8r/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-063",
+  "name": "适情雅趣067弃短取长",
+  "fen": "4kab2/5P3/4b1n2/1N1N5/9/1n4C2/9/3p5/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b3d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-064",
+  "name": "适情雅趣068卧薪尝胆",
+  "fen": "3k1a1n1/4aR3/4b1C2/4C1R2/2b1N4/2B6/2P6/2nrB4/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g2g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-065",
+  "name": "适情雅趣070王俭坠车",
+  "fen": "3k1ab2/2R3N2/1r1a2R1b/4p4/2p1c1P2/9/N8/9/4r1p2/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "c1b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-066",
+  "name": "适情雅趣071逢山开路",
+  "fen": "1Nba1k1n1/7P1/9/1P2R1n2/5rb2/9/9/C3R4/3p1r3/c3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "e3f3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-067",
+  "name": "适情雅趣072运筹决策",
+  "fen": "4k4/5P3/3P5/9/6b2/9/9/2p3p2/4AK1nr/3A1C3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-068",
+  "name": "适情雅趣073骥不称力",
+  "fen": "3ak3C/4aP2n/4R3N/8N/9/9/9/9/2rp1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-069",
+  "name": "适情雅趣074循序渐进",
+  "fen": "2bk5/1R2n1P2/2R1b4/9/r2P5/7NC/9/9/4r4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-070",
+  "name": "适情雅趣075胡骑压阵",
+  "fen": "2bak1b2/4aR3/9/3NR4/9/9/9/6n2/r2r1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-071",
+  "name": "适情雅趣076望尘遮道",
+  "fen": "4k4/3RaP3/n3Na3/8C/9/9/6r2/5p3/4p4/R4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-072",
+  "name": "适情雅趣077直捣黄龙",
+  "fen": "9/4ak3/5a3/6P2/7r1/1r7/9/C2RR4/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "e7e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-073",
+  "name": "适情雅趣078火炎昆冈",
+  "fen": "3ak1b1r/4a2Pn/4b4/4C4/9/9/cR7/n8/4A1p2/3AKC3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f9f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-074",
+  "name": "适情雅趣079鸢飞戾天",
+  "fen": "4k3C/5N1rC/5c3/4p4/4N4/9/9/6n2/1r3p3/3RK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-075",
+  "name": "适情雅趣080博望烧屯",
+  "fen": "2bak1b2/4aR2C/6N1n/9/9/9/5c3/4BC3/3p1r1n1/4K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i1i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-076",
+  "name": "适情雅趣081百计无由",
+  "fen": "3ak1bR1/4aP2r/9/2p3pC1/5Pc2/1RB6/7p1/9/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h0i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-077",
+  "name": "适情雅趣082三献刖足",
+  "fen": "3k5/1PR1a4/2Nab3b/6C2/9/4n4/9/9/2cp5/1rc1K2R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h9h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-078",
+  "name": "适情雅趣082参参见佛",
+  "fen": "4ka3/3Rn4/4b1r2/N1p6/1nP6/9/9/3C3p1/5r1p1/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d1d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-079",
+  "name": "适情雅趣084游鱼吞饵",
+  "fen": "4k1b2/4aPN2/5a3/9/N8/6C2/4c4/9/2nr1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-080",
+  "name": "适情雅趣085辎重塞途",
+  "fen": "3k1a3/nPR1a4/2Nr5/9/9/9/9/9/5r3/2c1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c1c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-081",
+  "name": "适情雅趣086诳楚救王",
+  "fen": "3ak4/4aR3/n3N4/4P4/2b6/8C/4c4/N3B1n2/1r2A4/3RKAr2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-082",
+  "name": "适情雅趣087宿鸟惊弹",
+  "fen": "2b6/1C2k4/n3bR3/6N2/9/9/9/1R7/3p2rr1/1C2K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f2f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-083",
+  "name": "适情雅趣088投肉饵虎",
+  "fen": "2baka3/9/4c1R2/6N1C/9/9/9/4B1r2/4pp3/2BK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i3i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-084",
+  "name": "适情雅趣089暮鸟投林",
+  "fen": "3k5/2R6/3a1nN2/9/9/9/9/5R3/1n1r1C3/2c1KcrN1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c1c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-085",
+  "name": "适情雅趣090海底珠龙",
+  "fen": "2bakab2/7r1/9/3N5/9/8C/9/3RB4/4pcn2/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d3f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-086",
+  "name": "适情雅趣091面缚自首",
+  "fen": "6b2/3PR1P1c/3P1k3/7c1/2b3p2/2N6/9/2C6/3p1r3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-087",
+  "name": "适情雅趣092阴陵失道",
+  "fen": "2b1R2c1/R3a4/1n2kaN2/4p4/2bP5/6C2/9/9/3r1r3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g2f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-088",
+  "name": "适情雅趣093动撄罗纲",
+  "fen": "3a1k2C/4a3N/5c3/5P3/9/9/9/6p2/1n1p5/2p1KAC1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i1g2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-089",
+  "name": "适情雅趣094嬴缩无常",
+  "fen": "3k3C1/2P6/4cN3/9/9/9/4P4/4Bp3/1rrnA2R1/5K1p1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f2g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-090",
+  "name": "适情雅趣095选将练兵",
+  "fen": "c4a3/1r1kaP2C/b1R1b2c1/4CN3/9/9/9/9/4p3r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-091",
+  "name": "适情雅趣096四隐周知",
+  "fen": "3aka3/9/4b2R1/4P2N1/6b2/7C1/7c1/9/2nrA4/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "h2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-092",
+  "name": "适情雅趣097跃马渡江",
+  "fen": "2b2a3/C3a4/3kb4/9/9/5RN2/9/1C7/r2r1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f5d5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-093",
+  "name": "适情雅趣098予夺有权",
+  "fen": "5a3/3ka4/2Ncb4/9/9/C8/9/3R5/3pAp1r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "a5d5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-094",
+  "name": "适情雅趣099猛虎入山",
+  "fen": "2bakcb2/4a4/9/2N6/1C7/3R5/4R4/4K4/5r3/2n2r3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d5d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-095",
+  "name": "适情雅趣100暴虎凭河",
+  "fen": "C3kab2/4a4/N3b4/2N6/9/3C5/9/3A2r2/3K3c1/3A2n1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d5d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-096",
+  "name": "适情雅趣101策马殿军",
+  "fen": "3a1k3/1Nc1a1R2/5rN2/9/9/9/9/9/3p5/4K1Rrc w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-097",
+  "name": "适情雅趣103三气周瑜",
+  "fen": "2b1ka3/3Pa4/4b1c2/6RC1/3R2c2/8C/9/2n6/3p3r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i5i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-098",
+  "name": "适情雅趣104边烽惊虏",
+  "fen": "2C6/5k3/bP1Nn1R1n/1r7/6R2/9/5c3/3p5/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g4f4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-099",
+  "name": "适情雅趣105雪夜访",
+  "fen": "1c2ka3/3Pa4/N3b4/4C2R1/2b1CR3/9/9/9/5p3/2rnK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f4f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-100",
+  "name": "适情雅趣106变现出没",
+  "fen": "2b1ka1r1/3Pa4/5Rc2/5Nr2/9/9/9/7C1/C2p5/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "a8a0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-101",
+  "name": "适情雅趣107耿恭拜井",
+  "fen": "2bak1C2/3Pa1R2/4b1N1N/9/9/9/4Pr3/5C3/3npr3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-102",
+  "name": "适情雅趣108担雪填井",
+  "fen": "3ak3r/4a1R2/b1C1bc3/1N2C3N/9/3p5/2n6/3K5/9/r8 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-103",
+  "name": "适情雅趣109放弥六合",
+  "fen": "3ack3/1NR1a1P2/3n2R2/9/2C6/9/9/9/1r2p2r1/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g2f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-104",
+  "name": "适情雅趣110群虎争餐",
+  "fen": "2bk1a3/1R2a2N1/rCc1b4/9/9/9/9/4C2R1/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-105",
+  "name": "适情雅趣111杨香跨虎",
+  "fen": "N2k1ab2/2R1a4/2R6/9/9/5r3/9/5n3/4r4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "c1c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-106",
+  "name": "适情雅趣112飞黄结路",
+  "fen": "2r6/4akN2/C3P2c1/1C7/7r1/8R/9/5p3/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i5f5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-107",
+  "name": "适情雅趣113豪帅心服",
+  "fen": "4rc3/4ak3/9/9/9/9/9/2R6/3pA4/cr1AKC3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c7f7",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-108",
+  "name": "适情雅趣114茧丝自缚",
+  "fen": "4k4/4a3R/4Pa3/7C1/4p4/9/9/2r6/5r3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i1i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-109",
+  "name": "适情雅趣115鸳鸯戏水",
+  "fen": "4kab1C/4a4/9/1R7/4P1N2/2N3B2/1n5r1/4n4/4A4/c1BAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b3b0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-110",
+  "name": "适情雅趣116跃鲤吞饵",
+  "fen": "6b2/1N1R5/5k3/9/9/9/9/4p4/2Rp1p2r/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c8c2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-111",
+  "name": "适情雅趣117峰巅得路",
+  "fen": "2b1k4/2P6/3Rn1P2/9/4r4/9/9/3R5/4r4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-112",
+  "name": "适情雅趣118前茅后劲",
+  "fen": "3k5/9/9/8p/9/2R3B1r/9/4BA3/6r2/2R2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c5d5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-113",
+  "name": "适情雅趣119水枯见鱼",
+  "fen": "4ka3/4aR3/4N4/4p4/9/9/4P4/4C4/c1nrAR3/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-114",
+  "name": "适情雅趣120偷营劫寨",
+  "fen": "c1b2k3/3Ra4/4c1P2/7R1/9/9/9/1C2B4/1r7/2BK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b7b0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-115",
+  "name": "适情雅趣122野马舞风",
+  "fen": "R4a1C1/3ka4/8b/7N1/6b2/1r7/9/2C6/4p3r/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "a0a1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-116",
+  "name": "适情雅趣123自西徂东",
+  "fen": "c3k3C/2P6/1P6b/9/9/2C6/9/3RBr3/1p2r4/2BK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d7d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-117",
+  "name": "适情雅趣124登高履险",
+  "fen": "2R1C4/C2Rnk3/4b3b/9/2r6/4P4/3p5/9/4rp3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c0c4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-118",
+  "name": "适情雅趣126士马如云",
+  "fen": "Nr2kc3/4a3n/2R3n2/4RN3/9/9/7C1/9/3p1pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "e3e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-119",
+  "name": "适情雅趣127直造竹所",
+  "fen": "3k5/4R4/4b3R/2r1p4/9/7C1/9/9/5pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "e1e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-120",
+  "name": "适情雅趣128匹马平胡",
+  "fen": "3k1a1R1/9/2cab4/2p1R4/2b6/4P4/3N5/3CB4/1r1p5/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h0f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-121",
+  "name": "适情雅趣129外攘四夷",
+  "fen": "3a1k2C/3ra4/4b4/9/6b1N/6cR1/9/3n5/4r4/3K3R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h5h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-122",
+  "name": "适情雅趣130鱼骇月钩",
+  "fen": "3k2b1r/C4R3/P3b4/n2c1R3/9/1N7/9/4BA3/3r1p3/c1BAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-123",
+  "name": "适情雅趣131姜公钓渭",
+  "fen": "4ka3/4aN3/9/RC7/2b3b2/9/9/4p4/3nr3r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "a3a0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-124",
+  "name": "适情雅趣132金门待漏",
+  "fen": "3ak4/R3a1P1R/b3b4/1C7/9/9/9/9/2r3r2/c3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i1i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-125",
+  "name": "适情雅趣133兵马出塞",
+  "fen": "2bak3r/3Ra4/9/6P2/7n1/2R3BN1/9/2n1C4/1r7/c3K3C w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "d1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-126",
+  "name": "适情雅趣134丹山起凤",
+  "fen": "1R1c1ab2/5k3/3r1a3/3C5/6b1N/3R5/9/3AB4/2p1p4/3K1N1rc w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "b0b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-127",
+  "name": "适情雅趣136攀辕卧辙",
+  "fen": "1r2ka3/2P1a4/n3N4/9/4R1N2/9/9/9/5pc2/c3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "c1b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-128",
+  "name": "适情雅趣137鸿门碎斗",
+  "fen": "2Ck1a3/2R1aR3/9/5N3/r8/r8/9/3C5/4p1n2/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-129",
+  "name": "适情雅趣138沉鱼落雁",
+  "fen": "2bk5/1R5N1/9/9/9/9/9/5Cr2/r2p1p3/4K2R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-130",
+  "name": "适情雅趣139蜻蜓点水",
+  "fen": "1C3k3/1N2P4/1nN1b4/9/9/9/9/4p4/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c2d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-131",
+  "name": "适情雅趣140五霸争雄",
+  "fen": "2Rnkab2/4a2cC/4P3b/3N5/9/9/9/3p4r/r3p4/2RK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d3f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-132",
+  "name": "适情雅趣141开窗邀月",
+  "fen": "1n1k1a3/R8/3ab4/2R1p4/9/6C2/9/4C4/3pArn1c/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c3c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-133",
+  "name": "适情雅趣142守边告归",
+  "fen": "1R3a3/2N1ak3/4P4/C2N4p/9/9/4cp3/4B1n1B/4A3r/3AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "a3i3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-134",
+  "name": "适情雅趣146双骑追敌",
+  "fen": "5k3/9/2P6/7NN/9/8C/9/3p5/r3p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "i3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-135",
+  "name": "适情雅趣147百川汇海",
+  "fen": "5k3/3PP4/b2Pb4/5P1C1/2c6/3p5/2r6/6p2/4r4/CR1K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b9b0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-136",
+  "name": "适情雅趣148伏波据鞍",
+  "fen": "2Pa5/1r2a2R1/4k4/9/4N4/9/9/3p1n3/9/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h1h2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-137",
+  "name": "适情雅趣149兵机神速",
+  "fen": "4k1br1/r3aPRN1/2Rab1P1n/8p/6P2/8C/9/9/3p1p3/4K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-138",
+  "name": "适情雅趣150士马如云",
+  "fen": "2bakab2/n5P2/9/1R7/4N4/1C7/9/3ABA3/1N1p1p3/4KCrc1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e4f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-139",
+  "name": "适情雅趣151两地关心",
+  "fen": "2bak3C/4aP2N/4b4/5C3/9/9/9/3p5/4p2r1/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "i1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-140",
+  "name": "适情雅趣153盐车困骥",
+  "fen": "2bk1a3/1R7/3a5/7N1/9/9/C7C/1p7/1np2pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i6i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-141",
+  "name": "适情雅趣154国庶兵强",
+  "fen": "4kaPP1/c2Pa2nR/4b1P1r/6n2/6bN1/9/4C1R2/9/1r1p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g0f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-142",
+  "name": "适情雅趣155退闲步伐",
+  "fen": "C3ka3/4aP1r1/nR2c4/p8/6b2/9/P8/2C6/3p1p3/c1rAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b2b0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-143",
+  "name": "适情雅趣156沧海遗珠",
+  "fen": "2bnk4/9/b1P6/3Rp1RN1/6r2/9/9/1C2Bp3/4p1r2/c1pC1K2c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "h3g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-144",
+  "name": "适情雅趣157龙翻海底",
+  "fen": "1Cbaka3/1R7/2n1b4/2N1p4/9/3R5/4P1r2/4C3B/4Ar1n1/2BAK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "e7e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-145",
+  "name": "适情雅趣158猛虎出林",
+  "fen": "5a3/4k4/4b4/6N2/6b2/9/2nR5/2rC4C/4p4/3K1c2r w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "i7e7",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-146",
+  "name": "适情雅趣159腾蛟起凤",
+  "fen": "4R4/3ca4/4ka3/5P3/C1b2R3/9/4P4/3AB1n1r/3p1p3/2N1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "f3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-147",
+  "name": "适情雅趣160吕帅鹰扬",
+  "fen": "3aka2R/1R7/c1P2P3/2P1rr3/2N5C/7C1/9/3p5/4p4/1p1K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h5h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-148",
+  "name": "适情雅趣161患在几席",
+  "fen": "2Rakc3/4aR3/4b1n2/4C4/6b2/9/4c4/2n1B3C/1r2A1p2/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-149",
+  "name": "适情雅趣162指鹿道马",
+  "fen": "2bak4/4a4/4b4/N4CN1R/9/9/3n5/9/C1p1AK3/c2A2r2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i3i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-150",
+  "name": "适情雅趣163左宜右有",
+  "fen": "9/4a4/3k1a3/1NP1p4/9/8C/4P4/cr1AKA3/5r3/2n6 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "c3d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-151",
+  "name": "适情雅趣164酸毒道路",
+  "fen": "5k1n1/c3a4/5aR1b/6N2/2r5C/9/9/9/3p1p3/4K1R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g2g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-152",
+  "name": "适情雅趣165遁世不见",
+  "fen": "3k1a3/4a4/2n6/NP1C1P3/9/C8/9/3ABcr1B/3pAp1n1/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "a3b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-153",
+  "name": "适情雅趣166两丞辅弼",
+  "fen": "4kab1r/4a4/4b4/CR2R4/8r/2C6/9/9/c3p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b3b0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-154",
+  "name": "适情雅趣167控告无门",
+  "fen": "3ak4/4a4/4cc3/1N1r2CRC/9/9/9/3n1R3/r3p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h3h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-155",
+  "name": "适情雅趣168见危致命",
+  "fen": "1rbak3r/1N1Ra4/cR2b1N2/9/9/9/9/9/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "d1d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-156",
+  "name": "适情雅趣169六国争雄",
+  "fen": "2b1kab2/3Pa4/2N3n2/2C1pR1CN/9/9/9/4p4/1r5r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f3f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-157",
+  "name": "适情雅趣171叶落知秋",
+  "fen": "2ba2n2/4ak3/4b4/4R4/4N4/9/9/5C3/3rAp3/c1rAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e3f3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-158",
+  "name": "适情雅趣172雁惊云网",
+  "fen": "1R3a3/3k3C1/3a4b/6pN1/9/9/4n3c/5p2C/4r4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h3g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-159",
+  "name": "适情雅趣173妙振兵铃",
+  "fen": "r1b1k4/c1PPaRc2/r2ab3n/4C4/7RC/9/9/9/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h4h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-160",
+  "name": "适情雅趣174群雄割据",
+  "fen": "2baka3/3N4C/4b4/1r2PR3/9/9/4c4/2nR3C1/5p2r/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d1f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-161",
+  "name": "适情雅趣177决策九重",
+  "fen": "2b2a3/3k3C1/2Pa5/8C/6b2/9/4c4/2n1R1p2/2r1R1r2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "c2c1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-162",
+  "name": "适情雅趣179图开八阵",
+  "fen": "2bak3C/4a4/4b4/3P3R1/9/6R2/9/3p1p3/4K4/3r1r3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h3h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-163",
+  "name": "适情雅趣180月下追信",
+  "fen": "3k1a3/1R2n4/2R1b4/9/3P5/9/9/9/r3rn3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-164",
+  "name": "适情雅趣181同功并位",
+  "fen": "2ba1k3/4a4/4b3R/9/8R/9/9/3A2n2/3pA1r2/4K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i4f4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-165",
+  "name": "适情雅趣182虎兕出押",
+  "fen": "4k3C/4a4/5P2N/8P/9/9/9/r2A3p1/1r1pA4/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i2h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-166",
+  "name": "适情雅趣183荧惑退舍",
+  "fen": "3a1k3/RC1cc4/r2a5/2N6/9/9/9/5p3/4p4/5K2R w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "i9i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-167",
+  "name": "适情雅趣184五虎靠山",
+  "fen": "C7r/3kaP3/b1c1ba3/1R3N3/9/C8/9/9/4p1r2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "b3d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-168",
+  "name": "适情雅趣185远交近攻",
+  "fen": "3k5/4aN3/2R2a3/5n3/2R6/9/1pP6/B1n1BA1N1/1r2A1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "c2c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-169",
+  "name": "适情雅趣189入幕之宾",
+  "fen": "2bak3C/2C1aP2n/2n5N/9/7N1/9/9/1r6B/5p2r/3RK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-170",
+  "name": "适情雅趣190退思补过",
+  "fen": "3aka3/3P1n3/RR2b4/4p4/1Cb4C1/6B1r/9/4p4/3pp4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "b2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-171",
+  "name": "适情雅趣191菱叶穿萍",
+  "fen": "2ba1k3/2P6/1n1a5/4C1N1R/1n5Cr/9/9/3p5/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "g3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-172",
+  "name": "适情雅趣197英雄贯斗",
+  "fen": "9/1n2ak3/5aP2/3N5/6b2/5r3/1C7/4R1p2/1p3r1p1/1C2K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g2g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-173",
+  "name": "适情雅趣198损己安人",
+  "fen": "CR3a3/3ka4/1R2b1P2/4C1P2/N1b6/9/6p2/4B1n2/2cpAp2r/4KAB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b0b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-174",
+  "name": "适情雅趣201入室登堂",
+  "fen": "2b1ka3/4a4/4b3n/3R1N3/6R2/9/9/3C3C1/1nrpA4/1c2KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d3d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-175",
+  "name": "适情雅趣202双蝶翻飞",
+  "fen": "4ka1c1/9/3a5/9/6r1r/9/1RR6/4c4/5p3/C3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "c6c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-176",
+  "name": "适情雅趣203空谷回声",
+  "fen": "3akc3/4a4/4b1n2/C2RR2N1/1N2C4/5r3/9/3pB2r1/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "a3a0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-177",
+  "name": "适情雅趣204投石入水",
+  "fen": "3ak4/4a4/bC2b4/9/6N1R/9/9/5p3/r3p4/3p1K1R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h9h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-178",
+  "name": "适情雅趣206疾如激电",
+  "fen": "3ak4/3ra3R/9/9/9/1r2P1C2/5NP2/6n2/3p1p3/4K2R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "h9h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-179",
+  "name": "适情雅趣207车行同轨",
+  "fen": "4k4/C8/3R5/9/9/9/9/3RB4/1r2r4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "d2d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-180",
+  "name": "适情雅趣208六师挞伐",
+  "fen": "3ak1b2/4aP1R1/4b3n/3N3N1/3r5/2R6/9/4BC1C1/1n2p1p2/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-181",
+  "name": "适情雅趣209忙里偷闲",
+  "fen": "2b1kaR2/4aR3/3nbP3/3Np4/9/9/4P4/1C2C4/3pAp2r/4KAB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-182",
+  "name": "适情雅趣211沧海腾蛟",
+  "fen": "1C1k5/4P4/3N4R/5n2C/9/9/5N3/3ABAp2/1r1p1p3/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d2c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-183",
+  "name": "适情雅趣212细柳屯兵",
+  "fen": "2Pak4/CR2a1P2/4b2R1/9/9/1C7/4c4/9/2nr1p3/1r1cK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h2h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-184",
+  "name": "适情雅趣214阻住行程",
+  "fen": "r2aka3/7rC/1R2b4/3N5/9/9/9/p7B/5pp2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d3c1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-185",
+  "name": "适情雅趣216鱼游釜甑",
+  "fen": "3aka3/6P2/9/6P2/6n1C/7R1/9/1r3p3/4p2C1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "i4i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-186",
+  "name": "适情雅趣217鱼游浅濑",
+  "fen": "1R1a3r1/1C1cak3/2N6/5r3/1R7/9/9/5n3/C3p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c2e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-187",
+  "name": "适情雅趣218淮阴列阵",
+  "fen": "3R4C/3P1P3/b3kan2/9/C4PbN1/1n3N3/9/5p3/r8/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "d0e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-188",
+  "name": "适情雅趣219径行直遂",
+  "fen": "6b2/1N3k3/5a3/3R5/9/R8/C8/4c4/3p1rn2/3AKAr1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "d3d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-189",
+  "name": "适情雅趣220羝羊触藩",
+  "fen": "1rbckaP2/3PaP1r1/1P2b4/1R7/Nn7/CRB2p3/4C4/9/1n1p1p3/c3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "g0f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-190",
+  "name": "适情雅趣221或潜或跃",
+  "fen": "3ak3C/4a4/2P1b3b/6RR1/9/9/9/9/1cnr1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h3h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-191",
+  "name": "适情雅趣222晚鸟争枝",
+  "fen": "r4Rb2/4k2C1/4b4/9/1N7/1r6R/9/4n4/3p1p3/4K3C w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b4c2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-192",
+  "name": "适情雅趣223独步出营",
+  "fen": "2b2a3/1P1k2P2/3a5/9/n8/9/9/4RA3/2C1Nr3/2p1KA1rc w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "b1c1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-193",
+  "name": "适情雅趣225三顾草芦",
+  "fen": "3ak1P1P/4a4/9/9/4p3C/c3C1R2/9/9/2rp1p3/4K1R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g0f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-194",
+  "name": "适情雅趣226凫落鱼网",
+  "fen": "1n1ck3C/2PPa1R2/5a3/9/8N/9/9/3n5/4p2R1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-195",
+  "name": "适情雅趣227寻踪觅迹",
+  "fen": "1rP1k2n1/3R1N3/9/6N2/9/C8/9/5p3/4p4/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "c0d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-196",
+  "name": "适情雅趣228良将安边",
+  "fen": "2bk1a3/4a4/9/p1P6/3NC4/4Pp3/P5n2/4B3N/4Ar3/1RBAK2cr w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d4c2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-197",
+  "name": "适情雅趣231赂车乘马",
+  "fen": "1c1k5/4R4/4N4/4rC3/9/6Rr1/9/6C2/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-198",
+  "name": "适情雅趣232声势相倚",
+  "fen": "4k4/6C2/3R5/p8/9/9/9/3RB4/r3r4/3K2B2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1a1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-199",
+  "name": "适情雅趣233五丁凿路",
+  "fen": "2bak4/C2Ra4/N3b4/1C5n1/8R/3n5/9/B8/c1rp1p3/4Kc3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "d1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-200",
+  "name": "适情雅趣234六国攻秦",
+  "fen": "2b1kaR2/3Ra2n1/1n2b4/5N3/2p3p2/1NB3C2/9/4B4/1r1p1r3/c3Kc3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "f3g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-201",
+  "name": "适情雅趣235威镇四海",
+  "fen": "2b2k3/1R2a1P2/3a5/4p1N2/6b2/9/3nP4/4C1C2/3rAp3/c1nAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-202",
+  "name": "适情雅趣236当头棒喝",
+  "fen": "3akarr1/1NC2P2C/9/9/R8/9/6p2/4B4/2n1p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-203",
+  "name": "适情雅趣238举趾触眉",
+  "fen": "C3kC3/2PRa4/1n5P1/9/9/1N5N1/9/3p5/4r2r1/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "d1d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-204",
+  "name": "适情雅趣239结草衔环",
+  "fen": "2Pak3C/3Pa4/b5C1N/4p1p2/6b2/5N3/4c4/6n2/5p1r1/1r1cK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "i2h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-205",
+  "name": "适情雅趣240云台列宿",
+  "fen": "5a3/4aP3/b2kb1NC1/1P4p2/9/N1p1cp3/4c4/2p1R1p2/2nrRrn2/2BAKAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "a5c4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-206",
+  "name": "适情雅趣246退无所归",
+  "fen": "6b2/9/3k5/4P1N2/2b6/9/9/9/2p2p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "g3f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-207",
+  "name": "适情雅趣247兔游月窟",
+  "fen": "6R2/3P1k3/3a1a3/9/9/2B6/9/B1r6/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g0g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-208",
+  "name": "适情雅趣248视死如归",
+  "fen": "r2k5/9/2P6/9/6bN1/4R4/9/2np1pn2/4K4/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e5e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-209",
+  "name": "适情雅趣249动中有静",
+  "fen": "3a1k3/9/3N1a1P1/9/8C/9/9/1p3p3/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i4c4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-210",
+  "name": "适情雅趣251双鹊投林",
+  "fen": "3k1a3/2P1a1P2/N8/9/9/9/9/3p4p/4p4/2B2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "a2c3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-211",
+  "name": "适情雅趣253四海一家",
+  "fen": "2b2a3/2P1k4/1r1Pba3/6C2/9/9/9/9/4p4/2p2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-212",
+  "name": "适情雅趣254以德报怨",
+  "fen": "3k5/9/3a5/9/9/9/9/5R3/c2rA2p1/3C1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f7f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-213",
+  "name": "适情雅趣255风云际会",
+  "fen": "4ka3/9/3a1P3/4C4/6C2/9/9/9/1p2pp3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f2f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-214",
+  "name": "适情雅趣256伏兵要路",
+  "fen": "9/3Pak3/5aP2/9/9/3N1p1p1/9/5p3/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g2g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-215",
+  "name": "适情雅趣259少见相拘",
+  "fen": "3k2b2/4P4/c3b1c2/p5R2/8p/9/9/9/2p3p2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g3d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-216",
+  "name": "适情雅趣262石燕拂云",
+  "fen": "4ka3/4aPN2/8b/7Cp/9/2P6/9/4B4/2p3p1c/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h3h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-217",
+  "name": "适情雅趣263深入敌境",
+  "fen": "C8/C2Pak3/3cba2b/9/9/9/2R2p1r1/9/4r2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c6c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-218",
+  "name": "适情雅趣271丹山起凤",
+  "fen": "r1P1k4/5P3/9/1c7/9/2N6/9/9/2p3p2/1p1KCN1rc w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "c5e6",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-219",
+  "name": "适情雅趣273星坠日升",
+  "fen": "2bak2r1/4a4/4b4/C2N1C3/9/3R5/9/2p6/2c1p4/3K2p2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "a3a0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-220",
+  "name": "适情雅趣274老而不倦",
+  "fen": "2b1k1b2/3P1P3/3a1a3/7C1/9/9/9/9/1p2pp3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h3f3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-221",
+  "name": "适情雅趣277敛手削地",
+  "fen": "1nb1kab1r/3Ra4/3cc1n2/C1N1p1pR1/9/3N1p3/4Pp3/4C4/4r4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c3b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-222",
+  "name": "适情雅趣279神龙现首",
+  "fen": "3a1k3/4a4/9/c7c/9/2C4N1/6P2/5A3/5r1p1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c5c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-223",
+  "name": "适情雅趣291汗马功劳",
+  "fen": "2ba1kbRC/3Ra4/9/2pPp4/3Nc4/9/4P4/3pB1N2/r2pA4/c3KAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-224",
+  "name": "适情雅趣292乘风吹火",
+  "fen": "2Pak4/c3a3R/5c2N/6C2/6b2/9/9/9/1r3p3/4K2R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h9h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-225",
+  "name": "适情雅趣296绕江撒网",
+  "fen": "6b2/4ak1C1/2N2aR2/4P4/2b6/9/8P/4B1p1r/r3Ap3/3AK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h1h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-226",
+  "name": "适情雅趣297陈桥兵变",
+  "fen": "2ba1k3/2rPa4/R3b4/4cP1C1/2p6/9/3rP4/4B4/3pp4/2B2K1R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "h3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-227",
+  "name": "适情雅趣300虎帐谈兵",
+  "fen": "3ak4/2PPa4/b3b4/2p1C1N2/3c5/1rB6/9/9/3pp1p2/1CB2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-228",
+  "name": "适情雅趣302殃及池鱼",
+  "fen": "2ra1a2r/4k3C/4b3N/5R2p/2p3b2/9/9/9/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i1i3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-229",
+  "name": "适情雅趣303英略盖世",
+  "fen": "1nb2kr2/3Pa2R1/3nba3/N3C2C1/6r2/9/9/9/9/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-230",
+  "name": "适情雅趣304莘野邀汤",
+  "fen": "2bak4/r2PaRR2/1n2N3b/4p1n2/9/9/9/4C4/2p1App2/2B1KAB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d1d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-231",
+  "name": "适情雅趣317独鹿鸣泽",
+  "fen": "C3k4/4a1r2/5a3/1N7/1Cp6/1R7/9/3p5/4p3r/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b3d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-232",
+  "name": "适情雅趣318秦鹿方走",
+  "fen": "3N3r1/3R4C/3aka3/6pN1/9/9/4n4/2C6/4p4/5Kc1r w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "c7c2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-233",
+  "name": "适情雅趣319参前倚衡",
+  "fen": "r2k1a3/3na1R2/3cb1c2/3N1R3/6P2/3C5/9/B4p2B/2p3r2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f3f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-234",
+  "name": "适情雅趣322五虎下川",
+  "fen": "5k2c/CN2a2R1/4ba3/3R5/9/2N6/9/3A2n2/3r1p2r/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h1h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-235",
+  "name": "适情雅趣323推窗望月",
+  "fen": "2ba1k3/4a4/n3N4/9/9/9/9/3RB1r2/2p2r3/3AK2R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d7d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-236",
+  "name": "适情雅趣324骏骑追风",
+  "fen": "4kab1N/4a3C/4b4/N8/9/4C4/9/5p3/2n1p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "i0g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-237",
+  "name": "适情雅趣326忆则屡中",
+  "fen": "3akaP2/9/4bR3/4p3C/7N1/9/3p1p3/4B4/3rAp3/1cBAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f2f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-238",
+  "name": "适情雅趣328抑强扶弱",
+  "fen": "2bak2r1/4aP2R/2R1b4/6p1p/1Np6/2C6/9/9/3pr4/5K2c w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "i1i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-239",
+  "name": "适情雅趣329群鼠争穴",
+  "fen": "3k2b2/4P4/ccR1b2R1/9/9/9/9/1C3N1C1/4p1r2/2p2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c2c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-240",
+  "name": "适情雅趣330四面楚歌",
+  "fen": "2b1R1Nr1/1Nr2k3/9/C2R1P1n1/2bCp1P2/5pc2/9/5n3/2p1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "d3d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-241",
+  "name": "适情雅趣331七国连衡",
+  "fen": "1n2ka3/R3a1P2/1P2b1n1C/5R3/4P1b2/1N7/9/5p3/4r1r2/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i2i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-242",
+  "name": "适情雅趣332见害必避",
+  "fen": "2bak1r1c/4aP1R1/b3c4/8p/9/2R6/r8/4B3C/p3A4/4K1B2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c5g5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-243",
+  "name": "适情雅趣333一举而定",
+  "fen": "1r1akab2/5R3/4b1n2/7NC/9/2B6/2r1P4/B2RC4/3KA4/c8 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "d7d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-244",
+  "name": "适情雅趣334孤星坠地",
+  "fen": "9/4a4/4ka3/1NP1p4/9/9/8C/1p2KA1rc/c3A4/5p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "i6e6",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-245",
+  "name": "适情雅趣335佳兵不祥",
+  "fen": "5a3/3k4C/2R2a3/2p1pPN2/9/9/2P5P/1cn5B/3pApp2/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "g3f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-246",
+  "name": "适情雅趣336气吞关右",
+  "fen": "2baka3/3P3N1/bN7/7nc/9/4C1P2/P5n1P/B3R3B/4Apr2/2RAK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e5a5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-247",
+  "name": "适情雅趣338引龙出水",
+  "fen": "4k3c/3Ra1P2/3ab1N2/9/2b6/9/9/3KCR3/1nr1p1r2/5C3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f7f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-248",
+  "name": "适情雅趣339用兵最精",
+  "fen": "2ba5/4a4/1P1k5/R7N/C8/6B2/9/2n1B4/5pr2/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "b2c2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-249",
+  "name": "适情雅趣340珠藏韫匮",
+  "fen": "C1bac1RN1/r2Rak3/7n1/1rP6/2N1P4/9/9/2n6/5p3/4Kc3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "g0e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-250",
+  "name": "适情雅趣341践履笃实",
+  "fen": "2bak2r1/C3a4/1N2b3c/4p2N1/9/2R6/9/2n6/3pA4/c1rAK3R w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "h3g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-251",
+  "name": "适情雅趣342竹马迎师",
+  "fen": "1P3k1n1/4a4/5a1R1/1N2P3N/1C3n3/9/1c7/3p5/r3p4/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "i3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-252",
+  "name": "适情雅趣343并驾齐驱",
+  "fen": "C4k3/4a4/5a3/9/4N4/1p3RN1c/4c4/2p1C4/1rn4r1/3K1R3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "f5f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-253",
+  "name": "适情雅趣344脱网逢钩",
+  "fen": "4k4/4a4/4Pa3/n3p1pCR/3N5/9/9/5p3/4p1r2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i3i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-254",
+  "name": "适情雅趣347勇敌万夫",
+  "fen": "4k1C2/3Pa2R1/4baN2/9/9/9/2p6/3C5/3rp3r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "g2f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-255",
+  "name": "适情雅趣348莺慵蝶懒",
+  "fen": "3a1a3/9/3k5/2P6/3P5/3N2C1C/9/1c3p3/4p4/3n1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d4d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-256",
+  "name": "适情雅趣349七雄争霸",
+  "fen": "2bak1b2/5P3/3a5/4p1p1N/6P1C/2R6/C1R1Pp1n1/3A5/3K2crc/3Ar4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-257",
+  "name": "适情雅趣350诱虎吞钩",
+  "fen": "4ka3/4a4/3n5/3N5/9/C1R6/2R6/4n1r2/3p5/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "c5c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-258",
+  "name": "适情雅趣351循规蹈矩",
+  "fen": "2na1kb1R/2R6/4ba3/4C3p/7r1/2C6/4c3P/4B4/4A3p/3AK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c5c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-259",
+  "name": "适情雅趣352翻江扰海",
+  "fen": "1rC2k3/9/n1R6/9/4N4/9/R3c4/4C4/4rn3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "c2f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-260",
+  "name": "适情雅趣353惊鸿整羽",
+  "fen": "3aka3/3P1n3/NR2b4/1Cp1p1p2/4c2C1/9/9/9/6r1r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "h4h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-261",
+  "name": "适情雅趣354神黾出洛",
+  "fen": "3a1k3/1C7/c4a3/8N/3P5/9/8C/B8/r2pnpp2/4K1cRR w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "i3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-262",
+  "name": "适情雅趣355金创满身",
+  "fen": "9/9/R2ak1P2/2rN5/9/9/1C7/4rn3/3K5/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "a2d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-263",
+  "name": "适情雅趣356骅骝争路",
+  "fen": "3aka3/1R1N5/1c2b4/1Np1p1p2/6n2/C6R1/2P1P4/2n1C4/4Ap2r/r2AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d1f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-264",
+  "name": "适情雅趣357足蹑天穴",
+  "fen": "2b1ka2N/6R2/bR7/9/1C2r3C/9/9/9/c1r3p2/c2K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-265",
+  "name": "适情雅趣360尽善克终",
+  "fen": "3ak4/3RaR3/4b3N/6N2/2b6/9/3pP4/B3C1n1B/2rp2r2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-266",
+  "name": "第001局 气吞关右",
+  "fen": "2baka3/3P3N1/bN7/7nc/9/4C1P2/P5n1P/B3R3B/4Apr2/2RAK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e5a5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-267",
+  "name": "第003局 羝羊触藩",
+  "fen": "1rbckaP2/3PaP1r1/1P2b4/1R7/Nn7/CRBp1n3/4C4/9/4p1p2/1c3K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g0f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-268",
+  "name": "第008局 珠藏韫柜",
+  "fen": "C1bac1RN1/r2Rak3/7n1/1rP6/2N1P1p2/9/9/2n6/5p3/4Kc3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g0e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-269",
+  "name": "第009局 神龟出洛",
+  "fen": "3a1k3/1C7/c4a3/8N/3P5/9/8C/B8/r2pnpp2/4K1cRR w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "i3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-270",
+  "name": "第010局 鸳鸯戏水",
+  "fen": "4kab1C/4a4/9/1R7/4P1N2/2N3B2/1n5r1/4n4/4A4/c1BAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b3b0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-271",
+  "name": "第011局 群鼠争穴",
+  "fen": "3k2b2/4P4/crR1b2Rc/9/9/9/9/1C3N1C1/4p1r2/2p2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "c2c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-272",
+  "name": "第012局 颠猿饮涧",
+  "fen": "1C2kab2/rN2a2R1/2r1c3b/9/9/5R3/9/7C1/9/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f5f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-273",
+  "name": "第013局 目视横流",
+  "fen": "4k4/3P2P2/b2N2R2/7r1/2b6/9/9/3n5/4p3r/2R2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "g2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-274",
+  "name": "第014局 独鹿鸣泽",
+  "fen": "C3k4/4a1r2/5a3/1N7/1Cp6/1R7/9/3p5/4p3r/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b3d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-275",
+  "name": "第015局 妙振兵铃",
+  "fen": "r1b1k4/c1PPaRc2/r2ab3n/4C4/7RC/9/9/9/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h4h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-276",
+  "name": "第016局 退思补过",
+  "fen": "3aka3/3P1n3/RR2b4/4p4/1Cb4C1/6B1r/9/4p4/3pp4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-277",
+  "name": "第019局 遁世不见",
+  "fen": "3k1a3/4a4/2n6/NP1C1P3/9/C8/9/3ABcr1B/3pAp1n1/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "a3b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-278",
+  "name": "第026局 结草衔环",
+  "fen": "2Pak3C/3Pa4/b5C1N/4p1p2/6b2/5N3/4c4/6n2/5p1r1/1r1cK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "i2h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-279",
+  "name": "第027局 藕断丝牵",
+  "fen": "2bP1k2r/1nn1P4/3cbc3/9/2p3P1p/7RC/9/4p4/3p1R3/2pCK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h5h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-280",
+  "name": "第028局 计罗并照",
+  "fen": "3ak1b2/4aP1R1/4b3n/3N3N1/3r5/2R5r/9/4BC1C1/1n2p1p2/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-281",
+  "name": "第029局 四面楚歌",
+  "fen": "2b1R1Nr1/1Nr2k3/9/C2R1P1n1/2bCp1P2/5pc2/9/5n3/2p1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "d3d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-282",
+  "name": "第030局 国庶兵强",
+  "fen": "4kaPP1/c2Pa2nR/4b1P1r/6n2/6bN1/9/4C1R2/9/1r1p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g0f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-283",
+  "name": "第031局 兵贵拙速",
+  "fen": "4k1br1/r3aPRN1/2Rab1P1n/8p/6P2/8C/9/9/3p1p3/4K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-284",
+  "name": "第035局 龙翻潭底",
+  "fen": "1Cbaka3/1R7/2n1b4/2N1p4/9/3R5/4P1r2/4C3B/4Ar1n1/2BAK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "e7e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-285",
+  "name": "第037局 损人安己",
+  "fen": "CR3a3/3ka4/1R2b1P2/4C4/N1b6/9/6P2/4B1n2/2cpAp2r/4KAB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "b0b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-286",
+  "name": "第038局 百计无由",
+  "fen": "3ak1bR1/4aP2r/9/2p3pC1/5Pc2/1RB6/7p1/9/5r3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h0i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-287",
+  "name": "第039局 博望烧屯",
+  "fen": "2bak1b2/4aR2C/6N1n/9/9/9/5c3/4BC3/3p1r1n1/4K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i1i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-288",
+  "name": "第043局 精忠报国",
+  "fen": "C4kbN1/R2Pa4/4ca3/4rNR2/6b2/6c2/9/4C4/4p3r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g3g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-289",
+  "name": "第044局 近悦远来",
+  "fen": "4ka3/3P1R3/5P2b/6P1N/1R4b1c/2n6/8C/5A3/4AK3/1r4r2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-290",
+  "name": "第047局 守边告归",
+  "fen": "1R3a3/2N1ak3/4P4/C2N4p/9/9/4cp3/4B1n1B/4A3r/3AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "a3i3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-291",
+  "name": "第048局 卧薪尝胆",
+  "fen": "3k1a1n1/4aR3/4b1C2/4C1R2/2b1N4/2B6/2P6/2nrB4/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g2g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-292",
+  "name": "第049局 独步出营",
+  "fen": "2b2a3/1P1k1P3/3a5/9/n1b6/9/9/4RA3/2C1Nr3/2p1KA1rc w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "b1c1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-293",
+  "name": "第050局 秦鹿方走",
+  "fen": "3N3r1/3R4C/3aka3/6pN1/9/9/4n4/2C6/4p4/5Kc1r w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "c7c2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-294",
+  "name": "第051局 下车伏谒",
+  "fen": "R2akab2/3n3P1/1NC1b4/5R3/2p3p2/9/9/5p3/4r3r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c2c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-295",
+  "name": "第052局 担雪填井",
+  "fen": "3ak3r/4a1R2/b1C1bc3/1N2C3N/9/3p5/2n6/3K5/9/r8 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c2c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-296",
+  "name": "第053局 开窗邀月",
+  "fen": "1n1k1a3/R8/b2ab4/2R6/9/6C2/9/4C4/3pArn1c/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c3c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-297",
+  "name": "第054局 五虎靠山",
+  "fen": "C7r/3kaP3/b1c1ba3/1R3N3/9/C8/9/9/4p1r2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "b3d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-298",
+  "name": "第055局 背水战胜",
+  "fen": "3R4C/3P1P3/4kan2/9/C4PbN1/1n3N3/9/5p3/r3p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d0e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-299",
+  "name": "第057局 放弥六合",
+  "fen": "3ack3/1NR1a1P2/3n2R2/9/2C6/9/9/9/1r2p2r1/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g2f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-300",
+  "name": "第059局 变现出没",
+  "fen": "2b1ka1r1/3Pa4/5Rc2/5Nr2/9/9/9/7C1/C2p5/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "a8a0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-301",
+  "name": "第061局 群虎争餐",
+  "fen": "2bk1a3/1R2a2N1/rCc1b4/9/9/9/9/4C2R1/3r1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-302",
+  "name": "第063局 头辆舆轮",
+  "fen": "3akarr1/1NC2P2C/9/9/R8/9/6p2/4B4/2n1p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-303",
+  "name": "第065局 推窗望月",
+  "fen": "2ba1k3/4a4/n3N4/9/9/9/9/3RB1r2/2p2r3/3AK2R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d7d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-304",
+  "name": "第066局 见危致命",
+  "fen": "1rbak3r/1N1Ra4/cR2b1N2/9/9/9/9/9/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "d1d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-305",
+  "name": "第067局 凫罗鱼网",
+  "fen": "1n1ck3C/2PPa1R2/5a3/9/8N/9/9/3n5/4p2r1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-306",
+  "name": "第068局 鸿门碎斗",
+  "fen": "2Ck1a3/2R1aR3/9/5N3/r8/r8/9/3C5/4p1n2/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f3d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-307",
+  "name": "第070局 鸢飞泪天",
+  "fen": "4k3C/5N1rC/5c3/4p4/4N4/9/9/6n2/2r2p3/3RK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-308",
+  "name": "第075局 豪帅心服",
+  "fen": "4rc3/4ak3/9/9/9/9/9/2R6/3pA4/cr1AKC3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c7f7",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-309",
+  "name": "第076局 莺慵蝶懒",
+  "fen": "3a1a3/9/3k5/2P6/3P5/3N2C1C/9/1c3p3/4p4/3n1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "d4d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-310",
+  "name": "第081局 寻踪觅迹",
+  "fen": "1rP1k2n1/3R1N3/9/6N2/9/C8/9/5p3/4p4/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "c0d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-311",
+  "name": "第082局 祸不单行",
+  "fen": "4k4/4a4/2P5n/5N3/9/5R3/9/9/2p2p2r/C3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f3d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-312",
+  "name": "第083局 沉鱼落雁",
+  "fen": "2bk5/1R5N1/9/9/9/9/9/5Cr2/r2p1p3/4K2R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-313",
+  "name": "第084局 双蜓点水",
+  "fen": "1C3k3/1N2P4/1nN1b4/9/9/9/9/4p4/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c2d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-314",
+  "name": "第086局 运筹决胜",
+  "fen": "4k4/5P3/3P5/9/6b2/9/9/2p3p2/4AK1nr/3A1C3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-315",
+  "name": "第090局 骅骝争先",
+  "fen": "3aka3/1R1N5/1c2b1c2/1Np1p1p2/6n2/C6R1/2P1P4/2n1C4/4Ap2r/r2AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d1f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-316",
+  "name": "第091局 六国抗秦",
+  "fen": "2b1kaR2/3Ra2n1/1n2b4/5N3/2p3p2/1NB3C2/9/4B4/1r1p1r3/c3KC3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "f3g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-317",
+  "name": "第092局 五丁凿路",
+  "fen": "2bak4/C2Ra4/N3b3R/1C5n1/9/2Bn5/9/B8/c1rp1p3/4Kc3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i2i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-318",
+  "name": "第189局 闭门扫轨",
+  "fen": "3a1k3/4a1R2/4brN2/1N7/9/9/9/1C4p2/3p4p/4K3C w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "b7f7",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-319",
+  "name": "第191局 劳问将士",
+  "fen": "3k1a3/1NR2n3/3a5/1r4CC1/2b6/9/9/9/1c1p3r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g3g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-320",
+  "name": "第192局 两地关心",
+  "fen": "2bak3C/4aP2N/4b4/5C3/9/9/9/3p5/4p2r1/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "i1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-321",
+  "name": "第193局 同功并位",
+  "fen": "2ba1k3/4a4/4b3R/9/8R/9/9/3A2n2/3pA1r2/4K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i4f4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-322",
+  "name": "第195局 盐车困骥",
+  "fen": "2bk1a3/9/3a5/7N1/9/9/C7C/1p7/1np2p1r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i6i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-323",
+  "name": "第196局 雪拥蓝关",
+  "fen": "2ba1kb2/1P2a1R2/3cnrN2/C8/9/9/9/9/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-324",
+  "name": "第197局 投命仇门",
+  "fen": "2bk4C/9/3a5/5cN2/9/9/8P/6n1B/2r6/1R2KA2r w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g3f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-325",
+  "name": "第198局 惊鸟藏枝",
+  "fen": "4kC3/3RaP3/3C2n1c/Nr1R5/9/9/9/4p4/6r2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-326",
+  "name": "第200局 落花流水",
+  "fen": "3a1k3/R3a4/4b1P2/3R4C/9/4C1N2/r8/9/2r1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d3d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-327",
+  "name": "第201局 三请诸葛",
+  "fen": "3ak1P1P/4a4/9/9/4p3C/c3C1R2/9/5p3/2rp5/4K1R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g0f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-328",
+  "name": "第203局 远近惊骇",
+  "fen": "9/4a4/3k1a3/1NP1p4/9/8C/4P4/cr1AKA3/5r3/2n6 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "c3d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-329",
+  "name": "第205局 四畏廉名",
+  "fen": "3aka3/9/4b2Rc/4P2N1/6b2/7C1/9/9/2nrA4/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "h2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-330",
+  "name": "第206局 孤星坠地",
+  "fen": "9/4a4/4ka3/1NP1p4/9/9/8C/1p2KA1rc/2c1A4/5p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i6e6",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-331",
+  "name": "第207局 菱叶穿萍",
+  "fen": "2ba1k3/2P6/1n1a5/4C1N1R/1n5Cr/9/9/3p5/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "g3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-332",
+  "name": "第210局 士马如云",
+  "fen": "Nr2kc3/4a3n/2R3n2/4RN3/9/9/7C1/9/3p1pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "e3e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-333",
+  "name": "第211局 晚鸟争枝",
+  "fen": "r4Rb2/4k2C1/4b4/9/1N7/1r6R/9/4n4/3p1p3/4K3C w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b4c2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-334",
+  "name": "第212局 雁惊云网",
+  "fen": "1R3a3/3k3C1/3a4b/6pN1/9/9/4n3c/5p2C/4r4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h3g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-335",
+  "name": "第219局 屈突徒薪",
+  "fen": "cc1a1k3/3Pa1R2/5rNr1/9/6R2/9/9/9/3p5/3AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-336",
+  "name": "第220局 攀辕卧辙",
+  "fen": "1r2ka3/2P1a2P1/n3N4/4R4/6N2/9/9/9/5pc2/c3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g4f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-337",
+  "name": "第221局 野马舞风",
+  "fen": "R4a1C1/3ka4/8b/7N1/6b2/1r7/9/2C6/4p3r/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "a0a1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-338",
+  "name": "第224局 随形助胜",
+  "fen": "3a1k3/1Nc1a1R2/5rN2/9/9/9/9/9/3p5/4K1Rrc w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-339",
+  "name": "第225局 循序渐进",
+  "fen": "3k5/1R2n1P2/2R1b4/9/r2P5/7N1/9/9/4r3C/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-340",
+  "name": "第228局 游鱼吞钩",
+  "fen": "4k1b2/4aPN2/5a3/9/N8/6C2/4c4/9/2nr1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-341",
+  "name": "第230局 胡骑迫背",
+  "fen": "2bak1b2/4aR3/9/3NR4/9/9/9/6n2/r2r1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-342",
+  "name": "第231局 用舍相碍",
+  "fen": "5a3/3ka4/2Ncb4/9/9/C8/9/3R3r1/3pAp3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "a5d5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-343",
+  "name": "第234局 居中反祸",
+  "fen": "2bk5/r3aR3/n1r1b4/9/9/6R2/9/3n5/4p4/1C3K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g5g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-344",
+  "name": "第236局 怀春育孕",
+  "fen": "2b1k1b2/3Ra4/2r2a2r/6R2/4P4/7C1/9/9/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h5h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-345",
+  "name": "第237局 长鲸授首",
+  "fen": "5a1C1/3ka4/4b4/7N1/1Rb6/9/9/5n3/2r1p4/c4K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b4b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-346",
+  "name": "第239局 弃短取长",
+  "fen": "4kab2/5P3/4b1n2/1N1N5/9/1n4C2/9/3p5/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b3d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-347",
+  "name": "第240局 凭马渡江",
+  "fen": "2b2a3/C3a4/3kb4/9/9/5RN2/9/1C7/r2r1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f5d5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-348",
+  "name": "第241局 鱼游釜甑",
+  "fen": "3aka3/6P2/9/6P2/6n1C/7R1/9/1r3p3/4p2C1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "i4i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-349",
+  "name": "第242局 明修栈道",
+  "fen": "3r1k3/C5P2/b4a3/CR2R4/9/9/9/2n6/5pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-350",
+  "name": "第243局 祸生肘腋",
+  "fen": "1R1a5/2P1k4/1n2b4/4c4/9/9/9/2C5R/4r1r2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-351",
+  "name": "第249局 雁阵排空",
+  "fen": "6c2/5k3/1N2b4/4C4/2b2C3/3R5/9/6n2/7r1/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d5d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-352",
+  "name": "第252局 二龙绕室",
+  "fen": "3a1kb2/4a4/4b4/5NN2/9/9/9/8C/3r4c/4K1n2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-353",
+  "name": "第253局 毙马仆途",
+  "fen": "3a3nC/1R4c2/2C1k2r1/9/9/r6N1/9/9/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "h5g3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-354",
+  "name": "第255局 车行同轨",
+  "fen": "4k4/C8/3R5/9/9/9/9/3RB1n2/1r2r4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "d2d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-355",
+  "name": "第256局 挡住英雄",
+  "fen": "6b2/9/3k4C/4P4/9/9/9/4R4/3r1p3/4K1B2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "e3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-356",
+  "name": "第260局 金创满身",
+  "fen": "9/9/R2ak1P2/2rN5/9/9/1C7/4rn3/3K5/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "a2d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-357",
+  "name": "第261局 不服自老",
+  "fen": "2Pa5/1r2a2R1/4k4/9/4N4/9/9/3p1n3/9/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "h1h2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-358",
+  "name": "第263局 跃鲤吞饵",
+  "fen": "6b2/1N1R5/5k3/9/9/9/9/4p4/2Rp1p2r/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c8c2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-359",
+  "name": "第264局 巅峰得路",
+  "fen": "2b1k4/2P6/3Rn1P2/9/4r4/9/9/3R5/4r4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-360",
+  "name": "第265局 入穴取虎",
+  "fen": "3k1a3/9/3a5/3rRN2C/9/9/9/6n2/5r3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e3e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-361",
+  "name": "第266局 脱网逢钩",
+  "fen": "3C1a1c1/C8/3kbN3/4P4/9/9/9/9/r4p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "e3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-362",
+  "name": "第267局 直穷到底",
+  "fen": "9/4ak3/5a3/6P2/7r1/1r7/9/C2RR4/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "e7e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-363",
+  "name": "第268局 投躯帝廷",
+  "fen": "1c2k1C2/c4P3/5a3/9/9/9/9/7R1/3rp4/5K1C1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "h7e7",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-364",
+  "name": "第270局 吐胆倾心",
+  "fen": "3a1k3/c2P5/2r2a3/6N2/9/6R2/9/4C4/4r4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-365",
+  "name": "第272局 舍命如归",
+  "fen": "9/r2k5/1R1ab4/3N5/2b6/1C7/9/3n1p3/9/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "b2d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-366",
+  "name": "第273局 辎重塞途",
+  "fen": "3k1a3/nPR1a4/2Nr5/9/9/9/9/9/5r3/2c1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c1c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-367",
+  "name": "第275局 路车乘马",
+  "fen": "1c1k5/4R4/4N4/4rC3/9/6Rr1/9/6C2/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-368",
+  "name": "第278局 火炎昆岗",
+  "fen": "3ak1b1r/4a2Pn/4b4/4C4/9/9/cR7/n8/4A1p2/3AKC3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f9f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-369",
+  "name": "第280局 诳楚救主",
+  "fen": "3ak4/4aR3/n3N4/4P4/2b6/8C/4c4/N3B1n2/1r2A4/3RKAr2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-370",
+  "name": "第281局 前后一辙",
+  "fen": "4ka3/4aR3/4N1C1b/c1p1p4/9/9/2N1P1R2/5C3/r1rp5/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f7g7",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-371",
+  "name": "第283局 肉钽负荆",
+  "fen": "4ka3/R3a4/b2rb4/4P2N1/9/9/9/3Ap4/4pp3/1R1K1A3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "a1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-372",
+  "name": "第284局 一骑困魏",
+  "fen": "r4k3/4a1P2/1n3a3/4N4/9/9/9/4C4/4p4/2BK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e3d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-373",
+  "name": "第285局 野马诱虎",
+  "fen": "3k3r1/4a4/3a5/6N2/9/9/9/4C4/4p2c1/2BR1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "g3f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-374",
+  "name": "第093局 鱼骇月钩",
+  "fen": "3k2b1r/C4R3/P3b4/n2c1R3/9/1N7/9/4BA3/3p1p3/c1BAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-375",
+  "name": "第094局 负笈追师",
+  "fen": "2baka3/1R7/4b2nn/4R2CN/4N4/9/9/5p3/2rc4r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "e3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-376",
+  "name": "第095局 英雄贯斗",
+  "fen": "9/1n2ak3/5aP2/3N5/6b2/5r3/1C7/4R1p2/1p3r1p1/1C2K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g2g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-377",
+  "name": "第097局 敌居万人",
+  "fen": "4k3N/3Pn4/4b4/c1p3n1R/4P3r/9/5R3/5C3/2r1p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i0g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-378",
+  "name": "第098局 姜公钓渭",
+  "fen": "4ka3/4aN3/9/RC7/2b2Pb2/9/9/4pp3/3nr3r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "a3a0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-379",
+  "name": "第099局 偷营劫寨",
+  "fen": "c2a1k3/3Ra4/4c1P2/7R1/9/9/9/1C2B4/1r7/2BK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b7b0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-380",
+  "name": "第100局 飞黄结路",
+  "fen": "2r6/4akN2/C3P2c1/1C4P2/7r1/8R/9/5p3/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i5f5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-381",
+  "name": "第102局 金门待漏",
+  "fen": "3ak4/R3a1P1R/b3b4/1C7/4c4/9/9/9/2r3r2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i1i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-382",
+  "name": "第103局 双鹭窥鱼",
+  "fen": "3ak3N/4aP3/8R/1rr5N/9/9/9/9/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-383",
+  "name": "第104局 径行自遂",
+  "fen": "6b2/1N3k2C/5a3/3R5/9/R8/9/4c1n2/3p5/3AKAr1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d3d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-384",
+  "name": "第105局 战如烈火",
+  "fen": "2b1ka3/4a3c/4b4/6n2/7RN/9/9/3CCR3/2rp1p3/4KAr1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f7f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-385",
+  "name": "第106局 兵马出塞",
+  "fen": "2bak3r/3Ra4/4b4/6P2/7n1/2R3BN1/9/2n1C4/1r7/c3K3C w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "d1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-386",
+  "name": "第107局 丹山起凤",
+  "fen": "1R1c1ab2/5k3/3r1a3/3C5/6b1N/3R5/9/3AB4/2p1p4/3K1N1rc w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "b0b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-387",
+  "name": "第108局 争舟走渡",
+  "fen": "2bak4/4aPP2/4b4/3N5/2r1C4/9/9/C2R2nr1/4Ap3/3AK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-388",
+  "name": "第109局 欲罢不能",
+  "fen": "2na1kb1R/2R6/4ba3/4C4/7r1/2C6/4c3P/4B4/4A3p/3AK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c5c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-389",
+  "name": "第111局 兴戎出好",
+  "fen": "2b1ka3/3Ra4/1c2b3c/N8/R8/6B2/4C1r2/C8/4Ap1n1/3AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d1d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-390",
+  "name": "第112局 飞鲸吞钓",
+  "fen": "2bak4/C3a2NR/4b4/9/6p2/1C2c4/9/4B4/1r2A1c2/3RKAr2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h1f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-391",
+  "name": "第113局 威镇四海",
+  "fen": "2b2k3/1R2a1P2/3a5/4p1N2/6b2/9/3nP4/4C1C2/3rAp3/c1nAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-392",
+  "name": "第114局 践履笃实",
+  "fen": "2bak2r1/C3a4/1N2b3c/4p2N1/9/2R6/9/2n6/3pA4/c1rAK3R w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h3g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-393",
+  "name": "第116局 明皇游宫",
+  "fen": "2b1ka3/4a4/b6c1/7N1/2P1p4/1CR1C4/2P6/2n1p1nr1/8R/1rB1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h3f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-394",
+  "name": "第117局 曲突徙薪",
+  "fen": "2b1ka1r1/3Ra4/3Pb4/9/9/1R7/2Pnc4/1C1CB3B/4Ap3/3AK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b5h5",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-395",
+  "name": "第120局 龟玉毁椟",
+  "fen": "R2rk4/4nP3/2n1b4/6N2/9/1r2C4/4c4/4B4/3pN4/4KC3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-396",
+  "name": "第121局 柳营射猎",
+  "fen": "2n1ka3/3RaR3/C3b3N/6N2/6b2/9/9/9/r2p1pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-397",
+  "name": "第122局 地富兵强",
+  "fen": "4kabC1/4a4/4b2N1/5P3/9/9/9/6Cr1/R1pp4r/R3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "a8a0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-398",
+  "name": "第123局 逢山开路",
+  "fen": "1Nba1k1n1/7P1/9/1P2R1n2/5rb2/9/9/C3R4/3p1r3/c3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "e3f3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-399",
+  "name": "第125局 五虎下川",
+  "fen": "5k2c/CN2a2R1/4ba3/3R5/9/2N6/9/3AB1n2/3p1p2r/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h1h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-400",
+  "name": "第126局 叶落归秋",
+  "fen": "2ba2n2/4ak3/4b4/4R4/4N4/9/9/5C3/3rAp3/c1rAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e3f3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-401",
+  "name": "第128局 耿恭拜井",
+  "fen": "2bak1C2/3Pa1R2/4b1N1N/9/9/9/4Pr3/5C3/3npr3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d1e1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-402",
+  "name": "第129局 凿壁偷光",
+  "fen": "2bk1a3/1R2RN3/c3ba3/2n6/9/1C7/9/9/3r1p2r/1Cc1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b1d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-403",
+  "name": "第131局 入幕之宾",
+  "fen": "2bak3C/2C1aR2n/2n5N/9/7N1/9/9/1r6B/5p2r/3RK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-404",
+  "name": "第133局 六国争雄",
+  "fen": "2b1kab2/3Pa4/2N3n2/2C1pR1CN/9/9/9/4p4/1r5r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f3f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-405",
+  "name": "第134局 沧海腾蛟",
+  "fen": "1C1k5/4P4/3N4R/5n2C/9/9/5N3/3ABAr2/1r1p1p3/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "d2c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-406",
+  "name": "第135局 竹马迎拜",
+  "fen": "1P3k1n1/4a4/5a1R1/1N2P3N/1C3n3/9/1c7/3p5/r3p4/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-407",
+  "name": "第136局 惊鸿整羽",
+  "fen": "3aka3/3P1n3/NR2b4/1Cp1p1p2/4c2C1/9/9/9/6r1r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h4h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-408",
+  "name": "第137局 匹马平胡",
+  "fen": "3k1a1R1/9/2cab4/2n1R4/2b6/4P4/3N5/3CB4/1r1p4r/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "d6e4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-409",
+  "name": "第139局 并驾连驱",
+  "fen": "C4k3/4a4/5a3/9/4N4/1p3RN1c/4c4/2p1C4/1rn4r1/3K1R3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f5f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-410",
+  "name": "第140局 引龙出水",
+  "fen": "4k3c/3Ra1P2/3ab1N2/9/2b6/9/9/3KCR3/1nr1p1r2/5C3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f7f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-411",
+  "name": "第141局 细柳屯兵",
+  "fen": "2Pak4/CR2a1P2/4b2R1/9/9/1C7/4c4/9/2nr1p3/1r1cK1B2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h2h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-412",
+  "name": "第142局 七国连衡",
+  "fen": "1n2ka3/R3a1P2/1P2b1n1C/5R3/2b1P4/1N7/9/5p3/4r4/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i2i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-413",
+  "name": "第146局 远猎山林",
+  "fen": "3a5/1n1ka4/9/5N3/2P6/C8/R8/B2ABA1r1/3pNp3/rc2K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "a6d6",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-414",
+  "name": "第149局 腾蛟起凤",
+  "fen": "4R4/3ca4/4ka3/5P3/C1b2R3/9/4P4/3AB1n1r/3p1p3/2N1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "f3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-415",
+  "name": "第150局 吕帅鹰扬",
+  "fen": "3aka2R/1R7/c1P2P3/2P1rr3/2N5C/7C1/9/3p5/4p4/1p1K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h5h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-416",
+  "name": "第153局 死敌为忠",
+  "fen": "N2k1a3/5P3/3a5/9/9/9/9/C3RA3/4Nr3/2p1K1pnc w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e7e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-417",
+  "name": "第154局 外攘四夷",
+  "fen": "3a1k2C/3ra4/4b4/9/6b1N/6cR1/9/3n5/4r4/3K2cR1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h5h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-418",
+  "name": "第155局 足蹑天窟",
+  "fen": "2b1ka2N/6R2/bR7/9/1C2r3C/9/9/9/c1r3p2/c2K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b2e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-419",
+  "name": "第156局 三献刖足",
+  "fen": "3k5/1PR1a4/2Nab3b/6C2/9/4n4/9/9/2cp5/1rc1K2R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h9h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-420",
+  "name": "第158局 暴虎凭河",
+  "fen": "C3kab2/4a4/N3b4/2N6/9/3C5/9/3A2r2/3K3c1/3A2n1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d5d0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-421",
+  "name": "第159局 前后绝伦",
+  "fen": "3ak4/4a4/4b4/6N2/9/3rC4/4c4/4BR2C/1n1rA4/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f7f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-422",
+  "name": "第161局 远害全身",
+  "fen": "9/3k5/R2abN2C/C3P4/2b6/9/9/4p4/2r6/cr1AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "a3d3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-423",
+  "name": "第162局 朱云折槛",
+  "fen": "2bakab2/5RP2/7P1/2N6/9/9/9/4Cp2C/r3p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c3e2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-424",
+  "name": "第163局 选将练兵",
+  "fen": "c4a3/1r1kaP2C/b1R1b2c1/4CN3/9/9/9/9/4p3r/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "c2d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-425",
+  "name": "第165局 遇水叠桥",
+  "fen": "3k1n3/1R3R1n1/b3b4/3P5/9/9/9/4B1CC1/3ppcr2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g7g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-426",
+  "name": "第166局 立倾敌国",
+  "fen": "4ka3/2R1aR3/3cb4/9/3N5/9/9/C3C4/3p1pnr1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c1c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-427",
+  "name": "第167局 功成略地",
+  "fen": "2b1ka3/1R2a1P2/4b4/5R2C/4N4/4n4/9/4p4/1r5r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i3i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-428",
+  "name": "第169局 阴陵失道",
+  "fen": "2b1R2c1/R3a4/1n2kaN2/4p4/2bP5/6C2/9/9/3r1r3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g2f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-429",
+  "name": "第170局 面缚自首",
+  "fen": "6b2/3PR1P1c/3P1k3/7c1/2b3p2/2N6/9/2C6/3p1r3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-430",
+  "name": "第171局 赢缩无常",
+  "fen": "3k3C1/2P6/4cN3/9/9/9/4P4/4Bp3/1rrnA2R1/5K1p1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f2g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-431",
+  "name": "第173局 水枯见鱼",
+  "fen": "4ka3/4aR3/4N4/4p4/9/9/4P4/4C4/c1nrAR3/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-432",
+  "name": "第174局 三气周瑜",
+  "fen": "2b1ka3/3Pa4/4b1c2/6RC1/3R2c2/8C/9/2n6/3p3r1/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i5i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-433",
+  "name": "第177局 声势相倚",
+  "fen": "3k5/8C/9/p6R1/7R1/9/9/4B4/r2rA4/4KAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i1a1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-434",
+  "name": "第179局 边烽惊虏",
+  "fen": "2C6/5k3/bP1Nn1R1n/1r7/6R2/9/5c3/3p5/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g4f4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-435",
+  "name": "第180局 暮鸟投林",
+  "fen": "3k5/2R6/3a1nN2/9/9/9/9/5R3/1n1r1C3/2c1KcrN1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c1c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-436",
+  "name": "第181局 海底诛龙",
+  "fen": "2bakab2/7r1/9/3N5/9/8C/9/3RB4/4pcn2/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d3f2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-437",
+  "name": "第182局 投肉馁虎",
+  "fen": "2baka3/9/4c1R2/6N2/8C/9/9/4B1r2/4pp3/2BK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i4i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-438",
+  "name": "第184局 蛇龙混海",
+  "fen": "C2k5/4P4/r2cb1N1b/8C/6r2/9/9/6p2/4p4/5K1R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h9h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-439",
+  "name": "第185局 酸毒道路",
+  "fen": "5k1n1/c3a4/5aR1b/6N2/2r5C/9/9/9/3p1p3/4K1R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g2g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-440",
+  "name": "第186局 宿鸟惊弹",
+  "fen": "2b6/1C2k4/n3bR3/6N2/9/9/9/1R7/3p2rr1/1C2K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f2f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-441",
+  "name": "第187局 萤惑退舍",
+  "fen": "3a1k3/RC1cc4/r2a5/2N6/9/9/9/5p3/4p2r1/5K2R w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "i9i0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-442",
+  "name": "第188局 载沉载浮",
+  "fen": "2bak3C/4a4/2P1b4/6RR1/9/9/9/9/c1nr1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h3h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-443",
+  "name": "第399局 避难而行",
+  "fen": "2b1ka3/4a4/4b4/1N2p3p/2NC5/5n3/4c1PCc/4p4/5K3/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "h6h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-444",
+  "name": "第400局 双马饮泉",
+  "fen": "4kab2/3Pa4/4b4/1N1N5/9/9/5p3/4B3n/3p4p/5K2c w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b3d2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-445",
+  "name": "第401局 幽鸟攒阶",
+  "fen": "4P4/3Pa4/4k1NN1/9/9/9/9/n3Bp3/2p6/c1BAK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g2f4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-446",
+  "name": "第406局 入穴取虎",
+  "fen": "2b2ab2/4PP3/5k3/4P4/9/9/1p7/C5p2/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "a7d7",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-447",
+  "name": "第416局 动中有静",
+  "fen": "3a1k3/9/3N1a1P1/9/8C/9/9/1p3p3/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i4c4",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-448",
+  "name": "第417局 蹇驽困厩",
+  "fen": "3N1k3/4P4/b8/p4n3/2b6/9/9/9/4p4/5KB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d0b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-449",
+  "name": "第419局 一虎下山",
+  "fen": "3k5/2P1a1P2/5a3/2N6/9/9/9/9/1p1p2p2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c1c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-450",
+  "name": "第286局 夺马驱敌",
+  "fen": "2bk1a2r/4an3/cR2b3N/p3CR3/1C2p1P2/9/4Pp2P/2c1B4/3pr4/2B2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f3f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-451",
+  "name": "第287局 敛手削地",
+  "fen": "1nb1kab1r/3Ra4/3cc1n2/C1N1p1pR1/9/3N1p3/4Pp3/4C3B/4r2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c3b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-452",
+  "name": "第288局 汗马功劳",
+  "fen": "2ba1kbRC/3Ra4/9/2pPp4/3Nc4/9/4P4/3pB1N2/r2pA4/c3KAB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-453",
+  "name": "第291局 丹山起凤",
+  "fen": "r1P1k4/5P3/9/1c7/9/2N6/9/9/2p3p2/1p1KCN1rc w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "c5e6",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-454",
+  "name": "第295局 绕江撒网",
+  "fen": "6b2/4ak1C1/2N2aR2/4P4/2b6/9/8P/4B1p1r/r3Ap3/3AK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h1h0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-455",
+  "name": "第297局 虎帐谈兵",
+  "fen": "3ak4/2PPa4/b3b4/2p1C1N2/3c5/1rB6/9/3p5/4p2p1/1CB2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g3h1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-456",
+  "name": "第298局 参前倚衡",
+  "fen": "r2k1a3/3na1R2/3cb1c2/3N1R3/6P2/3C5/9/B4p2B/2p3r2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f3f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-457",
+  "name": "第299局 陈桥兵变",
+  "fen": "2ba1k3/2rPa4/R3b4/4cP1C1/2p6/9/3rP4/4B4/3pp4/2B2K1R1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "h3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-458",
+  "name": "第308局 三军联位",
+  "fen": "1P1ak1b2/4a4/4b4/6p2/2N4N1/1C2C4/6P2/r2ppp3/9/c3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "b5b1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-459",
+  "name": "第311局 深入远岛",
+  "fen": "1r1n2b2/4k4/rN2b1P1n/6p1p/9/3R3C1/9/5A3/p4pc2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d5d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-460",
+  "name": "第322局 过眼成虚",
+  "fen": "4ka3/3Ra1C2/4b2RN/4n4/9/9/5p3/9/4Ar2r/3AK3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g1g0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-461",
+  "name": "第323局 临难忘躯",
+  "fen": "3ak4/3RaP1N1/5c1Cc/9/1rb6/9/9/5C3/1p2r1p2/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h2g2",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-462",
+  "name": "第324局 夜过昭关",
+  "fen": "1r1a1a3/4k4/4bc3/cN1R1C3/2b6/9/9/9/4pp3/2BK2C2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "d3d1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-463",
+  "name": "第329局 远交近攻",
+  "fen": "3k1nbr1/2P1a4/b2a5/8R/9/6R2/9/5p3/4p2p1/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i3b3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-464",
+  "name": "第333局 策马入城",
+  "fen": "2bak1C2/3caP3/4b4/3N1Cn2/9/9/9/8n/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f1f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-465",
+  "name": "第335局 殃及池鱼",
+  "fen": "2ra1a2r/4k3C/4b3N/5R2p/2p3b2/9/9/9/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i1i3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-466",
+  "name": "第338局 英略盖世",
+  "fen": "1nb2kr2/3Pa2R1/3nba3/N3C2C1/6r2/9/9/9/9/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h1f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-467",
+  "name": "第339局 星坠日升",
+  "fen": "2bak2r1/4a4/4b4/C2N1C3/9/3R5/9/2p6/2c1p4/3K2p2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-468",
+  "name": "第340局 兵马侵境",
+  "fen": "2ba1a3/4k4/b1R2N2P/9/4P4/9/3r1p3/3A5/3pp4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "c2c1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-469",
+  "name": "第343局 深入敌境",
+  "fen": "C8/C2Pak3/3cba2b/9/9/9/2R2p1r1/9/4r2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c6c0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-470",
+  "name": "第347局 绝长补短",
+  "fen": "1P2ka3/9/b2a1PC2/4C1p1p/9/9/9/9/1p2pp3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "f2f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-471",
+  "name": "第351局 老而不倦",
+  "fen": "2b1k1b2/3P1P3/3a1a3/7C1/9/9/9/9/1p2pp3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h3f3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-472",
+  "name": "第358局 四海一家",
+  "fen": "2b2a3/2P1k4/1r1Pba3/6C2/9/9/9/9/4p4/2p2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g3e3",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-473",
+  "name": "第361局 视死如归",
+  "fen": "r2k5/9/2P6/9/6bN1/4R4/9/2np1pn2/4K4/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e5e0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-474",
+  "name": "第365局 以恩塞责",
+  "fen": "3k5/9/3a5/9/9/9/9/5R3/c2rA2p1/3C1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f7f0",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-475",
+  "name": "第368局 兔游月窟",
+  "fen": "6R2/3P1k3/3a1a3/9/9/6B2/9/B1r6/5p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g0g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-476",
+  "name": "第369局 时堪乘便",
+  "fen": "4ka3/9/3a1P3/4C4/6C2/9/9/9/1p2pp3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f2f1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "适情雅趣-477",
+  "name": "第376局 伏兵要路",
+  "fen": "9/3Pak3/5aP2/9/9/3N1p1p1/9/5p3/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g2g1",
+  "source": "适情雅趣"
+ },
+ {
+  "id": "烂柯神机-001",
+  "name": "一夫拼命 红胜(1)",
+  "fen": "3rk1N2/5P3/2n6/2pP5/9/9/2n1p4/8R/2r1p4/3K4C w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-002",
+  "name": "一战胜齐 红胜",
+  "fen": "5kc2/3r3R1/5a3/4p4/8C/7C1/9/9/3p1pp2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "h1f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-003",
+  "name": "七子赋诗 红胜",
+  "fen": "P3k1b2/4nP3/4c3b/4P4/6R2/9/4P4/5n3/4r4/C2K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "g4d4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-004",
+  "name": "三子争先 红胜",
+  "fen": "1r1k5/2P1aP3/3aPN3/9/9/9/9/9/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "c1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-005",
+  "name": "三角同盟(三角形) 红胜",
+  "fen": "4P4/9/3k1N3/9/2b3p2/9/1r5C1/9/r1p1K1n1C/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h6h2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-006",
+  "name": "东征西讨 红胜",
+  "fen": "3a1a3/2PcPnC2/2nkb3R/9/2b6/9/9/9/5p3/2rAK1pC1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h9h2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-007",
+  "name": "两路北征 红胜",
+  "fen": "9/9/3k1P3/3c1P3/2pP1rr2/3N1R3/3C1C3/1pnK1npc1/9/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "d4d3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-008",
+  "name": "中权扼要 红胜",
+  "fen": "4k4/1R2a4/4baP2/3N5/9/9/9/9/2cpp1r2/3C1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "b1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-009",
+  "name": "临岁舒锦 红胜",
+  "fen": "5a1rr/3k5/2Pa5/1n7/9/5RC2/5RC2/9/3p1p3/2p1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f5f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-010",
+  "name": "为国捐躯 红胜",
+  "fen": "5k3/4nrP2/4c4/NN2P4/2b6/R8/C1P6/4n4/3p5/2p1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g1g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-011",
+  "name": "乌江自刎 红胜",
+  "fen": "1C1a3R1/2P2k1P1/3ncaN2/4NcC2/9/9/9/3p5/2p1r4/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "h0f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-012",
+  "name": "二马盘宫 红胜(1)",
+  "fen": "Nc2ka3/1Nc1a4/4b4/9/9/5R3/9/4C4/4p1p2/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f5f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-013",
+  "name": "二马盘宫 红胜(2)",
+  "fen": "Nc2ka3/1Nc1a4/4b4/9/9/5R3/9/4C4/4p1p2/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f5f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-014",
+  "name": "以少胜多",
+  "fen": "9/2n1a4/4kn3/c1P2RN2/9/9/5pp2/9/3pp1cp1/2C2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f3e3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-015",
+  "name": "以退为进 红胜",
+  "fen": "N3k4/3Pa4/4bcn2/1C1R2p2/4pPb2/5p3/4PRP2/5r3/4rNp2/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "d1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-016",
+  "name": "作茧自缚 红胜",
+  "fen": "1c2k3c/r4RN1C/3a3n1/2R6/9/1N7/9/5p3/4p3r/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "c3c0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-017",
+  "name": "偏师克敌 红胜",
+  "fen": "5Nc1c/P4CP2/3Nka2b/5R3/6b2/9/9/C2AB4/2nr1p3/1r1AK1B1R w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "f1c1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-018",
+  "name": "偏裨效命 红胜",
+  "fen": "3k5/2Pna1R2/2Nc5/3r5/9/9/9/C3np3/4c4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "c1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-019",
+  "name": "元夜张宴 红胜",
+  "fen": "3k1a3/5P3/4b4/2N6/9/4c2C1/4r4/4R4/3p1r3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h5h0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-020",
+  "name": "先轸免胄 红胜",
+  "fen": "2c2k1NR/2P1a4/n3ba3/9/2b6/1C3NB2/9/8B/4p1rnc/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h0g2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-021",
+  "name": "兔起鹘落 红胜(1)",
+  "fen": "4kn3/2nP2CNC/9/9/9/9/9/3p5/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g1g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-022",
+  "name": "兔起鹘落 红胜(2)",
+  "fen": "4kn3/2nP2CNC/9/9/9/9/9/3p5/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g1g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-023",
+  "name": "党羽无权 红胜",
+  "fen": "5a3/3kaP3/b3bn3/8R/3P5/9/9/9/2pp2pp1/5K2C w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i3d3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-024",
+  "name": "入后必穷 红胜",
+  "fen": "3k5/4Pn1N1/7c1/7P1/7P1/9/9/8R/2nr1pp2/4K1BNC w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i7i0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-025",
+  "name": "入穴得子 红胜",
+  "fen": "1C2k4/2P1a4/3a5/2R6/N8/9/9/9/3pp1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c1c0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-026",
+  "name": "八蛮献宝 红胜",
+  "fen": "1c1k1P1n1/4P3N/9/9/9/5R3/5R3/3rBCC2/4p1p2/3p1Kc2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f6d6",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-027",
+  "name": "冒险取胜 红胜",
+  "fen": "3a1P3/P3aP3/4k4/n7c/2b1P4/4PR3/9/4B1p2/3pp2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "e4e3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-028",
+  "name": "冰山易倒 红胜",
+  "fen": "4k1b2/3P5/4c1N2/4p4/9/9/9/4R3C/2pp1pp2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i7i0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-029",
+  "name": "出其不意 红胜",
+  "fen": "2rk2N2/5P3/1n7/C5p1p/9/9/R8/9/3p1p1c1/4K1p2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "a6d6",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-030",
+  "name": "切问近思 红胜",
+  "fen": "4kar2/r3aPN2/4b4/3P5/6b2/9/9/9/2np1p2C/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-031",
+  "name": "别开生面 红胜",
+  "fen": "3k2P2/4P4/4b4/5P3/9/9/7R1/3r3R1/1n1c1p3/4K1pC1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "e1e0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-032",
+  "name": "前仆后继 红胜",
+  "fen": "9/5k3/4ba2b/9/9/6RRC/9/4C4/c1rrA4/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g5g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-033",
+  "name": "前诱后攻 红胜(1)",
+  "fen": "3k5/4a4/3aP4/9/9/9/6R2/6R2/2pp1p3/1c2K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g6g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-034",
+  "name": "前诱后攻 红胜(2)",
+  "fen": "3k5/4a4/3aP4/9/9/9/6R2/6R2/2rp1p3/1c2K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g6g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-035",
+  "name": "割须弃袍 红胜",
+  "fen": "2b6/2P1nk3/4b2R1/1n7/N2P1P3/9/R8/3p1K3/4pp3/C7r w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "a6i6",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-036",
+  "name": "力穿七扎 红胜",
+  "fen": "3ak3C/3RaR3/9/1c3N3/5n1N1/9/9/3Cp4/2r1pr3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-037",
+  "name": "功归转轴 红胜",
+  "fen": "1N1a5/4a4/1NC2k3/4p4/9/9/6P1R/9/2pp1pp2/r1c1K3R w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i6i2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-038",
+  "name": "功盖四镇 红胜",
+  "fen": "4ka3/4a4/4P3b/3R2C2/5N3/r8/3p1c1nc/4B4/4A4/3AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d3b3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-039",
+  "name": "势崩雷电 红胜",
+  "fen": "4Nab2/rr2ak3/4b1P2/4C2cc/2n1N1n2/9/9/3ppp3/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g2g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-040",
+  "name": "勇冠三军(L字形) 红胜",
+  "fen": "9/9/3kbP3/4N4/4P4/4r4/4r2p1/3CBKn2/9/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "e4d4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-041",
+  "name": "勇跃用兵 红胜",
+  "fen": "2ba1k2C/4a3N/4b4/5P2p/9/8P/9/4cA3/1r3r3/3RKAB1c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i1g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-042",
+  "name": "匹马征戎 红胜(1)",
+  "fen": "3R1a3/4ak3/9/3N1P1C1/9/9/9/2rppcp2/9/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f3f2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-043",
+  "name": "匹马征戎 红胜(2)",
+  "fen": "3R1a3/4ak3/9/3N1P1C1/9/9/9/2rppcp2/9/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f3f2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-044",
+  "name": "匹马盘旋 红胜",
+  "fen": "4k1b2/3P5/6N1b/4p4/9/C8/2n5r/4p4/4p4/5K1C1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "h9h0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-045",
+  "name": "匹马突围 红胜",
+  "fen": "5CbcN/2PPak2n/5aR1R/4p1p2/5Pc2/6N2/9/9/r3p2r1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "g2f2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-046",
+  "name": "千里双龙 红胜",
+  "fen": "4k4/9/3aN4/9/9/9/7C1/r1Np5/4p1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e2g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-047",
+  "name": "单车投井 红胜",
+  "fen": "1c2k4/5PN2/n3b4/9/3P2b2/9/9/9/4p1p2/2Rp1K1C1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-048",
+  "name": "博望烧兵 红胜",
+  "fen": "3a5/2r1ak3/5c2b/5R3/CC7/9/9/5A3/1r1p1p3/4K1R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g9g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-049",
+  "name": "去其蝥贼 红胜",
+  "fen": "3k5/4PP3/4bN3/9/9/9/9/3n5/4r1p2/2R2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-050",
+  "name": "双狮滚球 红胜",
+  "fen": "4ka1r1/5nN2/b3b4/5N3/9/9/9/4cp3/1CR2pr2/2p1K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "f3d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-051",
+  "name": "双马争先 红胜",
+  "fen": "3a5/4a4/1N3k3/1Np1p4/9/9/6P1R/9/3p1pp2/r1c1K3R w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "i6i2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-052",
+  "name": "反覆驰骤 红胜",
+  "fen": "4k4/4a1P2/5a3/9/9/9/9/4p4/3p1p2R/2p1K1pR1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i8i0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-053",
+  "name": "叠投巨饵",
+  "fen": "3a1kb2/4a1P1R/3n4b/6NCC/9/9/2R4r1/9/2nc1pp2/4K3c w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-054",
+  "name": "另辟蹊径 红胜",
+  "fen": "3c1P3/2P1aP3/3k1a3/2CNP4/9/9/3c1p3/9/4p2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "e3e2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-055",
+  "name": "叶底偷桃 红胜",
+  "fen": "4k4/2PR1P3/3n5/C8/N3r4/2R6/9/4p4/r2p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d1d0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-056",
+  "name": "善于得间 红胜",
+  "fen": "5k2N/4P1cC1/4PP3/6N2/9/9/9/9/2p1pr3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "e1e0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-057",
+  "name": "善探骊珠 红胜",
+  "fen": "4k4/3P1P3/3a1an2/n8/9/9/4CN3/9/3pp1p2/5K1p1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "f6e4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-058",
+  "name": "善阵善战 红胜",
+  "fen": "3k5/6R1C/3c5/6N2/6b2/9/9/9/2r1p1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 2,
+  "solution": "g3f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-059",
+  "name": "囊锥脱颖 红胜",
+  "fen": "5k3/3PP2P1/4P4/9/4cN3/9/4Rp3/4p1n2/3r1p3/4K1c2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "f4g2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-060",
+  "name": "四灵献瑞 红胜",
+  "fen": "3a1k3/4a4/4c3b/1NR6/1CR3b2/9/9/4B4/r1npApc2/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "c4f4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-061",
+  "name": "四面楚歌 红胜",
+  "fen": "1n1k4C/2NcR4/4b3N/9/6b2/9/C1r6/9/4p1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "a6a0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-062",
+  "name": "回风舞雪 红胜",
+  "fen": "2bak4/2R6/4b4/5N3/4pC3/9/9/9/4p2r1/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f3g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-063",
+  "name": "国定扶馀 红胜",
+  "fen": "2bak4/1P1PaP1r1/4bc3/4P4/9/C8/9/5A3/1r1p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-064",
+  "name": "圆转如意 红胜",
+  "fen": "3ck4/2PR5/9/6N2/4p4/9/6R2/9/r3p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d1d0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-065",
+  "name": "士逢盘错 红胜",
+  "fen": "3ak4/4a1P2/9/9/9/9/9/9/5r3/3AK1R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "g9h9",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-066",
+  "name": "声东击西 红胜(1)",
+  "fen": "3ac4/C2Rc1R2/4bk3/9/5rpn1/6N2/6P2/r3B4/4A4/4KA3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g5e4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-067",
+  "name": "大军云集 红胜",
+  "fen": "4k4/4an3/5aC2/6pN1/9/1N7/8R/9/1c2p1p2/3p1K2R w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i6i0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-068",
+  "name": "大器晚成 红胜",
+  "fen": "9/CP2a4/5k3/2RR5/1N7/9/9/4p4/2rp1pr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d3d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-069",
+  "name": "季庭舞俏 红胜",
+  "fen": "9/2NP1kc2/4b4/3nPC3/2r1N1R2/9/9/4p4/3pCp3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "g4g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-070",
+  "name": "小竹疏花 红胜",
+  "fen": "9/3ka4/9/4PN3/9/4p4/CR7/9/r2p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b6d6",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-071",
+  "name": "尽忠报国 红胜",
+  "fen": "4kr3/3P5/4cP3/2N6/9/N8/5p3/8C/3p1p3/2p1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-072",
+  "name": "屈乘假道 红胜",
+  "fen": "3a1kr2/4a2R1/4bc3/C3N4/4P4/3R5/9/9/2r1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "e3g2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-073",
+  "name": "岁寒松柏 红胜",
+  "fen": "CNR2abCc/4aP3/r4k3/2Rcn1N2/4PPb2/2r6/9/2p6/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "c0c2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-074",
+  "name": "峰虿肆毒 红胜",
+  "fen": "1C2kaR2/4ac3/1N7/4P1p2/9/9/9/3pB1C2/2p1r4/3K2R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g0f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-075",
+  "name": "左右披靡 红胜",
+  "fen": "3aka3/2NCncN2/b5rPb/p1n6/2r6/9/9/9/3p5/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "d1f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-076",
+  "name": "左右逢源 红胜",
+  "fen": "3aR4/4a4/4k4/9/4P4/9/8C/9/2rp1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e4e3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-077",
+  "name": "巧用连环(连环形) 红胜",
+  "fen": "9/4k4/3a1P3/2C3p2/3P1R3/4n4/3r1p3/2p3r2/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f4e4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-078",
+  "name": "巴黎会议(T字形) 红胜",
+  "fen": "9/9/2NPbkC2/2N1c1R2/4R4/4r4/4c4/3Knr3/9/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d2e2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-079",
+  "name": "币重言甘 红胜",
+  "fen": "3a5/3P1k3/5a3/9/6c1N/5nr2/3R5/2C6/2p1p3C/rc1K4R w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "i4g3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-080",
+  "name": "帅军奏绩 红胜",
+  "fen": "4k4/3P5/4nr3/5NC1R/9/9/9/9/1rp1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "i3i0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-081",
+  "name": "弃辎塞路 红胜",
+  "fen": "c2k1a3/4PP2r/2na5/n8/9/9/7C1/1R1A5/3r1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b7b0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-082",
+  "name": "弃辎陷敌 红胜",
+  "fen": "1RC2k3/3ra1N2/4b1c2/7R1/9/9/9/5n3/4r4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c0c1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-083",
+  "name": "引虎归穴 红胜",
+  "fen": "r2k4r/3CPP3/b4RRC1/N5n2/9/9/9/9/2p1p4/cpc2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g2g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-084",
+  "name": "强弩射潮 红胜",
+  "fen": "3a3c1/4a2P1/1P1k5/2P3pN1/2nr5/6c2/8r/4n4/4pRpRC/3pCK3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "b2c2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-085",
+  "name": "得机得势 红胜",
+  "fen": "2b1k2rc/1P2n4/4c1r1b/6P2/R8/6n2/9/4C4/4ppN2/C2K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "a4h4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-086",
+  "name": "德皇出奔(C字形) 红胜",
+  "fen": "9/3kcN3/2P6/2c6/2P6/2r6/3C5/4Kn3/9/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "c2d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-087",
+  "name": "必有后患 红胜",
+  "fen": "3ak1c2/4a4/b8/7N1/2b2C1N1/2p1rR2r/4p4/3K5/4p4/2C6 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "h3g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-088",
+  "name": "快意而毙 红胜",
+  "fen": "3k1a3/9/3rb1n2/4NR3/4CC3/9/2p6/2n6/3p1p3/2c1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e3c2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-089",
+  "name": "怒射江潮 红胜",
+  "fen": "1cbak4/3Pa1R2/4bP3/Cn2p4/9/4N1p2/4n4/4B4/2p1r4/3K1Nrc1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "d1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-090",
+  "name": "想入非非 红胜",
+  "fen": "7P1/4a4/4ka3/9/3P5/9/3p2R2/1p7/4pp3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "d4e4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-091",
+  "name": "意外得胜 红胜",
+  "fen": "2Ck2Pr1/4PN3/9/2P6/9/9/9/9/3pp2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "e1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-092",
+  "name": "抉尽藩篱 红胜",
+  "fen": "3ak1bR1/1r2a4/3Pb1R2/4P1Nc1/5C3/9/4p4/4C1n2/3r1p3/4K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g2g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-093",
+  "name": "投辖留宾 红胜",
+  "fen": "4k4/2R1a2n1/b8/4p1P2/9/8R/8C/8C/1cnp1p3/2p1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-094",
+  "name": "拥塞不通 红胜",
+  "fen": "4kab2/4rRNnC/4b3c/4pPp2/5P1C1/9/9/9/2p1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-095",
+  "name": "挟弹驰驱 红胜",
+  "fen": "4kab2/2R1aPP2/1r2b4/1N7/7N1/7C1/9/7r1/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-096",
+  "name": "捐躯成义 红胜",
+  "fen": "7C1/3k3C1/3a1P3/9/9/9/9/9/2nr1r3/1R2K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b9b1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-097",
+  "name": "排●妥帖 红胜",
+  "fen": "4k1c1N/1P2n4/4bP3/9/9/9/r6R1/3p5/4p4/3K3C1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i0g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-098",
+  "name": "探骊得珠 红胜",
+  "fen": "4k2r1/4aR3/4c4/9/9/9/C1R1p4/1C2p4/3p1pp2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c6c0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-099",
+  "name": "揖让雍容 红胜",
+  "fen": "c1bk1a3/RR2a2P1/b8/2N6/9/9/9/9/c1rp1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "b1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-100",
+  "name": "攻守兼施 红胜",
+  "fen": "2bak1b2/4a4/c6RN/9/2P1pR2C/2N6/1C7/4p4/2rp1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "f4f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-101",
+  "name": "效法前贤 红胜",
+  "fen": "1C1NR4/1C2c3R/5k3/6n1N/8r/9/9/1r2n4/4pc3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "e0f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-102",
+  "name": "断汲禁樵 红胜",
+  "fen": "3k1aRPr/1R2n2n1/4bN3/3P2C2/9/9/9/4pC3/2r1p1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "b1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-103",
+  "name": "春风芳草 红胜",
+  "fen": "7r1/9/r3k4/9/3R2p2/6N2/6P2/5n3/4p4/3K4R w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "i9i2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-104",
+  "name": "最后成功 正和",
+  "fen": "9/5k2c/c5P1b/2r3N2/9/6n2/9/8R/1r1p5/4K1p1C w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g2f2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-105",
+  "name": "杀代用张 红胜",
+  "fen": "4k1b2/2R6/b2a5/9/N8/8R/9/8C/c3p1p2/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "i5e5",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-106",
+  "name": "残骑诱敌 红胜",
+  "fen": "r3k4/2Pn1P3/3aba3/CR4N1C/9/9/4P4/4rA3/2p1An2c/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "b3b0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-107",
+  "name": "泥丸封关 红胜",
+  "fen": "2rc1Cn2/2P2P3/4k4/2PPp4/3N2b2/6n2/9/4BR3/2rp1c3/4KCp2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "d3e3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-108",
+  "name": "海底捞月 红胜",
+  "fen": "5k3/2N1R4/4N4/9/4r4/9/9/5c3/4p1r2/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "e1e0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-109",
+  "name": "海底藏珍 红胜",
+  "fen": "4R2n1/4a4/2Na1k3/2p1P4/9/9/9/6p1B/1pp2pr2/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "e0f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-110",
+  "name": "深入其阻 红胜",
+  "fen": "3k5/4R4/4N1r2/9/9/2N5C/9/9/3r1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e1e0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-111",
+  "name": "满极招灾 红胜",
+  "fen": "2ra5/3ka1r2/4b4/4RP3/3PC4/9/9/6p2/2p1p4/5K2R w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "e3d3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-112",
+  "name": "潜窥敌势 红胜(1)",
+  "fen": "4k1b2/4aP3/3a1cN2/1RC6/9/9/9/4p4/4p1p2/5Kc2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b3b0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-113",
+  "name": "潜窥敌势 红胜(2)",
+  "fen": "4k1b2/4aP3/3a1cN2/1RC6/9/9/9/4p4/4p1p2/5Kc2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "b3b0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-114",
+  "name": "濡首龙潭 红胜",
+  "fen": "2b6/1r1kn4/c2ab4/1CR3N2/9/9/9/B8/4p2p1/2p2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "c3c1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-115",
+  "name": "火牛破垒 红胜",
+  "fen": "9/C2kaP3/3aN4/3P5/9/9/9/3p5/2Rp1r3/4K1p2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d3d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-116",
+  "name": "炎炎者灭 红胜",
+  "fen": "9/3Pnr3/3ak1r2/5RC2/4n4/5pP2/5p3/9/4p2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "f3e3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-117",
+  "name": "照顾不周 红胜",
+  "fen": "3ak4/4a4/9/2R6/9/9/9/9/2Cr2p2/4K1c2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "c3h3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-118",
+  "name": "物换星移 红胜",
+  "fen": "5kb2/4P2c1/4b4/3NP4/9/9/9/5A3/ppp3R1C/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "g8g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-119",
+  "name": "牲醴三献 红胜",
+  "fen": "3k2P2/4PP3/4P4/9/9/9/3p3RR/3p5/1nn1p3C/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "e1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-120",
+  "name": "独具炉锤 红胜",
+  "fen": "4kab2/1P3RP2/8b/2N1P4/9/9/9/5p3/3cp4/3p1K1C1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-121",
+  "name": "独探骊珠 红胜",
+  "fen": "4Ra3/3k5/3ab4/4C1C2/9/5R3/9/4BA1n1/1n2r1p2/cr1N1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "e0e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-122",
+  "name": "玄机善转 红胜",
+  "fen": "4ka3/4aR3/4b4/7N1/9/5N3/4C4/9/r1r1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f1f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-123",
+  "name": "玉●无当 红胜",
+  "fen": "2PN5/3Ran3/3ak4/2P1p4/6bC1/9/4c1p2/6p2/3pp4/5KB2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "c3d3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-124",
+  "name": "玉女穿梭 红胜",
+  "fen": "4ka3/7C1/5a1N1/1P3RC2/Nr2p1n2/9/9/9/2pr1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "g3g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-125",
+  "name": "环绕一周 红胜",
+  "fen": "C3k4/2PPa4/1n1a3P1/9/6b1N/9/5p3/2CA1p3/5r3/4K1Br1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "c1c0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-126",
+  "name": "玲珑小谷 红胜",
+  "fen": "1Nb1k4/1cR1a4/b8/7N1/9/2B6/9/9/4p1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h3g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-127",
+  "name": "白虹贯日 红胜",
+  "fen": "5k3/3Pa1P2/3a3n1/6N2/9/9/9/9/2p2p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "d1d0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-128",
+  "name": "盈盈一水 红胜",
+  "fen": "9/1P2a2P1/n3ka3/9/8R/1N7/5p3/9/3pp2p1/5K2C w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i4e4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-129",
+  "name": "盘马弯弓 红胜",
+  "fen": "2bck1n2/2R1aR3/4baN2/2N6/2r6/9/9/C3C4/1r2pp3/2BK5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "f1f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-130",
+  "name": "直入巢穴 红胜",
+  "fen": "3a5/2P1a2C1/3k5/2NcP4/2b3b2/6P2/5p3/9/4p2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "c1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-131",
+  "name": "直捣中坚 红胜",
+  "fen": "9/4k4/9/4P4/4N4/9/9/8C/2p1p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "e3e2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-132",
+  "name": "直捣比京(十字形) 红胜",
+  "fen": "9/4k4/4n4/4P4/1rncNcpr1/4R4/4R4/4K4/9/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "e3e2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-133",
+  "name": "直捣黄龙 红胜(1)",
+  "fen": "2P1ka1P1/3PaP2R/2n1b1n2/3NpP3/9/2c6/9/9/4pr3/3K1C1r1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-134",
+  "name": "直捣黄龙 红胜(2)",
+  "fen": "2ba1k3/4a4/9/1CR1C4/9/2B6/2p6/3KBA3/r3r3c/6R2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g9g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-135",
+  "name": "禹门三击 红胜",
+  "fen": "3kca3/5P3/9/NR5r1/9/9/9/3n5/r7C/3p1K2R w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "b3b0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-136",
+  "name": "秦楚构兵 红胜",
+  "fen": "2bnk4/2NPa4/9/9/6b2/1C3pN2/9/9/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "d1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-137",
+  "name": "纵横驰骤 红胜",
+  "fen": "R2ak4/3Ra4/2n6/2N6/9/9/9/3n5/3r1r3/C3K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "a0d0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-138",
+  "name": "细入微茫 红胜",
+  "fen": "9/3PaRN2/4ka3/9/9/4P4/5pn2/3p1cp2/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "f1f0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-139",
+  "name": "终归一致 红胜",
+  "fen": "5a3/3kaN3/5R3/4P4/9/9/2p2p3/6p2/3pp4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "f2f4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-140",
+  "name": "绕出敌背 红胜",
+  "fen": "2b6/3ka2r1/2Pa3P1/9/9/p4N3/9/B1n6/NR3pp2/r1B1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "c2c1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-141",
+  "name": "羊肠转战 红胜",
+  "fen": "3k4C/2P1a4/3nba1RN/7r1/7n1/7p1/7p1/7pC/1crp1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "h2h0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-142",
+  "name": "群阴蔽日 红胜",
+  "fen": "1P1P1kb2/4P1P1C/3n3rb/6n2/6pr1/3p5/9/3pB4/9/3AK4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "i1i0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-143",
+  "name": "联军战胜(B字形) 红胜",
+  "fen": "9/2PPnk3/3n2N2/3c2P2/3crP3/3p2p2/3r2p2/2ppRK3/9/9 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "d1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-144",
+  "name": "背城借一 红胜",
+  "fen": "8c/2rka4/C1ca5/9/9/7R1/9/CR7/4p2r1/3p1K1n1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "a2a1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-145",
+  "name": "能识先机 红胜",
+  "fen": "5a3/3knP3/4b4/3PC4/3NN4/9/9/9/3pp1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "d3d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-146",
+  "name": "脱帽露顶 红胜",
+  "fen": "4k1b2/2P2P2N/4N2n1/9/9/9/9/3p2RC1/2rp1r3/4K2c1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g7g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-147",
+  "name": "脱颖而出 红胜",
+  "fen": "6b2/5k3/5cR1b/6N2/9/9/9/4C1p2/3rRpr2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e7f7",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-148",
+  "name": "腾天潜渊 红胜",
+  "fen": "4k4/4a1CRN/4n4/9/9/9/4p4/8R/r1p1r4/1p1K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "h1h0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-149",
+  "name": "自投虎口 红胜",
+  "fen": "1R1ak1bR1/2r6/2N1b4/Ccp1p4/n8/9/4P1p2/4B4/3pr2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "h0h1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-150",
+  "name": "自相践踏 红胜",
+  "fen": "4k4/2NPaR3/3nb1n2/9/9/9/9/5pC2/4p4/r2p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "d1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-151",
+  "name": "若坠诸渊 红胜",
+  "fen": "3k2b2/7RN/3r3N1/7C1/9/9/9/9/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "h2f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-152",
+  "name": "荆卿补恨 红胜",
+  "fen": "3a1k3/4anP2/9/9/9/R8/R8/9/2nr1p3/C3K2cr w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "g1f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-153",
+  "name": "荡决垓心 红胜",
+  "fen": "3ak2c1/rN3R3/4b4/4P4/9/3R5/9/3p5/1r3p3/C2K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b1d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-154",
+  "name": "虚闪一枪 红胜(1)",
+  "fen": "6b2/4a4/4ka3/2NP5/1Cb6/9/9/6p2/3pp4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d3e3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-155",
+  "name": "虚闪一枪 红胜(2)",
+  "fen": "6b2/4a4/4ka3/2NP5/1Cb6/9/9/6p2/3pp4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d3e3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-156",
+  "name": "蛟龙入海 红胜",
+  "fen": "6r2/3ka4/b2a5/9/9/3R4C/9/2RAK3c/3p5/2N3Nr1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "c7c1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-157",
+  "name": "蠖屈求伸 红胜",
+  "fen": "R3CNb2/1r2a1P2/1Pnk1a3/p8/9/9/9/3A5/c1p6/1rBK1A3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "b2c2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-158",
+  "name": "设计诱敌 红胜",
+  "fen": "3a1k1r1/Cc2a1R2/9/3R1P3/9/1N7/9/9/1r2p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 12,
+  "solution": "g1f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-159",
+  "name": "诱敌入阱 红胜(1)",
+  "fen": "R7R/3na1P2/4ka3/9/3nP4/5c3/9/9/4p4/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "a0a2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-160",
+  "name": "诱敌入阱 红胜(2)",
+  "fen": "R7R/3na1P2/4ka3/9/3nP4/5c3/9/9/4p4/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "a0a2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-161",
+  "name": "诱鹿入蕉 红胜",
+  "fen": "4k3r/3P3P1/c1PaPa3/6RC1/6b2/9/9/9/3pp2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "g3g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-162",
+  "name": "请君入瓮 红胜",
+  "fen": "c1ba1k3/1R2R4/3ab3N/9/9/9/5C3/9/2p1p4/1p1K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "e1e0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-163",
+  "name": "豁然贯通 红胜",
+  "fen": "4k3c/3P4N/6n2/9/9/3CP4/2p6/9/1r2pc3/3K1R1RC w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h9h0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-164",
+  "name": "车马相须 红胜",
+  "fen": "4k4/4a4/9/9/9/2N1R4/9/6p2/3pp4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c5d3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-165",
+  "name": "车驰兵奔 红胜",
+  "fen": "4k4/5Pn2/5ac1b/3P5/3P5/9/7R1/3p3R1/2r1r4/3K1p1C1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "h6h0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-166",
+  "name": "转战无前 红胜",
+  "fen": "9/1R1c5/2nk5/2P1p1P2/6b2/9/9/9/3p1pp2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "c3c2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-167",
+  "name": "轮●离奇 红胜",
+  "fen": "3rRNbN1/3ka4/4bP3/9/3P5/9/9/6p2/3pp4/C4K2p w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f0e2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-168",
+  "name": "运实于虚 红胜",
+  "fen": "4ka3/3Pn4/5R3/5N3/9/9/1r1n5/9/4p4/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "d1d0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-169",
+  "name": "连环甲马 红胜",
+  "fen": "5k3/4a1R2/6R1b/8C/9/9/5N3/9/1rrp1p3/c3K1N2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "g2f2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-170",
+  "name": "送往迎来 红胜",
+  "fen": "3k3P1/R3nN1P1/bR1n5/9/2bPP4/9/7N1/9/2p1pr3/3K3C1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "a1d1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-171",
+  "name": "透脱玲珑 红胜",
+  "fen": "4ca3/3kaP3/4b4/2p1p4/2P1n4/1C1C5/2N6/9/4p1p2/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "c4d4",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-172",
+  "name": "通往无前 红胜",
+  "fen": "3ak1b2/9/3a1R3/9/9/1C4P1p/1c6n/4C4/4A1r2/3A1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "b5e5",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-173",
+  "name": "造端卑迩 红胜",
+  "fen": "9/1PP1a3C/4ka1Nb/4p4/9/9/9/9/3pp2p1/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "i1g1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-174",
+  "name": "逼贼入港 红胜",
+  "fen": "5Pb2/3kaP3/3a4c/3R3C1/9/9/9/9/2p1pp3/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "d3d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-175",
+  "name": "逼走乌江 红胜",
+  "fen": "2Na5/r1R1a4/2cknn2N/4p1C1C/9/9/9/5A2r/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "c1c2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-176",
+  "name": "野无害马 红胜",
+  "fen": "5k3/3P3R1/3ncnc2/7C1/9/9/3pPN3/3App3/4p3r/3K5 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "h1f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-177",
+  "name": "闲中得利 红胜",
+  "fen": "4ka3/2P1n4/4b4/4C4/4r4/9/2p1P2p1/9/9/2R2K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "c9b9",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-178",
+  "name": "雪夜擒济 红胜",
+  "fen": "3k1c3/3n1P3/6R2/9/6b2/9/9/1pp6/4pp3/3K2C2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "g2d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-179",
+  "name": "雷飞六出 红胜",
+  "fen": "4k4/3Pac3/3Nca3/4N4/9/4P4/3C1R3/4p4/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "d1d0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-180",
+  "name": "雷骥双驰 红胜(1)",
+  "fen": "3k5/4a1R2/b2a5/9/9/9/9/2NR4C/1r1p1rn2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d7d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-181",
+  "name": "雷骥双驰 红胜(2)",
+  "fen": "3k5/4a1R2/b2a5/9/9/9/9/2NR4C/1r1p1rn2/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d7d2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-182",
+  "name": "项伯舞剑 红胜",
+  "fen": "3aR4/4a1P2/b2kN4/2P1p1P2/9/9/9/6p2/3pp4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 3,
+  "solution": "e0d0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-183",
+  "name": "风驰电掣 红胜",
+  "fen": "5k3/4P4/b1Rcba3/3N5/9/C1R6/2P6/9/4p4/4cK3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 4,
+  "solution": "c2c0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-184",
+  "name": "饵鱼充馔 红胜(1)",
+  "fen": "1c3k3/4a1R2/2n1bcPN1/9/9/9/4C1p2/2R6/1r1p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-185",
+  "name": "饵鱼充馔 红胜(2)",
+  "fen": "1c3k3/4a1R2/2n1bcPN1/9/9/9/4C4/2R6/1r1p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "g1f1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-186",
+  "name": "馈礼求胜 红胜",
+  "fen": "5k2C/6N2/4b2n1/4p4/8N/9/8R/9/1c1p1p3/2p1K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "i6f6",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-187",
+  "name": "马兵擒王 红胜",
+  "fen": "3k5/2P1a3N/3c5/9/9/7R1/5c1C1/9/4p1p2/3p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 6,
+  "solution": "h5h0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-188",
+  "name": "马嵬埋玉(方环形) 正和",
+  "fen": "9/4a4/3P1k3/2p3p2/3R1r3/4C4/3N1r3/2p3n2/3p1p3/4K4 w - - 0 1",
+  "side": "red",
+  "movesToMate": 10,
+  "solution": "d2e2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-189",
+  "name": "马穴寻踪 红胜",
+  "fen": "2n6/8r/2rnk4/5PRC1/9/9/9/9/4p4/5K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "f3f2",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-190",
+  "name": "马走羊肠 红胜",
+  "fen": "6b2/3ka1Nn1/9/9/9/4R4/9/3cp4/1rnc1pppr/C1B1K2C1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 11,
+  "solution": "e5e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-191",
+  "name": "马跃檀溪 红胜",
+  "fen": "4kab2/1r1Pa1R2/4b2N1/8C/9/9/9/4B4/2p1p2n1/3K1N1r1 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "g1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-192",
+  "name": "马陵塞道(红胜)",
+  "fen": "c1CR2b2/2nP2r2/4bk3/8R/1N7/9/4C4/4p4/3pApr2/4Kc3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 8,
+  "solution": "b4d3",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-193",
+  "name": "马首是瞻 红胜",
+  "fen": "1c2k3n/2PP5/b2aP1R1N/3r1N1n1/9/6BC1/4P4/9/4C1p2/r2p1K3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 7,
+  "solution": "g2g0",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-194",
+  "name": "驹后追雷",
+  "fen": "4k4/3Ra4/1N2b4/4R4/9/C1n6/9/9/3p1p1c1/4K1p2 w - - 0 1",
+  "side": "red",
+  "movesToMate": 5,
+  "solution": "d1e1",
+  "source": "烂柯神机"
+ },
+ {
+  "id": "烂柯神机-195",
+  "name": "鹏搏十万 红胜",
+  "fen": "6r2/2N1k4/4b4/3R2R1C/4n4/4r4/5N3/2p6/1nc1p4/3K1p3 w - - 0 1",
+  "side": "red",
+  "movesToMate": 9,
+  "solution": "d3d1",
+  "source": "烂柯神机"
  }
 ]
