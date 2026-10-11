@@ -33,9 +33,10 @@ import {
 import { normalizeScore, lossList, marksFor, summarize, acplOf } from '../uci/review';
 import { blunderProfile, pickBlunder, estimateElo, DEPTH_ELO } from '../uci/elo';
 import { buildMessages, tagForLoss, type ReviewStyle, type StepEval } from '../uci/llm-review';
-import { BoardView, Arrow, BOARD_W, BOARD_H, BOARD_THEMES, type FlipMode } from './board-view';
+import { BoardView, Arrow, BOARD_W, BOARD_H, type FlipMode } from './board-view';
 import { findKing } from '../rules/rules';
 import { initSound, playSound } from './sound';
+import { initAppearance } from './appearance';
 
 // ---------- DOM ----------
 const $ = (id: string) => document.getElementById(id) as HTMLElement;
@@ -2939,111 +2940,7 @@ $('btnLoopStop').addEventListener('click', () => {
   setStatus('循环赛已停止');
 });
 
-// ---------- 棋盘皮肤 ----------
-const themeSel = $('themeSel') as HTMLSelectElement;
-for (const [k, v] of Object.entries(BOARD_THEMES)) {
-  themeSel.add(new Option(v.name, k));
-}
-(function initTheme() {
-  let saved = 'classic';
-  try {
-    saved = localStorage.getItem('xz_theme') || 'classic';
-  } catch {
-    /* 忽略 */
-  }
-  if (BOARD_THEMES[saved]) {
-    themeSel.value = saved;
-    view.setThemeByName(saved);
-  }
-})();
-themeSel.addEventListener('change', () => {
-  view.setThemeByName(themeSel.value);
-  try {
-    localStorage.setItem('xz_theme', themeSel.value);
-  } catch {
-    /* 忽略 */
-  }
-});
-
-// ---------- 界面主题（深色默认 / 浅色 / 跟随系统，localStorage 持久化） ----------
-const uiThemeSel = $('uiTheme') as HTMLSelectElement;
-const UI_THEME_KEY = 'xz_ui_theme';
-function applyUiTheme(mode: string) {
-  let actual: string;
-  if (mode === 'light') actual = 'light';
-  else if (mode === 'auto')
-    actual = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-  else actual = 'dark';
-  document.documentElement.dataset.theme = actual;
-}
-(function initUiTheme() {
-  let saved = 'auto';
-  try {
-    saved = localStorage.getItem(UI_THEME_KEY) || 'auto';
-  } catch {
-    /* 忽略 */
-  }
-  if (!['auto', 'dark', 'light'].includes(saved)) saved = 'auto';
-  uiThemeSel.value = saved;
-  applyUiTheme(saved);
-})();
-uiThemeSel.addEventListener('change', () => {
-  applyUiTheme(uiThemeSel.value);
-  try {
-    localStorage.setItem(UI_THEME_KEY, uiThemeSel.value);
-  } catch {
-    /* 忽略 */
-  }
-});
-// 跟随系统：系统主题变化时实时切换
-window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
-  if (uiThemeSel.value === 'auto') applyUiTheme('auto');
-});
-
-// ---------- 自定义棋盘底纹（本地图片 → dataURL，localStorage 持久化） ----------
-const BG_KEY = 'xz_board_bg';
-const bgFileInput = $('bgFile') as HTMLInputElement;
-const btnBgPick = $('btnBgPick') as HTMLButtonElement;
-const btnBgClear = $('btnBgClear') as HTMLButtonElement;
-function applyBoardBg() {
-  let url = '';
-  try {
-    url = localStorage.getItem(BG_KEY) || '';
-  } catch {
-    /* 忽略 */
-  }
-  view.setCustomBg(url || null);
-  btnBgClear.style.display = url ? '' : 'none';
-}
-bgFileInput.addEventListener('change', () => {
-  const f = bgFileInput.files?.[0];
-  if (!f) return;
-  const rd = new FileReader();
-  rd.onload = () => {
-    const url = String(rd.result || '');
-    try {
-      localStorage.setItem(BG_KEY, url);
-    } catch {
-      setStatus('图片过大，无法保存底纹（建议 <2MB）');
-      return;
-    }
-    applyBoardBg();
-    setStatus('已应用自定义棋盘底纹');
-  };
-  rd.readAsDataURL(f);
-  bgFileInput.value = '';
-});
-btnBgPick.addEventListener('click', () => bgFileInput.click());
-btnBgClear.addEventListener('click', () => {
-  try {
-    localStorage.removeItem(BG_KEY);
-  } catch {
-    /* 忽略 */
-  }
-  applyBoardBg();
-  setStatus('已恢复默认棋盘');
-});
-applyBoardBg();
+initAppearance(view, setStatus);
 
 // ---------- 快捷键（可自定义键位绑定，localStorage 持久化） ----------
 const KEYS_KEY = 'xz_hotkeys';
