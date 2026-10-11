@@ -1184,15 +1184,8 @@ function afterMove() {
       return;
     }
   }
-  // 闯关预算：攻方行棋超过 N步杀+1 仍未成杀 → 失败
-  if (puzzleActive && puzzleHumanMoves >= puzzleActive.movesToMate + 1) {
-    gameOver = true;
-    gameResult = '闯关失败，步数用尽';
-    clearAuto();
-    setStatus('闯关失败：超出预算步数，可重新载入再试');
-    showEndBanner('闯关失败 · 步数用尽', true);
-    return;
-  }
+  // 闯关模式不再因步数用尽判失败：玩家可继续对弈直到成杀（星级按实际攻方步数评定，
+  // 超出预算最多降为 2 星；走偏时可点「悔棋」或「载入闯关」重新开始）
   if (st.status === 'check') {
     setStatus('将军！');
     playSound('check');
@@ -2203,8 +2196,8 @@ $('btnBranches').addEventListener('click', () => {
   });
 });
 
-$('btnUndo').addEventListener('click', () => {
-  // 悔棋：人机撤销人机各一步（回退到人类行棋局面）；人人对弈撤销双方各一步；机机对弈不支持悔棋
+// 悔棋：人机撤销人机各一步（回退到人类行棋局面）；人人对弈撤销双方各一步；机机对弈不支持悔棋
+function undoMove() {
   if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || waitingFor || reviewing)
     return;
   saveBranch(); // 悔棋分叉：先记录当前对局快照
@@ -2242,9 +2235,28 @@ $('btnUndo').addEventListener('click', () => {
   reviewReportEl.textContent = '';
   renderMoveList(movesHistory, movesZhLive, movesHistory.length, false);
   setStatus('');
+  // 闯关模式：悔棋后按剩余着法重新统计攻方行棋次数（星级评定口径与悔棋前一致）
+  if (puzzleActive) {
+    puzzleHumanMoves = 0;
+    let tmp;
+    try {
+      tmp = parseFen(startFen).board;
+    } catch {
+      tmp = initialBoard();
+    }
+    for (const iccs of movesHistory) {
+      const mv = parseIccs(iccs);
+      if (mv) {
+        if (tmp.sideToMove === humanSide) puzzleHumanMoves++;
+        tmp = applyMove(tmp, mv);
+      }
+    }
+  }
   if (engineTurnNow()) engineMove();
   else if (analysisOn) analyze();
-});
+}
+$('btnUndo').addEventListener('click', undoMove);
+$('btnPuzzleUndo')?.addEventListener('click', undoMove);
 
 // 帮机悔棋：撤销引擎刚走的一步（回到人行棋局面），不自动重走，等人确认后点「帮机重走」
 $('btnUndoEngine').addEventListener('click', () => {
@@ -3581,7 +3593,7 @@ interface Puzzle {
   fen: string;
   side: Side;
   movesToMate: number;
-  solution: string;
+  solution?: string; // 参考着法（ICCS）；缺失时提示走引擎实时求解
   source?: string; // 古谱来源（自出洞来无敌手/适情雅趣/烂柯神机等）
 }
 const PUZZLES = puzzlesJson as Puzzle[];
@@ -3750,7 +3762,7 @@ $('btnPuzzleHint').addEventListener('click', () => {
   }
   try {
     const b = view.getBoard();
-    const mv = parseIccs(p.solution);
+    const mv = parseIccs(p.solution || '');
     if (mv) {
       // 原谱答案兜底：同样画箭头指示建议着法
       view.setArrows([{ from: mv.from, to: mv.to, rank: 0 }]);

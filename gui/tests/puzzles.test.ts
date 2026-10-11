@@ -11,7 +11,7 @@ const PUZZLES = puzzlesJson as {
   fen: string;
   side: Side;
   movesToMate: number;
-  solution: string;
+  solution?: string;
 }[];
 
 describe('残局题库', () => {
@@ -27,10 +27,11 @@ describe('残局题库', () => {
     }
   });
 
-  it('行棋方与标注一致，提示手合法', () => {
+  it('行棋方与标注一致，提示手合法（有 solution 时）', () => {
     for (const p of PUZZLES) {
       const b = parseFen(p.fen).board;
       expect(b.sideToMove).toBe(p.side);
+      if (!p.solution) continue;
       const sol = parseIccs(p.solution)!;
       const legal = legalMovesFrom(b, sol.from).some(
         (m) => m.to.file === sol.to.file && m.to.rank === sol.to.rank,
@@ -39,8 +40,9 @@ describe('残局题库', () => {
     }
   });
 
-  it('提示手不会一步直接成杀（movesToMate>=2 的提取口径）', () => {
+  it('提示手不会一步直接成杀（movesToMate>=2 的提取口径，有 solution 时）', () => {
     for (const p of PUZZLES) {
+      if (!p.solution) continue;
       const b = parseFen(p.fen).board;
       const after = applyMove(b, parseIccs(p.solution)!);
       expect(checkStatus(after).status).not.toBe('checkmate');
