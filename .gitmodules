@@ -1,0 +1,3 @@
+[submodule "engine-src"]
+	path = engine-src
+	url = https://github.com/jianghg01/Pikafish.git

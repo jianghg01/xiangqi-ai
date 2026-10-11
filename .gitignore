@@ -4,9 +4,7 @@ out/
 node_modules/
 dist/
 
-# 引擎源码以 submodule 方式管理
-engine-src/
-
+# 引擎源码以 submodule 方式管理（见 .gitmodules），不再在此忽略
 # 本地工具（gh 便携版等）
 tools/
 
