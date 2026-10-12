@@ -1095,8 +1095,12 @@ function afterMove() {
     gameOver = true;
     if (puzzleActive) {
       gameResult = `闯关成功（${puzzleActive.movesToMate}步杀）`;
-      // 星级：预算内(N步)且未用提示=3星；超1步(N+1手)才成杀=2星；用过提示=1星
-      const stars = puzzleHintUsed ? 1 : puzzleHumanMoves <= puzzleActive.movesToMate ? 3 : 2;
+      // 星级：预算内(N步)且未用提示/悔棋=3星；用过悔棋=2星；超步才成杀=2星；用过提示=1星
+      const stars = puzzleHintUsed
+        ? 1
+        : puzzleUndoUsed || puzzleHumanMoves > puzzleActive.movesToMate
+          ? 2
+          : 3;
       setStatus(
         `闯关成功！${puzzleActive.name}（${'★'.repeat(stars)} 第${puzzleHumanMoves}手成杀）`,
       );
@@ -1192,7 +1196,8 @@ function afterMove() {
   } else setStatus('');
   saveAuto(); // 未结束对局：每步落子后写入自动保存快照
   if (engineTurnNow()) engineMove();
-  else if (analysisOn && !waitingFor) analyze();
+  // 闯关时不自动启动分析（避免分析占用引擎影响连续走棋；需要时用「提示」）
+  else if (analysisOn && !waitingFor && !puzzleActive) analyze();
 }
 
 // ---------- 自然限着（《象棋竞赛规则 2020版》4.2.4 + 快棋细则 29.1.1） ----------
@@ -2220,11 +2225,15 @@ $('btnBranches').addEventListener('click', () => {
 // 悔棋：人机撤销人机各一步（回退到人类行棋局面）；人人对弈撤销双方各一步；机机对弈不支持悔棋
 function undoMove() {
   if (mode !== 'play' || gameMode === 'eve' || movesHistory.length === 0 || reviewing) return;
+  // 闯关已成功：禁止悔棋（避免已过关的对局退化成普通对局）
+  if (gameResult.startsWith('闯关成功')) return;
   // 引擎思考中悔棋：先停掉当前搜索（bestmove 回来后丢弃并继续悔棋），避免「悔棋无反应」
   if (waitingFor) {
     stopEngineThen(() => undoMove());
     return;
   }
+  // 闯关模式：用过悔棋后该关星级上限降为 2 星（防止反复悔棋刷 3 星）
+  if (puzzleActive) puzzleUndoUsed = true;
   saveBranch(); // 悔棋分叉：先记录当前对局快照
   // 干预挂起的建议着法随局面作废
   if (engineProposal) {
@@ -2421,7 +2430,15 @@ $('btnAnalysis').addEventListener('click', () => {
   if (!analysisOn) view.setArrows([]); // 关分析清掉推荐箭头
   // 分析用 MultiPV 3（多线参考）；对弈避和开启时用 2，关闭时 1（单线全速）
   if (engineReady) clientMain.setOption('MultiPV', analysisOn ? 3 : avoidDrawOn() ? 2 : 1);
-  if (analysisOn && !waitingFor && mode === 'play' && gameMode === 'pve' && !gameOver) analyze();
+  if (
+    analysisOn &&
+    !waitingFor &&
+    mode === 'play' &&
+    gameMode === 'pve' &&
+    !gameOver &&
+    !puzzleActive
+  )
+    analyze();
 });
 
 function getDepth(): number {
@@ -3627,7 +3644,8 @@ const puzzleSourceSel = $('puzzleSourceSel') as HTMLSelectElement;
 const puzzleInfoEl = $('puzzleInfo') as HTMLSpanElement;
 let puzzleActive: Puzzle | null = null;
 let puzzleHumanMoves = 0;
-let puzzleHintUsed = false; // 本局闯关是否用过提示（星级评定用）
+let puzzleHintUsed = false; // 本局闯关是否用过提示（用过则星级上限 1 星）
+let puzzleUndoUsed = false; // 本局闯关是否用过悔棋（用过则星级上限 2 星）
 
 // 闯关进度记忆（localStorage）：done=已过关 id 集合；stars=每关最高星级
 const PUZZLE_DONE_KEY = 'xz_puzzle_done';
@@ -3703,6 +3721,7 @@ async function loadPuzzle() {
   const p = PUZZLES.find((x) => x.id === puzzleSel.value);
   if (!p) return;
   puzzleHintUsed = false; // 重新闯关：重置提示标记
+  puzzleUndoUsed = false; // 重新闯关：重置悔棋标记
   stopReplayTimer();
   if (waitingFor) {
     try {
@@ -3766,6 +3785,11 @@ $('btnPuzzleHint').addEventListener('click', () => {
   }
   if (!puzzleActive) {
     setStatus('请先载入残局再使用提示');
+    return;
+  }
+  // 对局已结束（闯关成功/和棋/困毙等）：提示无意义
+  if (gameOver) {
+    setStatus('本局已结束，请点「载入闯关」重新挑战');
     return;
   }
   // 提示应指出玩家（攻方）的下一步：轮到电脑行棋时先让电脑走完再提示
@@ -3914,6 +3938,7 @@ function loadCustomPuzzle() {
     return;
   }
   puzzleHintUsed = false; // 重新闯关：重置提示标记
+  puzzleUndoUsed = false; // 重新闯关：重置悔棋标记
   stopReplayTimer();
   if (waitingFor) {
     try {
