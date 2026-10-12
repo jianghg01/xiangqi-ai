@@ -2240,8 +2240,32 @@ function undoMove() {
     engineProposal = null;
     view.setArrows([]);
   }
-  const undoCount = gameMode === 'pvp' ? 2 : view.getBoard().sideToMove === humanSide ? 2 : 1;
-  for (let i = 0; i < Math.min(undoCount, movesHistory.length); i++) {
+  // 撤销步数：人人对弈保持撤销双方各一步；人机/闯关自适应撤销到「轮到玩家重新走棋」的局面，
+  // 兼容玩家执黑/残局黑先等边界（避免悔棋撤销到底后初始局面轮到引擎，导致电脑又自动走棋）
+  let undoCount = 0;
+  if (gameMode === 'pvp') {
+    undoCount = Math.min(2, movesHistory.length);
+  } else {
+    const total = movesHistory.length;
+    for (let k = 1; k <= total; k++) {
+      let b;
+      try {
+        b = parseFen(startFen).board;
+      } catch {
+        b = initialBoard();
+      }
+      for (let i = 0; i < total - k; i++) {
+        const mv = parseIccs(movesHistory[i]);
+        if (mv) b = applyMove(b, mv);
+      }
+      if (b.sideToMove === humanSide) {
+        undoCount = k;
+        break;
+      }
+    }
+  }
+  if (undoCount === 0) return;
+  for (let i = 0; i < undoCount; i++) {
     movesHistory.pop();
     movesZhLive.pop();
   }
